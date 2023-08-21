@@ -27,14 +27,14 @@ jobs:
 
           # Update known_hosts file with the new host key
           echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
-
-      - name: Copy files to Lightsail server
+   
+      - name: Copy files to Windows server
         run: |
           # Replace the placeholders with actual values
-            WINDOWS_SERVER_IP="3.110.130.37"
-            WINDOWS_SERVER_USER="Administrator"
-            WINDOWS_SERVER_PASSWORD="akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-            DESTINATION_FOLDER="C:\test3"
+          WINDOWS_SERVER_IP="3.110.130.37"
+          WINDOWS_SERVER_USER="Administrator"
+          SOURCE_FOLDER="${{ github.workspace }}/lightsail-main"
+          DESTINATION_FOLDER="C:/test3"
 
-           #Use sshpass to copy files to Windows server using password
-            scp -r "${{ github.workspace }}/lightsail-main/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER" sshpass -p "$WINDOWS_SERVER_PASSWORD"
+          # Use scp with converted private key for authentication
+          scp -r -i privatetkey.pem "$SOURCE_FOLDER/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER"
