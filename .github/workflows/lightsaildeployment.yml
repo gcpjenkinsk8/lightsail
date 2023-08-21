@@ -21,4 +21,4 @@ jobs:
           sudo apt-get install -y freerdp2-x11 xvfb
       - name: connecting to lightsail
         run: |
-          xvfb-run -a xfreerdp /v:$(echo "${{ secrets.SERVER_IP }}") /u:$(echo "${{ secrets.RDP_USERNAME }}") /p:$(echo "${{ secrets.RDP_PASSWORD }}")
+          xvfb-run -a xfreerdp /v:$(echo "${{ secrets.SERVER_IP }}") /u:$(echo "${{ secrets.RDP_USERNAME }}") /p:$(echo "${{ secrets.RDP_PASSWORD }}") -ignore-certificate
