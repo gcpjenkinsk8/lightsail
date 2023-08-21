@@ -11,11 +11,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Connect to Lightsail Server
+      - name: Install dependencies
         run: |
           # Replace 'YOUR_SERVER_IP' with the actual IP or DNS name of your server
           # Replace 'YOUR_REMOTE_DESKTOP_USERNAME' with the Windows username
           # Replace 'YOUR_REMOTE_DESKTOP_PASSWORD' with the Windows password
           # This example uses FreeRDP for RDP connection
-          sudo apt-get install -y freerdp2-x11
-          xfreerdp /v:$(echo "${{ secrets.SERVER_IP }}") /u:$(echo "${{ secrets.RDP_USERNAME }}") /p:$(echo "${{ secrets.RDP_PASSWORD }}")
+          sudo apt-get update
+          sudo apt-get install -y freerdp2-x11 xvfb
+      - name: connecting to lightsail
+        run: |
+          xvfb-run -a xfreerdp /v:$(echo "${{ secrets.SERVER_IP }}") /u:$(echo "${{ secrets.RDP_USERNAME }}") /p:$(echo "${{ secrets.RDP_PASSWORD }}")
