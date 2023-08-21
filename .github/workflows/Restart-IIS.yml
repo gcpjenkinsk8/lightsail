@@ -28,18 +28,10 @@ jobs:
         run: |
           # Replace the placeholders with actual values
           SOURCE_FILE=$(ls -t | head -n1)  # Get the latest file in the directory
-          WINDOWS_SERVER_USER="Administrator"
-          WINDOWS_SERVER_IP="3.110.130.37"
-          SOURCE_FOLDER="${{ github.workspace }}"
-          DESTINATION_FOLDER="C:/test3"
-
-          # Use scp to copy the latest file to the remote server
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no "$SOURCE_FILE" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER/"
-
           # SSH into the server and execute commands
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" 
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "Administrator@3.110.130.37" 
             # Move the file to a different location
-            mv "$DESTINATION_FOLDER/$SOURCE_FILE" "C:/test2/"
+            cp "C:/test3/$SOURCE_FILE" "C:/test2/"
 
             # Restart IIS service
             Restart-Service -Name W3SVC
