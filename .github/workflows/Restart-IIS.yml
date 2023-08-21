@@ -37,4 +37,4 @@ jobs:
           DESTINATION_FOLDER="C:/test2/"
 
           # Use SSH to move the file to a different location on the remote server
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "Move-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'"
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Move-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'\""
