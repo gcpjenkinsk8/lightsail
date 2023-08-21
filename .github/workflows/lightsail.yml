@@ -27,7 +27,9 @@ jobs:
 
           # Update known_hosts file with the new host key
           echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
-   
+      - name: Files Check
+        run: |
+           ls
       - name: Copy files to Windows server
         run: |
           # Replace the placeholders with actual values
