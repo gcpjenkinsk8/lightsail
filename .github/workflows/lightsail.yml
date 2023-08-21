@@ -11,19 +11,18 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Copy files to Lightsail server
+      - name:install sshpass
         run: |
           # Install SSH client
           sudo apt-get update
-          sudo apt-get install -y putty-tools
+          sudo apt-get install -y sshpass
       - name: Copy files to Lightsail server
         run: |
-          # copy file to lightsail
           # Replace the placeholders with actual values
-          WINDOWS_SERVER_IP="3.110.130.37"
-          WINDOWS_SERVER_USER="Administrator"
-          WINDOWS_SERVER_PASSWORD="akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-          DESTINATION_FOLDER="C:\test3"
-          # Use pscp to copy files to Windows server using username and password
-          echo y | pscp -pw "$WINDOWS_SERVER_PASSWORD" -r "${{ github.workspace }}/lightsail/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER"
-           
+            WINDOWS_SERVER_IP="3.110.130.37"
+            WINDOWS_SERVER_USER="Administrator"
+            WINDOWS_SERVER_PASSWORD="akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
+            DESTINATION_FOLDER="C:\test3"
+
+           #Use sshpass to copy files to Windows server using password
+            sshpass -p "$WINDOWS_SERVER_PASSWORD" scp -r "${{ github.workspace }}/lightsail-main/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER"
