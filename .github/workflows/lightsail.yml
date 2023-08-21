@@ -37,4 +37,4 @@ jobs:
           DESTINATION_FOLDER="C:/test3"
 
           # Use scp with converted private key for authentication
-          scp -r -i id_rsa "$SOURCE_FOLDER/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER"
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no ${{ github.workspace }}/* Administrator@3.110.130.37:/C:/test3
