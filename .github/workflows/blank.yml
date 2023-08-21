@@ -1,0 +1,36 @@
+name: Restart IIS
+
+on:
+  workflow_dispatch:
+  #workflow_run:
+   # workflows: ["Copy Git to Lighsail"]
+    #types:
+     # - completed
+
+jobs:
+  move-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Create ~/.ssh directory
+        run: mkdir -p ~/.ssh
+
+      - name: Update known_hosts file
+        run: |
+          WINDOWS_SERVER_IP="3.110.130.37"
+          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+
+      - name: Move File to Different Location
+        run: |
+          # Replace the placeholders with actual values
+          WINDOWS_SERVER_USER="Administrator"
+          WINDOWS_SERVER_IP="3.110.130.37"
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"\Restart-Service -Name W3SVC; Get-Service -Name W3SVC""
