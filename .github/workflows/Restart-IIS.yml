@@ -37,4 +37,11 @@ jobs:
           DESTINATION_FOLDER="C:/test2/"
 
           # Use SSH to move the file to a different location on the remote server
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Move-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'\""
+          #sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Copy-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'\""
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "
+            
+          # Get the latest file in the source folder
+            \$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # Copy the latest file to the destination folder
+            Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'"
