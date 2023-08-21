@@ -20,7 +20,7 @@ jobs:
           port: 22  # Adjust the port if needed
           script: |
             # Create a directory on the server (adjust the path as needed)
-            mkdir "C:\"
+            mkdir "C:\test2"
 
             # Copy files from the repository to the server
-            scp -o StrictHostKeyChecking=no -r $GITHUB_WORKSPACE/lightsail ${username}@${host}:"C:\"
+            scp -o StrictHostKeyChecking=no -r $GITHUB_WORKSPACE/lightsail ${username}@${host}:"C:\test2"
