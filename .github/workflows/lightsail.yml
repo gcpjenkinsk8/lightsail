@@ -16,6 +16,14 @@ jobs:
           # Install SSH client
           sudo apt-get update
           sudo apt-get install -y sshpass
+      - name: Update known_hosts file
+        run: |
+          # Replace the placeholders with actual values
+          WINDOWS_SERVER_IP="3.110.130.37"
+
+          # Update known_hosts file with the new host key
+          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+
       - name: Copy files to Lightsail server
         run: |
           # Replace the placeholders with actual values
