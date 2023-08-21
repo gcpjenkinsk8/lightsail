@@ -37,7 +37,7 @@ jobs:
           sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no "$SOURCE_FILE" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER/"
 
           # SSH into the server and execute commands
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" '
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" 
             # Move the file to a different location
             mv "$DESTINATION_FOLDER/$SOURCE_FILE" "C:/test2/"
 
