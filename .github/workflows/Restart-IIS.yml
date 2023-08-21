@@ -33,8 +33,8 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_USER="Administrator"
           WINDOWS_SERVER_IP="3.110.130.37"
-          SOURCE_FILE="C:\test3\test.txt"
-          DESTINATION_FOLDER="C:\test2\"
+          SOURCE_FILE="C:/test3/test.txt"
+          DESTINATION_FOLDER="C:/test2/"
 
           # Use SSH to move the file to a different location on the remote server
           sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "Move-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'"
