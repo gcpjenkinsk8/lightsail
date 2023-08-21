@@ -37,4 +37,4 @@ jobs:
             DESTINATION_FOLDER="C:\test3"
 
            #Use sshpass to copy files to Windows server using password
-            scp -r "${{ github.workspace }}/lightsail-main/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER" -v -p '$WINDOWS_SERVER_PASSWORD'
+            scp -r "${{ github.workspace }}/lightsail-main/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER" sshpass -p "$WINDOWS_SERVER_PASSWORD"
