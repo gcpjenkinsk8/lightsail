@@ -1,4 +1,4 @@
-name: Copy Files to Lightsail
+name: Copy Git to Lighsail
 
 on:
   workflow_dispatch:
