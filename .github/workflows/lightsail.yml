@@ -31,10 +31,10 @@ jobs:
       - name: Copy files to Windows server
         run: |
           # Replace the placeholders with actual values
-          WINDOWS_SERVER_IP="3.110.130.37"
-          WINDOWS_SERVER_USER="Administrator"
-          SOURCE_FOLDER="${{ github.workspace }}"
-          DESTINATION_FOLDER="C:/test3"
+          #WINDOWS_SERVER_IP="3.110.130.37"
+          #WINDOWS_SERVER_USER="Administrator"
+          #SOURCE_FOLDER="${{ github.workspace }}"
+          #DESTINATION_FOLDER="C:/test3"
 
           # Use scp with converted private key for authentication
           sshpass -v -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no ${{ github.workspace }}/* Administrator@3.110.130.37:/C:/test3
