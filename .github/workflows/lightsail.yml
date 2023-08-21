@@ -16,6 +16,10 @@ jobs:
           # Install SSH client
           sudo apt-get update
           sudo apt-get install -y sshpass
+          
+      - name: Create ~/.ssh directory
+        run: mkdir -p ~/.ssh
+        
       - name: Update known_hosts file
         run: |
           # Replace the placeholders with actual values
