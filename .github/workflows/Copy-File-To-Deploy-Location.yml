@@ -1,4 +1,4 @@
-name: Move File to Different Location
+name: Copy File to Deploy Location
 
 on:
   workflow_dispatch:
