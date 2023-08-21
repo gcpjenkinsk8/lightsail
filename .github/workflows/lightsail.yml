@@ -29,7 +29,7 @@ jobs:
           echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
    
       - name: Copy files to Windows server
-        run: 'sshpass -vvv -p ''akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm'' Administrator@3.110.130.37 '
+        run: |
           # Replace the placeholders with actual values
           #WINDOWS_SERVER_IP="3.110.130.37"
           #WINDOWS_SERVER_USER="Administrator"
@@ -37,4 +37,4 @@ jobs:
           #DESTINATION_FOLDER="C:/test3"
 
           # Use scp with converted private key for authentication
-          #'sshpass -v -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no ${{ github.workspace }}/* Administrator@3.110.130.37:/C:/test3'
+          sshpass -v -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no test.txt Administrator@3.110.130.37:/C:/test3
