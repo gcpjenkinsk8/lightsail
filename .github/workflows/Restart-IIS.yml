@@ -46,4 +46,4 @@ jobs:
             $latestFile = Get-ChildItem -Path "C:/test3" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # Copy the latest file to the destination folder
-            Copy-Item -Path $latestFile.FullName -Destination "C:/test2"'
+            Copy-Item -Path $latestFile -Destination "C:/test2"'
