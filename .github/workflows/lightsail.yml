@@ -16,12 +16,14 @@ jobs:
           # Install SSH client
           sudo apt-get update
           sudo apt-get install -y openssh-client
-
-          # Create a directory on the server (adjust the path as needed)
-          sshpass -p "${{ secrets.RDP_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
-            "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}" \
-            "powershell -Command New-Item -ItemType Directory -Path 'C:\test2' -Force"
+      - name: Copy files to Lightsail server
+        run: |
+          # copy file to lightsail
+           sshpass -p "${{ secrets.RDP_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
+           "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}" \
+          "powershell -Command New-Item -ItemType Directory -Path 'C:\test4' -Force"
 
           # Copy files from the repository to the server
           scp -o StrictHostKeyChecking=no -r lightsail \
-            "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}:/C/test2/"
+          # "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}:/C/test4/"
+           
