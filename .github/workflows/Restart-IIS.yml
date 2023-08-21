@@ -41,7 +41,7 @@ jobs:
           #not owrking sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \ "$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1" "Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'""
     
     
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" '
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" '
             # Get the latest file in the source folder
             $latestFile = Get-ChildItem -Path "C:/test3" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
