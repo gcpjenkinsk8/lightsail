@@ -15,15 +15,15 @@ jobs:
         run: |
           # Install SSH client
           sudo apt-get update
-          sudo apt-get install -y openssh-client
+          sudo apt-get install -y putty-tools
       - name: Copy files to Lightsail server
         run: |
           # copy file to lightsail
-           sshpass -p "${{ secrets.RDP_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
-           "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}" \
-          "powershell -Command New-Item -ItemType Directory -Path 'C:\test4' -Force"
-
-          # Copy files from the repository to the server
-          scp -o StrictHostKeyChecking=no -r lightsail \
-          # "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}:/C/test4/"
+          # Replace the placeholders with actual values
+          WINDOWS_SERVER_IP="3.110.130.37"
+          WINDOWS_SERVER_USER="Administrator"
+          WINDOWS_SERVER_PASSWORD="akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
+          DESTINATION_FOLDER="C:\test3"
+          # Use pscp to copy files to Windows server using username and password
+          echo y | pscp -pw "$WINDOWS_SERVER_PASSWORD" -r "${{ github.workspace }}/*" "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP:$DESTINATION_FOLDER"
            
