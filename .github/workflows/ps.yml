@@ -1,0 +1,23 @@
+name: Run PowerShell Script
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up PowerShell
+        uses: microsoft/setup-powershell@v1
+
+      - name: Execute PowerShell Script
+        run: |
+          pwsh -File ${{ github.workspace }}/powershell.ps1
+        env:
+          ACCESS_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
