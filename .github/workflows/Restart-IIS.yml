@@ -33,7 +33,7 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_USER="Administrator"
           WINDOWS_SERVER_IP="3.110.130.37"
-          SOURCE_FILE="C:/test3/test.txt"
+          SOURCE_FOLDER="C:/test3"
           DESTINATION_FOLDER="C:/test2/"
 
           # Use SSH to move the file to a different location on the remote server
