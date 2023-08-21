@@ -1,8 +1,8 @@
 name: Copy Files to Lightsail
 
 on:
- workflow_dispatch: 
- 
+  workflow_dispatch:
+
 jobs:
   copy-files:
     runs-on: windows-latest
@@ -20,7 +20,11 @@ jobs:
           port: 22  # Adjust the port if needed
           script: |
             # Create a directory on the server (adjust the path as needed)
-            mkdir "C:\test2"
+            Invoke-Command -ScriptBlock {
+              New-Item -ItemType Directory -Path "C:\test2" -Force
+            }
 
             # Copy files from the repository to the server
-            scp -o StrictHostKeyChecking=no -r $GITHUB_WORKSPACE/lightsail ${username}@${host}:"C:\test2"
+            $sourcePath = "$env:GITHUB_WORKSPACE\lightsail"
+            $destinationPath = "C:\test2"
+            Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse
