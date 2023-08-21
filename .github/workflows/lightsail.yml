@@ -33,7 +33,7 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_IP="3.110.130.37"
           WINDOWS_SERVER_USER="Administrator"
-          SOURCE_FOLDER="${{ github.workspace }}/lightsail"
+          SOURCE_FOLDER="${{ github.workspace }}/"
           DESTINATION_FOLDER="C:/test3"
 
           # Use scp with converted private key for authentication
