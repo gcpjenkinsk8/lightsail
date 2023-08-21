@@ -5,26 +5,23 @@ on:
 
 jobs:
   copy-files:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
       - name: Copy files to Lightsail server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.RDP_USERNAME }}
-          password: ${{ secrets.RDP_PASSWORD }}
-          port: 22  # Adjust the port if needed
-          script: |
-            # Create a directory on the server (adjust the path as needed)
-            Invoke-Command -ScriptBlock {
-              New-Item -ItemType Directory -Path "C:\test2" -Force
-            }
+        run: |
+          # Install SSH client
+          sudo apt-get update
+          sudo apt-get install -y openssh-client
 
-            # Copy files from the repository to the server
-            $sourcePath = "$env:GITHUB_WORKSPACE\lightsail"
-            $destinationPath = "C:\test2"
-            Copy-Item -Path $sourcePath -Destination $destinationPath -Recurse
+          # Create a directory on the server (adjust the path as needed)
+          sshpass -p "${{ secrets.RDP_PASSWORD }}" ssh -o StrictHostKeyChecking=no \
+            "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}" \
+            "powershell -Command New-Item -ItemType Directory -Path 'C:\test2' -Force"
+
+          # Copy files from the repository to the server
+          scp -o StrictHostKeyChecking=no -r lightsail \
+            "${{ secrets.RDP_USERNAME }}@${{ secrets.SERVER_IP }}:/C/test2/"
