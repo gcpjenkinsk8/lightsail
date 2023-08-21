@@ -38,4 +38,4 @@ jobs:
 
           # Use SSH to move the file to a different location on the remote server
           #sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Copy-Item -Path '$SOURCE_FILE' -Destination '$DESTINATION_FOLDER'\""
-          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1" "Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'"
+          sshpass -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \ "$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1" "Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'""
