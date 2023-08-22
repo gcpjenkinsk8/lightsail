@@ -16,8 +16,8 @@ jobs:
         with:
           dotnet-version: 6.x  # Replace with your desired .NET version
     
-      #- name: Restore NuGet packages
-       # run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
+      - name: Restore NuGet packages
+        run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       - name: Build project
         run: dotnet build --configuration Release
         working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
