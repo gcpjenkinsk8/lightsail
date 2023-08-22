@@ -1,10 +1,11 @@
 name: Copy Build to Server
 
 on:
-  workflow_run:
-    workflows: ["Naveen Build and Publish"]
-    types:
-      - completed
+  workflow_dispatch:
+  #workflow_run:
+   # workflows: ["Naveen Build and zip"]
+    #types:
+     # - completed
 
 jobs:
   copy-to-server:
