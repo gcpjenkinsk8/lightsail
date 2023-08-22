@@ -1,4 +1,4 @@
-name: End 2 End
+name: End 2 End Deployment
 
 on:
   workflow_dispatch:
@@ -36,10 +36,25 @@ jobs:
           SOURCE_FOLDER="C:/test3"
           DESTINATION_FOLDER="C:/test2/"
           sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:/C:/test3
-   
+
+  Stop-IIS:
+    name: Stop-IIS 
+    needs: Copy-file-git-lighsail
+    runs-on: ubuntu-latest
+    if: success() 
+    steps:
+      - uses: actions/checkout@v3.0.0
+        
+      - run: |
+          # Replace the placeholders with actual values
+          WINDOWS_SERVER_USER="Administrator"
+          WINDOWS_SERVER_IP="3.110.130.37"
+          REM_FOLDER="C:/test2"
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Stop-Service -Name W3SVC; Get-Service -Name W3SVC\""
+ 
   Remove-old-files:
     name: Remove-old-files-from-intepub-location
-    needs: Copy-file-git-lighsail
+    needs: Stop-IIS
     runs-on: ubuntu-latest
     if: success() 
     steps:
@@ -68,8 +83,8 @@ jobs:
           DESTINATION_FOLDER="C:/test2/"
           sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
 
-  Restart-IIS:
-    name: Restart-IIS
+  Start-IIS:
+    name: Start-IIS
     needs: Copy-new-files
     runs-on: ubuntu-latest
     if: success() 
@@ -80,4 +95,4 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_USER="Administrator"
           WINDOWS_SERVER_IP="3.110.130.37"
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Restart-Service -Name W3SVC; Get-Service -Name W3SVC\""
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Start-Service -Name W3SVC; Get-Service -Name W3SVC\""
