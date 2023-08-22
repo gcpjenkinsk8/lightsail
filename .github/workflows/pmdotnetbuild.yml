@@ -16,10 +16,11 @@ jobs:
         dotnet-version: '5.0.x'  # Change this to your desired .NET version
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
 
     - name: Build .NET website
       run: dotnet build --configuration Release
+      working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       
 
     - name: Publish artifact
