@@ -16,10 +16,10 @@ jobs:
         with:
           dotnet-version: 3.1.x  # Replace with your desired .NET version
           
-      - name: Restore and build .NET Core projects
+     # - name: Restore and build .NET Core projects
         run: |
-          dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
-          dotnet build --configuration Release DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
+      #    dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
+       #   dotnet build --configuration Release DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
           # Add more project restore and build commands if needed
 
      # - name: Run tests
@@ -30,29 +30,29 @@ jobs:
 
           
     
-     # - name: Restore NuGet packages
-      #  run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
+      - name: Restore NuGet packages
+        run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       #- name: Build project
-      #  run: dotnet build --configuration Release
-       # working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
+       # run: dotnet build --configuration Release
+      #  working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       #- name: Run tests
-        #run: dotnet test --no-restore --verbosity normal
-     # - name: Publish
-      #  run: dotnet publish DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln --configuration Release --framework netcoreapp3.1 --output ./publish --runtime win-x86  --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=tru
+     #   run: dotnet test --no-restore --verbosity normal
+      #- name: Publish
+       # run: dotnet publish DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln --configuration Release --framework netcoreapp3.1 --output ./publish --runtime win-x86  --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=tru
        # working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       #- name: Restore dependencies
        # run: dotnet restore
         #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
 
-      #- name: Build
-       # run: dotnet build --configuration Release
-        #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/ # Adjust the path
+      - name: Build
+        run: dotnet build --configuration Release
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/ # Adjust the path
 
-      #- name: Publish
-       # run: dotnet publish --configuration Release --output ./publish
-        #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./publish
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
 
-      #- name: Create zip
-       # run: |
-        #  zip -r build.zip ./publish
-         # mv build.zip $GITHUB_WORKSPACE/build2208.zip
+      - name: Create zip
+        run: |
+          zip -r build.zip ./publish
+          mv build.zip $GITHUB_WORKSPACE/build2208.zip
