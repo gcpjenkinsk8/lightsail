@@ -38,7 +38,7 @@ jobs:
           WINDOWS_SERVER_IP="3.110.130.37"
           SOURCE_FOLD="C:/DeploymentFiles/VersionFolder"
           DESTINATION_FOLDER="C:/DeploymentFiles/ReleaseFolder"
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:'$SOURCE_FOLDER'
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:"${{ env.SOURCE_FOLDER }}"
 
   # Stop-IIS:
   #   name: Stop-IIS 
