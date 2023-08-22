@@ -28,9 +28,17 @@ jobs:
 
     - name: Publish .NET code
       run: msbuild /t:Publish /p:Configuration=Release /p:OutputPath=./publish Main-Build
- 
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: build-artifacts
-        path: Main-Build/publish/publish  # Change this to the correct path
+
+    - name: Create temporary directory
+      run: mkdir temp_artifact
+
+    - name: Copy published artifact to temp directory
+      run: Copy-Item -Path "./publish" -Destination temp_artifact -Recurse
+
+    - name: List files in temp directory
+      run: dir temp_artifact
+    #- name: Upload build artifacts
+     # uses: actions/upload-artifact@v2
+    #  with:
+     #   name: build-artifacts
+     #   path: Main-Build/publish/publish  # Change this to the correct path
