@@ -1,0 +1,30 @@
+name: Copy Build to Server
+
+on:
+  workflow_run:
+    workflows: ["Naveen Build and Publish"]
+    types:
+      - completed
+
+jobs:
+  copy-to-server:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: build-artifacts  # Should match the name of the artifacts in the build-publish workflow
+
+    - name: List downloaded artifacts
+      run: ls -R
+      
+
+    - name: Copy artifacts to server
+      run: |
+        # Replace the following command with your server copy command
+        # For example, you might use SCP or rsync to copy to a remote server
+        # Example: scp -r ./build-artifacts user@server:/path/to/destination
