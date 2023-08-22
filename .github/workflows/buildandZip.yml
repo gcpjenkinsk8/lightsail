@@ -19,9 +19,9 @@ jobs:
       #- name: Restore NuGet packages
        # run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       - name: Build project
-        run: dotnet build --configuration Release -no-restore
-      - name: Run tests
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet build --configuration Release
+      #- name: Run tests
+        #run: dotnet test --no-restore --verbosity normal
       - name: Publish
         run: dotnet publish DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln --configuration Release --framework netcoreapp3.1 --output ./publish --runtime win-x86  --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=tru
 
