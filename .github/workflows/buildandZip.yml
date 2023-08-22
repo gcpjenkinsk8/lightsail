@@ -15,11 +15,11 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore NuGet packages
-      run: dotnet restore Main-Build
+    #- name: Restore NuGet packages
+    #  run: dotnet restore Main-Build
 
-    - name: Restore dependencies
-      run: msbuild /restore Main-Build
+    #- name: Restore dependencies
+     # run: msbuild /restore Main-Build
 
     - name: Build .NET code
       run: msbuild /p:Configuration=Release Main-Build
