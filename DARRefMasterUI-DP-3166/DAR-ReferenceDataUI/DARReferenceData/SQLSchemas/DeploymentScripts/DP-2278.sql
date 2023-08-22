@@ -1,1 +1,0 @@
-﻿ALTER TABLE refmaster_internal.Clients add LiquidityPoolPrice tinyint(4) null
