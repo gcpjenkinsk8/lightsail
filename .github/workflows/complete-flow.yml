@@ -39,7 +39,7 @@ jobs:
 
     - name: Build Solution
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build"
+        msbuild.exe Main-Build /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build"
         
 
     - name: Set artifact name
@@ -53,31 +53,52 @@ jobs:
         path: "./_build"
   
   Copy-file-git-lighsail:
+    name: Copy File
+    needs: build-publish
+    if: success()  
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
+    - name: Check out the code
+      uses: actions/checkout@v2
 
-      - name: Install sshpass dependency for ssh access
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
+    - name: Create Folder abc
+      run: mkdir abc
 
-      - name: Create ~/.ssh directory for storing known hosts
-        run: mkdir -p ~/.ssh
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: ${{ steps.artifact-name.outputs.name }}
+        path: ./abc
 
-      - name: Update known_hosts file with the server ip to avoid fingerprint ask
-        run: |
-          WINDOWS_SERVER_IP="3.110.130.37"
-          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-      - name: copy the latest files at C drive
-        run: |
-          # Replace the placeholders with actual values
-          WINDOWS_SERVER_USER="Administrator"
-          WINDOWS_SERVER_IP="3.110.130.37"
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:"${{ env.SOURCE_FOLDER }}"
+
+      # Zip the contents of the "abc" folder
+    - name: Zip Artifact
+      run: zip -r my-folder-artifact.zip abc/*
+    - name: cd files
+      run: |
+        ls
+
+
+    - name: Install sshpass dependency for ssh access
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+
+    - name: Create ~/.ssh directory for storing known hosts
+      run: mkdir -p ~/.ssh
+
+    - name: Update known_hosts file with the server ip to avoid fingerprint ask
+      run: |
+        WINDOWS_SERVER_IP="3.110.130.37"
+        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+
+    - name: copy the latest files at C drive
+      run: |
+        # Replace the placeholders with actual values
+        WINDOWS_SERVER_USER="Administrator"
+        WINDOWS_SERVER_IP="3.110.130.37"
+        sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no "${{ github.workspace }}/my-folder-artifact.zip" Administrator@3.110.130.37:"${{ env.SOURCE_FOLDER }}"
 
 
   # Stop-IIS:
