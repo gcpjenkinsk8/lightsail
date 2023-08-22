@@ -17,13 +17,13 @@ jobs:
           dotnet-version: 3.1.426  # Replace with your desired .NET version
     
       - name: Restore NuGet packages
-        run: dotnet restore DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
+        run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
       - name: Build project
-        run: dotnet build --configuration Release DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
+        run: dotnet build --configuration Release DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
       - name: Run tests
-        run: dotnet test --no-restore --verbosity normal DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
+        run: dotnet test --no-restore --verbosity normal DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
       #- name: Restore dependencies
        # run: dotnet restore
