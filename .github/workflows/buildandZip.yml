@@ -1,4 +1,4 @@
-name: Build and Publish .NET Code (Windows)
+name: Naveen Build and zip
 
 on:
   workflow_dispatch:
