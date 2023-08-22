@@ -1,11 +1,11 @@
 name: Copy Build to Server
 
 on:
-  workflow_dispatch:
-  #workflow_run:
-   # workflows: ["Naveen Build and zip"]
-    #types:
-     # - completed
+  #workflow_dispatch:
+  workflow_run:
+    workflows: ["Naveen Build and zip"]
+    types:
+      - completed
 
 jobs:
   copy-to-server:
@@ -18,7 +18,8 @@ jobs:
     - name: Download build artifacts
       uses: actions/download-artifact@v2
       with:
-        name: build-artifacts  # Should match the name of the artifacts in the build-publish workflow
+        name: build-artifacts
+        path: downloaded-artifacts # Should match the name of the artifacts in the build-publish workflow
 
     - name: List downloaded artifacts
       run: ls -R
