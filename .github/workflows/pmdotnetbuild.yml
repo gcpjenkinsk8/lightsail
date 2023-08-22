@@ -25,4 +25,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: website-artifact
-        path: darrefmasterui-dp-3166/DAR-ReferenceDataUI  # Change this to the directory containing the built files
+        path: /DARRefMasterUI-DP-3166/DAR-ReferenceDataUI  # Change this to the directory containing the built files
