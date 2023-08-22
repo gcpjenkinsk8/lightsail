@@ -1,11 +1,11 @@
 name: Copy File to Deploy Location
 
 on:
-  workflow_dispatch:
-  #workflow_run:
-   # workflows: ["Copy Git to Lighsail"]
-    #types:
-     # - completed
+  #workflow_dispatch:
+  workflow_run:
+    workflows: ["Copy Git to Lighsail"]
+    types:
+      - completed
 
 jobs:
   move-file:
