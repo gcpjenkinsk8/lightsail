@@ -33,7 +33,8 @@ jobs:
       run: mkdir temp_artifact
 
     - name: Copy published artifact to temp directory
-      run: Copy-Item -Path "${{ github.workspace }}/publish" -Destination temp_artifact -Recurse
+      run: Copy-Item -Path "${{ github.workspace }}\publish" -Destination temp_artifact -Recurse
+
 
     - name: List files in temp directory
       run: dir "${{ github.workspace }}/publish"
