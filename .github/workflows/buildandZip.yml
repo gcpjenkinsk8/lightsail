@@ -20,11 +20,12 @@ jobs:
        # run: dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       - name: Build project
         run: dotnet build --configuration Release
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       #- name: Run tests
         #run: dotnet test --no-restore --verbosity normal
       - name: Publish
         run: dotnet publish DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln --configuration Release --framework netcoreapp3.1 --output ./publish --runtime win-x86  --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=tru
-
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
       #- name: Restore dependencies
        # run: dotnet restore
         #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
