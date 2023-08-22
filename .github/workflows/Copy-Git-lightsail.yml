@@ -40,4 +40,4 @@ jobs:
           #DESTINATION_FOLDER="C:/test3"
 
           # Use scp with converted private key for authentication
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no test.txt Administrator@3.110.130.37:/C:/test3
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:/C:/test3
