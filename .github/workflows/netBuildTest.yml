@@ -14,7 +14,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 4.x  # Replace with your desired .NET version
+          dotnet-version: 3.1.x  # Replace with your desired .NET version
 
       - name: Restore dependencies
         run: dotnet restore
