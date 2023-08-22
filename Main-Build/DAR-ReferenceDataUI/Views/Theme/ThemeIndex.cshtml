@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "Theme";
+}
+
+@(Html.Kendo().Grid<DARReferenceData.ViewModels.ThemeViewModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name).Width(120);
+        columns.Bound(p => p.Description).Width(120);
+        columns.ForeignKey(p => p.ThemeType, (System.Collections.IEnumerable)ViewData["ThemeTypes"], "Name", "Name").Width(120).Title("ThemeType");
+        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+    })
+     .ToolBar(toolbar => {
+         toolbar.Create();
+         toolbar.Save();
+         toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+     })
+    .Height(800)
+    .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Pageable()
+    .Navigatable()
+    .Sortable()
+    .Filterable()
+    .Scrollable()
+    .Events(events =>
+    {
+        events.Sort("onSort");
+        events.DataBound("onDataBound");
+
+    })
+    .Resizable(resize => resize.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .PageSize(20)
+        .ServerOperation(true)
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.DARThemeID);
+            model.Field(p => p.CreateUser).Editable(false);
+            model.Field(p => p.CreateTime).Editable(false);
+            model.Field(p => p.LastEditUser).Editable(false);
+            model.Field(p => p.LastEditTime).Editable(false);
+
+        })
+        .Create("Editing_Create", "Theme")
+        .Read("Editing_Read", "Theme")
+        .Update("Editing_Update", "Theme")
+        .Destroy("Editing_Destroy", "Theme")
+    )
+)
+<script>
+        
+    $("#grid").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#grid").data("kendoGrid").dataSource.read();
+    });
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+
+
+</script>

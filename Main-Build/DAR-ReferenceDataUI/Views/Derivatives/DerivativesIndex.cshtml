@@ -1,0 +1,209 @@
+﻿
+@{
+    ViewBag.Title = "Derivatives";
+}
+
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Derivatives")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="assetTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.DerivativesViewModel>()
+                            .Name("gridDerivaties")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.UnderlierDARTicker).Width(120);
+                                columns.Bound(p => p.UnderlierDARAssetID).Title("Underlier</br>Id").Width(120);
+                                columns.Bound(p => p.ContractType).Width(150);
+                                columns.Bound(p => p.OptionType).Width(150);
+                                columns.Bound(p => p.ContractTicker).Width(175);
+                                columns.Bound(p => p.DARContractID).Width(150);
+                                columns.Bound(p => p.ContractExchange).Width(150);
+                                columns.Bound(p => p.ContractExchangeDARID).Title("DAR Contract Exchange ID").Width(150);
+                                columns.Bound(p => p.Status).Width(150);
+                                columns.Bound(p => p.TradingHours).Width(150);
+                                columns.Bound(p => p.MinimumTickSize).Width(150);
+                                columns.Bound(p => p.SettlementTime).Width(150);
+                                columns.Bound(p => p.SettlementType).Width(140);
+                                columns.Bound(p => p.SettlementCurrency).Width(150);
+                                columns.Bound(p => p.ExpirationDate).Width(150);
+                                columns.Bound(p => p.ContractSize).Width(150);
+                                columns.Bound(p => p.InitialMargin).Width(150);
+                                columns.Bound(p => p.MaintenanceMargin).Width(150);
+                                columns.Bound(p => p.MarkPrice).Width(150);
+                                columns.Bound(p => p.DeliveryPrice).Format("{0:n2}").Width(150);
+                                columns.Bound(p => p.DeliveryMethod).Width(150);
+                                columns.Bound(p => p.FeesURL).Width(150);
+                                columns.Bound(p => p.PositionLimit).Width(150);
+                                columns.Bound(p => p.PositionLimitURL).Width(150);
+                                columns.Bound(p => p.BlockTradeMinimum).Width(150);
+                                columns.Bound(p => p.LinktoTAndC).Width(150);
+                                columns.Bound(p => p.FundingRates).Width(150);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    //toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.UnderlierDARAssetID);
+                                        search.Field(f => f.ContractTicker);
+                                        search.Field(f => f.DARContractID);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.PopUp))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Derivatives.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Edit("onEdit");
+                                //events.Save("onSave");
+                                //events.Change("onChange");
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARDerivativeID);
+                                    model.Field(p => p.DARDerivativeID).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.UnderlierDARTicker).Editable(false);
+                                })
+
+                                .Create(update => update.Action("Derivatives_Create", "Derivatives"))
+                                .Read(read => read.Action("Derivatives_Read", "Derivatives"))
+                                .Update(update => update.Action("Derivatives_Update", "Derivatives"))
+                                .Destroy(update => update.Action("Derivatives_Destroy", "Derivatives"))
+                            )
+                        )
+
+                    </div>
+                  </text>);
+
+
+              tabstrip.Add().Text("Upload")
+                  .Content(@<text>
+                        <div>
+                           @Html.Partial("DervativesUpload")
+                        </div>
+                  </text>);
+          })
+    )
+</div>
+
+
+<script>
+    function onEdit(e)
+    {
+        $(e.container).parent().css({
+            width: '800px',
+            height: '1100px'
+        });
+        
+        $("#ID").hide();
+        $("label[for='ID']").hide();
+
+
+
+
+
+    }
+
+    function onSave(e)
+    {
+        alert("Save");
+    }
+    function onChange(e) {
+        alert("Change");
+    }
+
+    function reloadData(e) {
+        if (e.type === 'create') {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+        }
+
+    }
+
+
+    $("#gridDerivaties").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridDerivaties").data("kendoGrid").dataSource.read();
+    });
+    $("#gridDerivatiesToken").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridDerivatiesToken").data("kendoGrid").dataSource.read();
+    });
+
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    // Use local fuction because we are not doing batch edit
+    function setGridEditMode(canUpdate) {
+        $(".k-grid-add").kendoButton({ enable: canUpdate })
+            .data("kendoButton").enable(canUpdate);
+    }
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+
+</script>
+
+
+<style>
+    div.k-edit-form-container {
+        width: auto;
+        height: auto;
+    }
+</style>

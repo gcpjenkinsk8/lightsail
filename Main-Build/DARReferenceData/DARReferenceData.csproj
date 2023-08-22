@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\librdkafka.redist.2.0.2\build\librdkafka.redist.props" Condition="Exists('..\packages\librdkafka.redist.2.0.2\build\librdkafka.redist.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1F79A77F-913B-493E-9AF6-617B99A28AE3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DARReferenceData</RootNamespace>
+    <AssemblyName>DARReferenceData</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
+      <HintPath>..\packages\BouncyCastle.1.8.5\lib\BouncyCastle.Crypto.dll</HintPath>
+    </Reference>
+    <Reference Include="Confluent.Kafka, Version=2.0.2.0, Culture=neutral, PublicKeyToken=12c514ca49093d1e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Confluent.Kafka.2.0.2\lib\net462\Confluent.Kafka.dll</HintPath>
+    </Reference>
+    <Reference Include="CsvHelper, Version=28.0.0.0, Culture=neutral, PublicKeyToken=8c4959082be5c823, processorArchitecture=MSIL">
+      <HintPath>..\packages\CsvHelper.28.0.1\lib\net47\CsvHelper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.2.0.90\lib\net461\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentValidation, Version=11.0.0.0, Culture=neutral, PublicKeyToken=7de548da2fbae0f0, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentValidation.11.0.3\lib\netstandard2.0\FluentValidation.dll</HintPath>
+    </Reference>
+    <Reference Include="Google.Protobuf, Version=3.14.0.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.14.0\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
+    <Reference Include="K4os.Compression.LZ4, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
+      <HintPath>..\packages\K4os.Compression.LZ4.1.2.6\lib\net46\K4os.Compression.LZ4.dll</HintPath>
+    </Reference>
+    <Reference Include="K4os.Compression.LZ4.Streams, Version=1.2.6.0, Culture=neutral, PublicKeyToken=2186fa9121ef231d, processorArchitecture=MSIL">
+      <HintPath>..\packages\K4os.Compression.LZ4.Streams.1.2.6\lib\net46\K4os.Compression.LZ4.Streams.dll</HintPath>
+    </Reference>
+    <Reference Include="K4os.Hash.xxHash, Version=1.0.6.0, Culture=neutral, PublicKeyToken=32cd54395057cec3, processorArchitecture=MSIL">
+      <HintPath>..\packages\K4os.Hash.xxHash.1.0.6\lib\net46\K4os.Hash.xxHash.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.12\lib\net45\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.7.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.HashCode, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Bcl.HashCode.1.0.0\lib\net461\Microsoft.Bcl.HashCode.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=8.0.28.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.8.0.28\lib\net452\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.License, Version=1.4.0.40, Culture=neutral, PublicKeyToken=b1144360237c8b3f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.11.9.3\lib\net40\Spire.License.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.Pdf, Version=7.9.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.11.9.3\lib\net40\Spire.Pdf.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.XLS, Version=11.9.3.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Spire.XLS.11.9.3\lib\net40\Spire.XLS.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Configuration.ConfigurationManager, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Configuration.ConfigurationManager.6.0.0\lib\net461\System.Configuration.ConfigurationManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.OracleClient" />
+    <Reference Include="System.Data.SqlClient, Version=4.6.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.8.3\lib\net461\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.DiagnosticSource, Version=5.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.DiagnosticSource.5.0.1\lib\net46\System.Diagnostics.DiagnosticSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Security.AccessControl, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.6.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Permissions, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Permissions.6.0.0\lib\net461\System.Security.Permissions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Text.Encodings.Web, Version=7.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Encodings.Web.7.0.0\lib\net462\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json, Version=7.0.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Text.Json.7.0.1\lib\net462\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Ubiety.Dns.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.8.0.28\lib\net452\Ubiety.Dns.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="ZstdNet, Version=1.4.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.8.0.28\lib\net452\ZstdNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DARTools.cs" />
+    <Compile Include="DatabaseHandlersTest\AssetTest.cs" />
+    <Compile Include="DatabaseHandlersTest\ExchangeTest.cs" />
+    <Compile Include="DatabaseHandlersTest\TestHandler.cs" />
+    <Compile Include="DatabaseHandlers\Chart.cs" />
+    <Compile Include="DatabaseHandlers\Asset.cs" />
+    <Compile Include="DatabaseHandlers\AssetCustodian.cs" />
+    <Compile Include="DatabaseHandlers\ExchangePairsMap.cs" />
+    <Compile Include="DatabaseHandlers\OHLCV.cs" />
+    <Compile Include="DatabaseHandlers\LiquidityPool.cs" />
+    <Compile Include="DatabaseHandlers\Price.cs" />
+    <Compile Include="DatabaseHandlers\Source.cs" />
+    <Compile Include="DatabaseHandlers\ExchangePairs.cs" />
+    <Compile Include="DatabaseHandlers\OutstandingSupplySource.cs" />
+    <Compile Include="DatabaseHandlers\ServList.cs" />
+    <Compile Include="DatabaseHandlers\AssetTheme.cs" />
+    <Compile Include="DatabaseHandlers\AssetToken.cs" />
+    <Compile Include="DatabaseHandlers\AssetURL.cs" />
+    <Compile Include="DatabaseHandlers\BlockChain.cs" />
+    <Compile Include="DatabaseHandlers\Client.cs" />
+    <Compile Include="DatabaseHandlers\ClientAsset.cs" />
+    <Compile Include="DatabaseHandlers\CallerID.cs" />
+    <Compile Include="DatabaseHandlers\Configuration.cs" />
+    <Compile Include="DatabaseHandlers\Custodian.cs" />
+    <Compile Include="DatabaseHandlers\DARAdmin.cs" />
+    <Compile Include="DatabaseHandlers\DerivativesRisk.cs" />
+    <Compile Include="DatabaseHandlers\Derivatives.cs" />
+    <Compile Include="DatabaseHandlers\EventType.cs" />
+    <Compile Include="DatabaseHandlers\ExchangePair.cs" />
+    <Compile Include="DatabaseHandlers\Listing.cs" />
+    <Compile Include="DatabaseHandlers\LogData.cs" />
+    <Compile Include="DatabaseHandlers\OutstandingSupply.cs" />
+    <Compile Include="DatabaseHandlers\OutstandingSupplyStaging.cs" />
+    <Compile Include="DatabaseHandlers\Pair.cs" />
+    <Compile Include="DatabaseHandlers\ProcessDar.cs" />
+    <Compile Include="DatabaseHandlers\ServingList.cs" />
+    <Compile Include="DatabaseHandlers\Theme.cs" />
+    <Compile Include="DatabaseHandlers\TokenTable.cs" />
+    <Compile Include="DatabaseHandlers\Token.cs" />
+    <Compile Include="DatabaseHandlers\UrlType.cs" />
+    <Compile Include="DatabaseHandlers\Validators\AssetURLValidator.cs" />
+    <Compile Include="DatabaseHandlers\Validators\AssetValidator.cs" />
+    <Compile Include="DatabaseHandlers\Validators\CallerIDValidator.cs" />
+    <Compile Include="DatabaseHandlers\Validators\ClientValidator.cs" />
+    <Compile Include="DatabaseHandlers\Validators\ExchangeValidator.cs" />
+    <Compile Include="DatabaseHandlers\VerifiableVolume.cs" />
+    <Compile Include="DatabaseHandlers\VettingStatus.cs" />
+    <Compile Include="Init.cs" />
+    <Compile Include="Models\Caller.cs" />
+    <Compile Include="Models\Customer.cs" />
+    <Compile Include="ViewModels\BTCBlockChain.cs" />
+    <Compile Include="ViewModels\VerifiableVolumeViewModel.cs" />
+    <Compile Include="ViewModels\OHLCVViewModel.cs" />
+    <Compile Include="ViewModels\NonPricingServListViewModel.cs" />
+    <Compile Include="ViewModels\IncludePricingCurrencyViewModel.cs" />
+    <Compile Include="ViewModels\TokenTabelViewModel.cs" />
+    <Compile Include="ViewModels\AppModuleViewModel.cs" />
+    <Compile Include="ViewModels\AssetCustodianViewModel.cs" />
+    <Compile Include="ViewModels\AssetThemeViewModel.cs" />
+    <Compile Include="ViewModels\AssetTokenViewModel.cs" />
+    <Compile Include="ViewModels\ExchangePairsV2ViewModel.cs" />
+    <Compile Include="ViewModels\ExchangeStatusViewModel.cs" />
+    <Compile Include="ViewModels\ExcludeFromPricingViewModel.cs" />
+    <Compile Include="ViewModels\LiquidityPoolViewModel.cs" />
+    <Compile Include="ViewModels\OutstandingSupplyRawModel.cs" />
+    <Compile Include="ViewModels\PriceInputViewModel.cs" />
+    <Compile Include="ViewModels\PrincipalMarketPriceDar.cs" />
+    <Compile Include="ViewModels\ServListV2ViewModel.cs" />
+    <Compile Include="ViewModels\SourceViewModel.cs" />
+    <Compile Include="ViewModels\AssetURLViewModel.cs" />
+    <Compile Include="ViewModels\AssetTierStatusViewModel.cs" />
+    <Compile Include="ViewModels\AssetViewModel.cs" />
+    <Compile Include="DatabaseHandlers\CryptoEvent.cs" />
+    <Compile Include="ViewModels\BlockChainViewModel.cs" />
+    <Compile Include="ViewModels\ChartViewModels.cs" />
+    <Compile Include="ViewModels\ClientAccessViewModel.cs" />
+    <Compile Include="ViewModels\ClientAssetsViewModel.cs" />
+    <Compile Include="ViewModels\CallerIDViewModel.cs" />
+    <Compile Include="ViewModels\ClientViewModel.cs" />
+    <Compile Include="ViewModels\ConfigurationViewModels.cs" />
+    <Compile Include="ViewModels\CustodianViewModel.cs" />
+    <Compile Include="ViewModels\DARRoleViewModel.cs" />
+    <Compile Include="ViewModels\DARUserViewModel.cs" />
+    <Compile Include="ViewModels\DARUserRoleViewModel.cs" />
+    <Compile Include="ViewModels\DARViewModel.cs" />
+    <Compile Include="ViewModels\DerivativesPriceApiViewModel.cs" />
+    <Compile Include="ViewModels\DerivativesRiskApiViewModel.cs" />
+    <Compile Include="ViewModels\DerivativesRiskViewModel.cs" />
+    <Compile Include="ViewModels\DerivativesViewModel.cs" />
+    <Compile Include="ViewModels\EventTypeViewModel.cs" />
+    <Compile Include="ViewModels\ExchangePair.cs" />
+    <Compile Include="ViewModels\ExchangePairsViewModel.cs" />
+    <Compile Include="ViewModels\ExchangeVettingStatusViewModel.cs" />
+    <Compile Include="ViewModels\ListingViewModel.cs" />
+    <Compile Include="ViewModels\LogViewModel.cs" />
+    <Compile Include="ViewModels\OutstandingSupplySourceModel.cs" />
+    <Compile Include="ViewModels\OutstandingSupplyViewModel.cs" />
+    <Compile Include="ViewModels\PairViewModel.cs" />
+    <Compile Include="ViewModels\ProcessViewModel.cs" />
+    <Compile Include="ViewModels\RoleAppModuleViewModel.cs" />
+    <Compile Include="ViewModels\ServingListSnapshotViewModel.cs" />
+    <Compile Include="ViewModels\ServingListViewModel.cs" />
+    <Compile Include="ViewModels\ServListViewModel.cs" />
+    <Compile Include="ViewModels\StagedCryptoEventViewModel.cs" />
+    <Compile Include="DatabaseHandlers\RefDataHandler.cs" />
+    <Compile Include="DatabaseHandlers\Exchange.cs" />
+    <Compile Include="ViewModels\ExchangeViewModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\ThemeViewModel.cs" />
+    <Compile Include="ViewModels\MarketCapViewModel.cs" />
+    <Compile Include="ViewModels\TokenViewModel.cs" />
+    <Compile Include="ViewModels\UrlTypeViewModel.cs" />
+    <Compile Include="ViewModels\PriceViewModel.cs" />
+    <Compile Include="ViewModels\UserViewModel.cs" />
+    <Compile Include="ViewModels\VettingStatusViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLSchemas\DeploymentScripts\DP-2358.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\EventWorkFlow.sql" />
+    <Content Include="SQLSchemas\Pipelines\exchangePairsV2.sql" />
+    <Content Include="SQLSchemas\Pipelines\exchangeStatus.sql" />
+    <Content Include="SQLSchemas\Pipelines\excludeFromPricing.sql" />
+    <Content Include="SQLSchemas\Pipelines\processStatus.sql" />
+    <Content Include="SQLSchemas\Pipelines\servListV2.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spDMLAssetAudit.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spDMLAssetTheme.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spDMLAssetUpdate.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spDMLAssetURL.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spDMLEventInformation.sql" />
+    <Content Include="SQLSchemas\Working.sql" />
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <Content Include="SQLSchemas\StoredProcedure\sp_DMLClientAssets.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\sp_manage_client_asset.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1524_Deployment.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1545.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1561.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1561_API_Deployment.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1582.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1607.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1671.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1723.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-1723A.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-2153.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-2278.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-2297.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\Port_Airtable_To_SqlServer.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\Serving_List_To_SqlServer.sql" />
+    <Content Include="SQLSchemas\DeploymentScripts\DP-2275.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\spGetDARReferenceID.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\sp_upsert_asset.sql" />
+    <Content Include="SQLSchemas\StoredProcedure\sp_upsert_exchange.sql" />
+    <Content Include="SQLSchemas\Tables\AppModule.sql" />
+    <Content Include="SQLSchemas\Tables\AssetTheme.sql" />
+    <Content Include="SQLSchemas\Tables\AssetTickerByExchange.sql" />
+    <Content Include="SQLSchemas\Tables\AssetToken.sql" />
+    <Content Include="SQLSchemas\Tables\AssetURL.sql" />
+    <Content Include="SQLSchemas\Tables\BlockChain.sql" />
+    <Content Include="SQLSchemas\Tables\Derivatives.sql" />
+    <Content Include="SQLSchemas\Tables\EventInformation.sql" />
+    <Content Include="SQLSchemas\Tables\OutstandingSupply.sql" />
+    <Content Include="SQLSchemas\Tables\Pair.sql" />
+    <Content Include="SQLSchemas\Tables\Process.sql" />
+    <Content Include="SQLSchemas\Tables\RoleAppModule.sql" />
+    <Content Include="SQLSchemas\Tables\ServingList.sql" />
+    <Content Include="SQLSchemas\Tables\Source.sql" />
+    <Content Include="SQLSchemas\Tables\Staging_CryptoNodeEvents.sql" />
+    <Content Include="SQLSchemas\Tables\Asset.sql" />
+    <Content Include="SQLSchemas\Tables\Staging_OutstandingSupply.sql" />
+    <Content Include="SQLSchemas\Tables\Theme.sql" />
+    <Content Include="SQLSchemas\Tables\Token.sql" />
+    <Content Include="SQLSchemas\Tables\URLType.sql" />
+    <Content Include="SQLSchemas\Views\vAssetToken.sql" />
+    <Content Include="SQLSchemas\Views\vPair.sql" />
+    <Content Include="SQLSchemas\Views\vServingList.sql" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\librdkafka.redist.2.0.2\build\librdkafka.redist.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\librdkafka.redist.2.0.2\build\librdkafka.redist.props'))" />
+  </Target>
+</Project>

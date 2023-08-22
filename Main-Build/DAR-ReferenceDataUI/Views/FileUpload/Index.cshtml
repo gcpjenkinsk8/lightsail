@@ -1,0 +1,38 @@
+﻿@using System.Web;
+
+@{
+    ViewBag.Title = "File Upload";
+}
+
+
+
+<form method="post" action='@Url.Action("Basic_Usage_Submit")'>
+    <div class="demo-section k-content">
+        @(Html.Kendo().Upload()
+            .Name("files")
+            .HtmlAttributes(new { aria_label = "files" })
+            .Events(events => events
+                        .Success("onSuccess")
+                           .Error("onUploadError")
+                    )
+            )
+        <p style="padding-top: 1em; text-align: right">
+            <button type="submit" class="k-button k-primary">Submit</button>
+        </p>
+    </div>
+</form>
+
+
+
+<script>
+    function onSuccess(e) {
+            e.preventDefault();  //prevents postback
+            alert("Success");
+    }
+
+    function onUploadError(e) {
+            e.preventDefault();  //prevents postback
+            alert("Failed");
+    
+    }
+</script>

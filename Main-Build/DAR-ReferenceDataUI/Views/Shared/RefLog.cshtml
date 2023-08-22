@@ -1,0 +1,67 @@
+﻿<p>
+    <b>Display log content here</b>
+    @(Html.Kendo().Grid<DARReferenceData.ViewModels.LogViewModel>()
+                            .Name("gridLog")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Message).Width(600);
+                 
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "customButton", @class = "floatRight" });
+                             })
+                            .Height(800)
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events => events.Sort("onSort"))
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("ReadLog", "Home").Data("getInput"))
+                            )
+                        )
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+    $("#gridLog").on("click", "#customButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridLog").data("kendoGrid").dataSource.read();
+    });
+
+    function getInput() {
+        return {
+
+            logType: document.getElementById('logType').value
+            , uploadTime: document.getElementById('uploadTime').value
+        }
+    }
+</script>
+

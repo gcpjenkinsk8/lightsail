@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewBag.Title = "InsufficientAccess";
+}
+
+
+<div>
+    <div class="demo-section k-content insufficientAccess">
+        <div id="validation-success"></div>
+
+        <h2>You do not have sufficient access. Please contact DAR support team.</h2>
+        <br />
+        <h2>
+            @if (ViewBag.Message != null)
+            {
+                <span>@ViewBag.Message</span>
+            }
+        </h2>
+    </div>
+
+</div>
+
+

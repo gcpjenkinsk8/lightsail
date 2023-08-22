@@ -1,0 +1,228 @@
+﻿@{
+    ViewBag.Title = "Exchange";
+}
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Exchange")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="assetTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ExchangeViewModel>()
+                            .Name("gridExchange")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARExchangeID).Width(175).Locked(true);
+                                columns.Bound(p => p.ShortName).Width(175).Locked(true);
+                                columns.Bound(p => p.LegalName).Width(175);
+                                columns.Bound(p => p.LegalNameSource).Width(175);
+                                columns.Bound(p => p.ExchangeType).Width(175);
+                                columns.Bound(p => p.ExchangeTypeSource).Width(175);
+                                columns.Bound(p => p.ExchangeStatus).Width(175);
+                                columns.Bound(p => p.ExternalClassification).Width(175);
+                                columns.Bound(p => p.InternalClassification).Width(175);
+                                columns.Bound(p => p.ClassificationFolder).Width(175);
+                                columns.Bound(p => p.ClassificationDate).Width(175).Format("{0:d}");
+                                columns.Bound(p => p.ClassificationVersion).Width(175);
+                                columns.Bound(p => p.DomicileCountry).Width(175);
+                                columns.Bound(p => p.IncorporationCountry).Width(175);
+                                columns.Bound(p => p.ExchangeSLA).Width(175);
+                                columns.Bound(p => p.FoundingYear).Width(175);
+                                columns.Bound(p => p.Ownership).Width(175);
+                                columns.Bound(p => p.LEI).Width(175);
+                                columns.Bound(p => p.Chairman).Width(175);
+                                columns.Bound(p => p.CEO).Width(175);
+                                columns.Bound(p => p.President).Width(175);
+                                columns.Bound(p => p.CTO).Width(175);
+                                columns.Bound(p => p.CISO).Width(175);
+                                columns.Bound(p => p.CCO).Width(175);
+                                columns.Bound(p => p.PrimaryPhone).Width(175);
+                                columns.Bound(p => p.PrimaryEmail).Width(175);
+                                columns.Bound(p => p.SupportURL).Width(175);
+                                columns.Bound(p => p.SupportPhone).Width(175);
+                                columns.Bound(p => p.SupportEmail).Width(175);
+                                columns.Bound(p => p.HQAddress1).Width(175);
+                                columns.Bound(p => p.HQAddress2).Width(175);
+                                columns.Bound(p => p.HQCity).Width(175);
+                                columns.Bound(p => p.HQState).Width(175);
+                                columns.Bound(p => p.HQCountry).Width(175);
+                                columns.Bound(p => p.HQPostalCode).Width(175);
+                                columns.Bound(p => p.Licenses).Width(175);
+                                columns.Bound(p => p.Wikipedia).Width(175);
+                                columns.Bound(p => p.MICCode).Width(175);
+                                columns.Bound(p => p.KnownRegulatoryIssues).Width(175);
+                                columns.Bound(p => p.TradeMonitoringSystem).Width(175);
+                                columns.Bound(p => p.BlockchainSurveillanceSystem).Width(175);
+                                columns.Bound(p => p.ThirdPartyAudit).Width(175);
+                                columns.Bound(p => p.KnownSecurityIncidences).Width(175);
+                                columns.Bound(p => p.InsuranceProviders).Width(175);
+                                columns.Bound(p => p.InsuranceonCryptoAssets).Width(175);
+                                columns.Bound(p => p.Wherethebankisdomiciled).Width(175);
+                                columns.Bound(p => p.SelfInsurance).Width(175);
+                                columns.Bound(p => p.MandatoryGovtIDPriortoTrading).Width(175);
+                                columns.Bound(p => p.TradingLimitExKYC).Width(175);
+                                columns.Bound(p => p.TradingLimitExKYCsource).Width(175);
+                                columns.Bound(p => p.DepositLimitExKYC).Width(175);
+                                columns.Bound(p => p.DepositLimitExKYCsource).Width(175);
+                                columns.Bound(p => p.WithdrawalLimitExKYC).Width(175);
+                                columns.Bound(p => p.WithdrawalLimitExKYCsource).Width(175);
+                                columns.Bound(p => p.KYCReqGovernmentID).Width(175);
+                                columns.Bound(p => p.KYCReqDigitalSelfPortrait).Width(175);
+                                columns.Bound(p => p.CorporateActionsPolicy).Width(175);
+                                columns.Bound(p => p.PoliciesOnListing).Width(175);
+                                columns.Bound(p => p.FeeSchedule).Width(175);
+                                columns.Bound(p => p.TradingHours).Width(175);
+                                columns.Bound(p => p.Leverage).Width(175);
+                                columns.Bound(p => p.Staking).Width(175);
+                                columns.Bound(p => p.IEOPlatform).Width(175);
+                                columns.Bound(p => p.NativeToken).Width(175);
+                                columns.Bound(p => p.ColdStorageCustody).Width(175);
+                                columns.Bound(p => p.CustodyInsurance).Width(175);
+                                columns.Bound(p => p.PercentOfAssetsinColdStorage).Width(175);
+                                columns.Bound(p => p.StablecoinPairs).Width(175);
+                                columns.Bound(p => p.FiatTrading).Width(175);
+                                columns.Bound(p => p.Futures).Width(175);
+                                columns.Bound(p => p.Options).Width(175);
+                                columns.Bound(p => p.Swaps).Width(175);
+                                columns.Bound(p => p.APIType).Width(175);
+                                columns.Bound(p => p.APIDocumentation).Width(175);
+                                columns.Bound(p => p.PrimaryURL).Width(175);
+                                columns.Bound(p => p.Twitter).Width(175);
+                                columns.Bound(p => p.LinkedIn).Width(175);
+                                columns.Bound(p => p.Reddit).Width(175);
+                                columns.Bound(p => p.Facebook).Width(175);
+
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                 toolbar.Search();
+                             })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.DARExchangeID);
+                                    search.Field(f => f.ShortName);
+                                    search.Field(f => f.LegalName);
+                                    search.Field(f => f.LegalNameSource);
+                                    search.Field(f => f.ExchangeType);
+
+                                })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Excel(excel => excel
+                                        .AllPages(true)
+                                        .FileName("Exchanges.xlsx")
+                                        .Filterable(true)
+                                        .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                )
+                            .ToolBar(tools => tools.Excel())
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARExchangeID);
+                                    model.Field(p => p.DARExchangeID).Editable(false);
+                                    model.Field(p => p.LegacyId).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+
+                                })
+                                .Create("Exchange_Create", "Exchange")
+                                .Read("Exchange_Read", "Exchange")
+                                .Update("Exchange_Update", "Exchange")
+                                .Destroy("Exchange_Destroy", "Exchange")
+                            )
+                        )
+
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Upload")
+                  .Content(@<text>
+                        <div>
+                           @Html.Partial("ExchangeUpload")
+                        </div>
+                  </text>);
+          })
+    )
+</div>
+
+
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+    $("#gridExchange").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchange").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridExchangeVettingStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangeVettingStatus").data("kendoGrid").dataSource.read();
+    });
+
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+</script>

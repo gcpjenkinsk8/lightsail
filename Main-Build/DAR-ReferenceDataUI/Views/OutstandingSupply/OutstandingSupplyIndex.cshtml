@@ -1,0 +1,451 @@
+﻿@{
+    ViewBag.Title = "Circulating Supply";
+}
+
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Active Source")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="stagingSupply" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.OutstandingSupplySourceViewModel>()
+                            .Name("gridOutstandingSupplySource")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARAssetID).Title("DARAssetID").Width(250);
+                                columns.Bound(p => p.DARTicker).Title("DARTicker").Width(250);
+                                columns.Bound(p => p.DARSourceID).Title("DARSourceID").Width(250);
+                                columns.Bound(p => p.ShortName).Title("Source Name").Width(250);
+                                columns.Bound(p => p.SourceType ).Title("Source Type").Width(250);
+                                columns.Bound(p => p.ManualValue).Title("ManualValue").Width(250);
+                                columns.Bound(p => p.Creator).Title("Create User").Width(250);
+                                columns.Bound(p => p.LoadTimestamp).Width(250);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.ShortName);
+                                        search.Field(f => f.DARTicker);
+                                        search.Field(f => f.DARSourceID);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Groupable(g => g.ShowFooter(true))
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("OutstandingSupplySource.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.LoadTimestamp);
+                                    model.Field(p => p.LoadTimestamp).Editable(false);
+                                })
+                                .Create("Editing_CS_Source_Create", "OutstandingSupply")
+                                .Read(read => read.Action("Editing_CS_Source_Read", "OutstandingSupply"))
+                                .Update("Editing_CS_Source_Update", "OutstandingSupply")
+                                .Destroy("Editing_CS_Source_Destroy", "OutstandingSupply")
+                            )
+                        )
+
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("Raw Circulating Supply")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="stagingSupply" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.OutstandingSupplyRawViewModel>()
+                            .Name("gridOutstandingSupplyRaw")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARAssetID).Width(250);
+                                columns.Bound(p => p.CirculatingSupply).Width(250);
+                                columns.Bound(p => p.ExternalSourceTicker).Width(250);
+                                columns.Bound(p => p.ExternalSourceTickerName).Width(250);
+                                columns.Bound(p => p.ExternalSource).Width(250);
+                                columns.Bound(p => p.Category).Width(250);
+                                columns.Bound(p => p.Note).Width(250);
+                                columns.Bound(p => p.SourceType).Width(250);
+                                columns.Bound(p => p.EndpointURL).Width(250);
+                                columns.Bound(p => p.EndpointField).Width(250);
+                                columns.Bound(p => p.LoadTS).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.ExternalSourceTicker);
+                                        search.Field(f => f.CirculatingSupply);
+                                        search.Field(f => f.ExternalSourceTickerName);
+                                        search.Field(f => f.ExternalSource);
+                                        search.Field(f => f.Category);
+                                        search.Field(f => f.Note);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("RawCirculatingSupply.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                })
+                                .Read(read => read.Action("Editing_CS_Raw_Read", "OutstandingSupply"))
+                               
+                            )
+                        )
+
+                    </div>
+                  </text>);
+          tabstrip.Add().Text("Last Published")
+              .Content(@<text>
+
+                    <div >Created Date:     @(Html.Kendo().DatePicker()
+                      .Name("dpStartDate")
+                      .Events(e =>
+                      {
+                          e.Change("change");
+                      })
+                )</div>
+                    <div id="publishedSupply" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.OutstandingSupplyViewModel>()
+                            .Name("gridPublished")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.darAssetID).Width(120);
+                                columns.Bound(p => p.DARTicker).Width(120);
+                                columns.Bound(p => p.OutstandingSupply).Title("Circulating Supply").Format("{0:#,##}").Width(120);
+                                columns.Bound(p => p.Reviewed).Width(150);
+                                //columns.Bound(p => p.CreateTime).Width(150);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Search();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                             })
+                            .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.darAssetID);
+                                        search.Field(f => f.DARTicker);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.darAssetID);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+                                    model.Field(p => p.Reviewed).Editable(false);
+
+                                })
+                                //.Create("Editing_Published_Create", "OutstandingSupply")
+                                //.Read("Editing_Published_Read", "OutstandingSupply")
+                                .Read(read => read.Action("Editing_Published_Read", "OutstandingSupply").Data("getInput"))
+                            //.Update("Editing_Published_Update", "OutstandingSupply")
+                            //.Destroy("Editing_Published_Destroy", "OutstandingSupply")
+                            )
+                        )
+                    </div>
+                  </text>);
+          })
+    )
+</div>
+
+
+<script>
+    function lookupSource(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupSource", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+
+        return JSON.parse(out_result);
+    }
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+
+        return JSON.parse(out_result);
+    }
+
+    function onSave(e) {
+
+        var grid = $("#gridOutstandingSupplySource").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupAsset(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.DARTicker = mappedValue.DARTicker;
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARSourceID") {
+            var mappedValue = lookupSource(e.values['DARSourceID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARSourceID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.ShortName = mappedValue.ShortName;
+     
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+    }
+
+
+    function onSavepublished(e) {
+
+        var grid = $("#gridPublished").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "darAssetID") {
+            var mappedValue = lookupAsset(e.values['darAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['darAssetID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.DARTicker = mappedValue.DARTicker;
+
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+    }
+
+
+    function reloadData(e) {
+        if (e.type === 'update') {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+        }
+
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+    function getInput() {
+        if ($("#dpStartDate").data("kendoDatePicker").value() == null) {
+
+            return {
+
+                startDate: new Date()
+            }
+        }
+
+        return {
+
+            startDate: $("#dpStartDate").data("kendoDatePicker").value()
+        }
+    }
+
+
+
+    function change() {
+        $("#gridPublished").data("kendoGrid").dataSource.read();
+
+    }
+
+
+
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    $("#gridOutstandingSupplySource").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridOutstandingSupplySource").data("kendoGrid").dataSource.read();
+    });
+    $("#gridPublished").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridPublished").data("kendoGrid").dataSource.read();
+    });
+
+    $(document).ready(function () {
+        $("#dpStartDate").data("kendoDatePicker").value(new Date());
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+        // $("#gridOutstandingSupplySource").data("kendoGrid").dataSource.read();
+    });
+
+
+
+</script>
+

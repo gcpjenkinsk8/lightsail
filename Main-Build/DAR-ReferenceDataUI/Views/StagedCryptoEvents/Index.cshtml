@@ -1,0 +1,776 @@
+﻿
+@{
+    ViewBag.Title = "Crypto Events";
+}
+<p>@ViewBag.ErrorMessage</p>
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Staged Events")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="stagingEvents" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.StagedCryptoEventViewModel>()
+                            .Name("gridStagedEvents")
+                            .Columns(columns =>
+                            {
+                                columns.Select().Width(50).Locked(true);
+                                columns.Bound(p => p.Error).Title("Publish<br>Error").Width(500).Locked(true).ClientTemplate("#= LineItems_Databound(Error)#");
+                                columns.Bound(p => p.DateofReview).Title("Date<br/>Of<br/>Review").Width(120).Format("{0: dd/MM/yyyy}");
+                                columns.Bound(p => p.ExchangeAssetTicker).Title("Exchange<br/>Asset<br/>Ticker").Width(120);
+                                columns.Bound(p => p.ExchangeAssetName).Title("Exchange<br/>Asset<br/>Name").Width(120);
+                                columns.Bound(p => p.DARAssetID).Title("DAR<br/>Asset<br/>ID").Width(120);
+                                columns.Bound(p => p.EventType).Title("Event<br/>Type").Width(120);
+                                columns.Bound(p => p.EventDate).Title("Event<br/>Date").Width(120).Format("{0: dd/MM/yyyy}");
+                                columns.Bound(p => p.AnnouncementDate).Title("Announcement<br/>Date").Width(120).Format("{0: dd/MM/yyyy}");
+                                columns.Bound(p => p.EventDescription).Title("Event<br/>Description").Width(120);
+                                columns.Bound(p => p.SourceURL).Title("Source<br/>URL").Width(150);
+                                columns.Bound(p => p.Notes).Width(150);
+                                columns.Bound(p => p.BlockHeight).Title("Block<br/>Height").Width(120); ;
+                                columns.Bound(p => p.EventStatus).Title("Status").Width(120);
+                                columns.Command(command => { command.Custom("Delete").Click("remove_staged_events"); }).Title("Action").Width(120);
+                                //columns.Command(command => { /*command.Edit();*/ command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    //toolbar.Save();
+                                    toolbar.Custom().Text("Publish Selected").HtmlAttributes(new { id = "customButton", @class = "floatRight" });
+                                    toolbar.Custom().Text("Save Changes").HtmlAttributes(new { id = "savechanges", @class = "floatRight" });
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Custom().Text("Publish All").HtmlAttributes(new { id = "publishAllButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.DARAssetID);
+                                    search.Field(f => f.ExchangeAssetTicker);
+                                    search.Field(f => f.ExchangeAssetName);
+                                    search.Field(f => f.EventType);
+                                    search.Field(f => f.EventDescription);
+                                    search.Field(f => f.SourceURL);
+                                    search.Field(f => f.Notes);
+                                })
+
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Scrollable()
+                            .Filterable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Change("onChange");
+                                events.Save("onSaveStagedEvent");
+
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.StageEventID);
+                                    model.Field(p => p.Error).Editable(false);
+                                })
+                                .Create("Editing_Create", "StagedCryptoEvents")
+                                .Read("Editing_Read", "StagedCryptoEvents")
+                                .Update("Editing_Update", "StagedCryptoEvents")
+                                .Destroy("Editing_Destroy", "StagedCryptoEvents")
+                            )
+                        )
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("Published Events")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="stagingSupply" class="dar-tab">
+                        <div class="k-d-flex k-justify-content-left" style="padding-top: 54px;">
+                            <div class="k-w-300">
+                                <label for="datepicker">Show events&nbsp;&nbsp;&nbsp;&nbsp;From:</label>
+                                @(Html.Kendo().DatePicker()
+                                  .Name("datepickerEventStart")
+                                  .Value("10/10/2011")
+                                  .HtmlAttributes(new { style = "width: 150px", title = "datepicker" })
+                                  .Events(e => { e.Change("changePublishedEventInputDate"); })
+                                )
+                                <label for="datepicker">To:</label>
+                                @(Html.Kendo().DatePicker()
+                                  .Name("datepickerEventEnd")
+                                  .Value("10/10/2011")
+                                  .HtmlAttributes(new { style = "width: 150px", title = "datepicker" })
+                                  .Events(e => {e.Change("changePublishedEventInputDate");})
+
+                                )
+                                <br/>
+                                <br/>
+                             </div>
+                        </div>
+
+                        <div class="demo-section k-content">
+                            @(Html.Kendo().Grid<DARReferenceData.ViewModels.StagedCryptoEventViewModel>()
+                                    .Name("gridPublishedEvents")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(p => p.DAREventID).Title("DAR<br/>Event<br/>ID").Width(120).Format("{0: dd/MM/yyyy}");
+                                        columns.Bound(p => p.DateofReview).Title("Date<br/>Of<br/>Review").Width(120).Format("{0: dd/MM/yyyy}");
+                                        columns.Bound(p => p.EventType).Title("Event<br/>Type").Width(120);
+                                        columns.Bound(p => p.ExchangeAssetTicker).Title("Exchange<br/>Asset<br/>Ticker").Width(120);
+                                        columns.Bound(p => p.ExchangeAssetName).Title("Exchange<br/>Asset<br/>Name").Width(120);
+                                        columns.Bound(p => p.DARAssetID).Title("DAR<br/>Asset<br/>ID").Width(120);
+                                        columns.Bound(p => p.EventDate).Title("Event<br/>Date").Width(120).Width(120).Format("{0: dd/MM/yyyy}");
+                                        columns.Bound(p => p.AnnouncementDate).Title("Announcement<br/>Date").Width(120).Width(120).Format("{0: dd/MM/yyyy}");
+                                        columns.Bound(p => p.EventDescription).Title("Event<br/>Description").Width(120);
+                                        columns.Bound(p => p.SourceURL).Title("Source<br/>URL").Width(150);
+                                        columns.Bound(p => p.Notes).Width(150);
+                                        columns.Bound(p => p.BlockHeight).Title("Block<br/>Height").Width(120); ;
+                                        columns.Bound(p => p.EventStatus).Title("Status").Width(120);
+                                        columns.Command(command => { command.Custom("Delete").Click("remove_published_events"); }).Title("Action").Width(120);
+
+                                        //columns.Command(command => { /*command.Edit();*/ command.Destroy(); }).Width(200);
+
+                                    })
+                                    .ToolBar(toolbar =>
+                                    {
+                                        toolbar.Excel();
+                                        toolbar.Search();
+                                        toolbar.Create();
+                                        //toolbar.Save();
+                                        toolbar.Custom().Text("Save Changes").HtmlAttributes(new { id = "savechangespublished", @class = "floatRight" });
+                                        toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+
+                                    })
+                                    .Scrollable()
+                                    .Search(
+                                        search =>
+                                        {
+                                            search.Field(f => f.DARAssetID);
+                                            search.Field(f => f.DAREventID);
+                                            search.Field(f => f.EventDescription);
+                                            search.Field(f => f.EventType);
+                                            search.Field(f => f.ExchangeAssetTicker);
+                                            search.Field(f => f.ExchangeAssetName);
+                                            search.Field(f => f.SourceURL);
+                                            search.Field(f => f.Notes);
+                                        })
+                                    .Height(800)
+                                    .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                    .Pageable()
+                                    .Navigatable()
+                                    .Sortable()
+                                    .Filterable()
+                                    .Groupable()
+                                    .Filterable()
+                                    .Events(events =>
+                                    {
+                                        events.Sort("onSort");
+                                        events.DataBound("onDataBound");
+                                        events.Save("onSave");
+
+                                    })
+                                    .Excel(excel => excel
+                                                        .AllPages(true)
+                                                        .FileName("Finalized_Events.xlsx")
+                                                        .Filterable(true)
+                                                        .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                                    )
+                                    .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .Batch(true)
+                                                        .PageSize(20)
+                                                        .ServerOperation(true)
+                                                        .Events(events =>
+                                                        {
+                                                            events.Error("error_handler");
+                                                        })
+                                                        .Model(model =>
+                                                        {
+                                                            model.Id(p => p.DAREventID);
+                                                            model.Field(p => p.DAREventID).Editable(false);
+                                                            model.Field(p => p.CreateUser).Editable(false);
+
+                                                        })
+                                                        .Read(read => read.Action("FinalizedCrypoEvents_Read", "StagedCryptoEvents").Data("getPublishedEventInput"))
+                                                        .Create("FinalizedCrypoEvents_Create", "StagedCryptoEvents")
+                                                        .Update("FinalizedCrypoEvents_Update", "StagedCryptoEvents")
+                                                        .Destroy("FinalizedCrypoEvents_Destroy", "StagedCryptoEvents")
+                                               )
+                                       .Resizable(resize => resize.Columns(true))
+                                       .Reorderable(reorder => reorder.Columns(true))
+                            )
+                        </div>
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("Upload Events")
+                  .Content(@<text>
+                        <div id="eventUpload" class="dar-tab">
+                            @*@(Html.Kendo().Upload()
+                                .Name("files")
+                                .Async(a => a
+                                    .Save("Events_Save", "StagedCryptoEvents")
+                                    .Remove("Events_Remove", "StagedCryptoEvents")
+                                    .AutoUpload(false)
+                                )
+                                .Events(events => events
+                                    .Cancel("onCancel")
+                                    .Clear("onClear")
+                                    .Complete("onComplete")
+                                    .Error("onError")
+                                    .Progress("onProgress")
+                                    .Remove("onRemove")
+                                    .Select("onSelect")
+                                    .Success("onSuccess")
+                                    .Upload("onUpload")
+                                )
+                            )*@
+
+                            @(Html.Kendo().Upload()
+                                .Name("files")
+                                .Async(a => a
+                                    .Save("Save", "StagedCryptoEvents")
+                                    .Remove("Remove", "StagedCryptoEvents")
+                                    .AutoUpload(true)
+                                )
+                                .Events(events => events
+                                .Cancel("onCancel")
+                                .Clear("onClear")
+                                .Complete("onComplete")
+                                .Error("onError")
+                                .Progress("onProgress")
+                                .Remove("onRemove")
+                                .Select("onSelect")
+                                .Success("onSuccess")
+                                .Upload("onUpload")
+                                )
+                            )
+
+                    </div>
+                  </text>);
+          })
+    )
+</div>
+
+
+
+
+<script>
+    var selected_items;
+    function onChange(arg) {
+        selected_items = this.selectedKeyNames().join(", ");
+
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+
+    $("#gridStagedEvents").on("click", "#publishAllButton", function (e) {
+        e.preventDefault();  //prevents postback
+
+        if (confirm('Are you sure you want to publish this data?')) {
+            $.ajax({
+                url: '@Url.Action("Publish_Data", "StagedCryptoEvents")' ,
+                data: "",
+                type: "POST",
+                success: function (response) {
+                    alert(response);
+                    //location.reload();
+                    $("#gridStagedEvents").data("kendoGrid").dataSource.read();
+                }
+            });
+        } else {
+            // Do nothing!
+            console.log('Nothing to do');
+        }
+
+
+    });
+
+    function remove_staged_events(e) {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["DARAssetID"] + '?');
+
+        if (response) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_staged_events", "StagedCryptoEvents")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(result);
+                    $("#gridStagedEvents").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+        }
+
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+    function remove_published_events(e) {
+        e.preventDefault();
+
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["DARAssetID"] + '?');
+
+        if (response) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_published_events", "StagedCryptoEvents")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(result);
+                    $("#gridPublishedEvents").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+        }
+
+        
+    }
+
+
+    $("#gridPublishedEvents").on("click", "#savechangespublished", function (e) {
+        var grid = $("#gridPublishedEvents").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Editing_Update_published", "StagedCryptoEvents")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridPublishedEvents").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+    });
+
+    $("#gridStagedEvents").on("click", "#savechanges", function (e) {
+        var grid = $("#gridStagedEvents").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Editing_Update_1", "StagedCryptoEvents")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridStagedEvents").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        
+    });
+
+    $("#gridStagedEvents").on("click", "#customButton", function (e) {
+
+        if (selected_items != null)
+        {
+            alert("Publishing: [" + selected_items.split(',').length + "] events. You will receive an alert once the events are published.");
+
+            @*
+            if (confirm('Are you sure you want to publish this data?')) {
+                $.ajax({
+                    url: '@Url.Action("Publish_Data", "StagedCryptoEvents")',
+                    data: "",
+                    type: "POST",
+                    success: function (response) {
+                        alert(response);
+                        location.reload();
+                    }
+                });
+            } else {
+                // Do nothing!
+                console.log('Nothing to do');
+            }*@
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Publish_Selected_Items", "StagedCryptoEvents")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: selected_items },
+                async: false,
+                success: function (result) {
+                    alert(result);
+                    $("#gridStagedEvents").data("kendoGrid").clearSelection();
+                    $("#gridStagedEvents").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+
+                }
+            });
+
+
+        }
+        else {
+            alert("Nothing to publish at this time. Please select the items you want to publish");
+        }
+        e.preventDefault()
+
+    });
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton");
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton");
+        }
+    }
+
+
+
+    // Published event methods
+
+    function getPublishedEventInput() {
+        return {
+            startDate: kendo.toString($("#datepickerEventStart").data("kendoDatePicker").value(), "MM/dd/yyyy")
+            , endDate: kendo.toString($("#datepickerEventEnd").data("kendoDatePicker").value(), "MM/dd/yyyy")
+        }
+    }
+
+    function open() {
+        //console.log("Open");
+    }
+
+    function close() {
+        //console.log("Close");
+    }
+
+    function changePublishedEventInputDate() {
+        $("#gridPublishedEvents").data("kendoGrid").dataSource.read();
+    }
+
+    $("#gridPublishedEvents").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridPublishedEvents").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridStagedEvents").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridStagedEvents").data("kendoGrid").dataSource.read();
+    });
+
+
+
+    $(document).ready(function () {
+
+        $("#datepickerEventStart").data("kendoDatePicker").value(new Date());
+        $("#datepickerEventEnd").data("kendoDatePicker").value(new Date());
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        setGridEditMode(canUpdate);
+        if (canUpdate) {
+            $("#customButton").prop('disabled', false); //enable
+            $("#customButton").removeClass("k-state-disabled");
+            $("#publishAllButton").prop('disabled', false); //enable
+            $("#publishAllButton").removeClass("k-state-disabled");
+
+
+            //toggleEnableMode("publishAllButton", true);
+        }
+        else {
+            $("#customButton").prop('disabled', true); //disable
+            $("#customButton").addClass("k-state-disabled");
+            $("#publishAllButton").prop('disabled', true); //disable
+            $("#publishAllButton").addClass("k-state-disabled");
+        }
+    });
+
+    // File upload
+    function onSelect(e) {
+        //console.log("Select :: " + getFileInfo(e));
+    }
+
+    function onUpload(e) {
+        //console.log("Upload :: " + getFileInfo(e));
+    }
+
+    function onSuccess(e) {
+        //console.log("Success (" + e.operation + ") :: " + getFileInfo(e));
+        alert(e.XMLHttpRequest.response);
+    }
+
+    function onError(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onComplete(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onCancel(e) {
+        //console.log("Cancel :: " + getFileInfo(e));
+    }
+
+    function onRemove(e) {
+        //console.log("Remove :: " + getFileInfo(e));
+    }
+
+    function onProgress(e) {
+        //console.log("Upload progress :: " + e.percentComplete + "% :: " + getFileInfo(e));
+    }
+
+    function onClear(e) {
+        //console.log("Clear");
+    }
+
+    function onSuccess(e) {
+
+        alert("Success");
+    }
+
+    function LineItems_Databound(inputValue) {
+
+
+        if (inputValue != null) {
+            return "<div style='color: #CC0000; font-weight: bold;'>" + inputValue + " </div>";
+        }
+        else {
+            return "";
+        }
+    }
+
+
+    function onSave(e) {
+
+        var grid = $("#gridPublishedEvents").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "ExchangeAssetTicker") {
+            var mappedValue = lookupAsset(e.values['ExchangeAssetTicker']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeAssetTicker'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+                dataItem.ExchangeAssetName = mappedValue.Name;
+            }
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "ExchangeAssetName") {
+            var mappedValue = lookupAsset(e.values['ExchangeAssetName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeAssetName'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+                dataItem.ExchangeAssetTicker = mappedValue.DARTicker;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupAsset(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.ExchangeAssetTicker = mappedValue.DARTicker;
+                dataItem.ExchangeAssetName = mappedValue.Name;
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+
+        dataItem.dirty = true;
+
+
+    }
+
+    function onSaveStagedEvent(e) {
+
+        var grid = $("#gridStagedEvents").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "ExchangeAssetTicker") {
+            var mappedValue = lookupAsset(e.values['ExchangeAssetTicker']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeAssetTicker'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+                dataItem.ExchangeAssetName = mappedValue.Name;
+            }
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "ExchangeAssetName") {
+            var mappedValue = lookupAsset(e.values['ExchangeAssetName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeAssetName'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+                dataItem.ExchangeAssetTicker = mappedValue.DARTicker;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupAsset(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.ExchangeAssetTicker = mappedValue.DARTicker;
+                dataItem.ExchangeAssetName = mappedValue.Name;
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+
+        dataItem.dirty = true;
+
+
+    }
+
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+</script>

@@ -1,0 +1,112 @@
+﻿
+@{
+    ViewBag.Title = "UrlTypeIndex";
+}
+
+@(Html.Kendo().Grid<DARReferenceData.ViewModels.UrlTypeViewModel>()
+    .Name("grid")
+    .Columns(columns =>
+    {
+        columns.Bound(p => p.Name).Width(120);
+        columns.Bound(p => p.DisplayName).Width(120);
+        //columns.Bound(p => p.APIName).Width(120);
+        //columns.Bound(p => p.IsActive).Width(120);
+        //columns.Bound(p => p.CreateUser).Width(150);
+        //columns.Bound(p => p.CreateTime).Width(120);
+        //columns.Bound(p => p.LastEditUser).Width(120);
+        //columns.Bound(p => p.LastEditTime).Width(120);
+        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+    })
+     .ToolBar(toolbar => {
+         toolbar.Create();
+         toolbar.Save();
+         toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+         toolbar.Search();
+     })
+     .Search(
+        search =>
+        {
+            search.Field(f => f.Name);
+            search.Field(f => f.DisplayName);
+        })
+    .Height(800)
+    .Editable(editable => editable.Mode(GridEditMode.InCell))
+    .Pageable()
+    .Navigatable()
+    .Sortable()
+    .Filterable()
+    .Scrollable()
+    .Events(events =>
+    {
+        events.Sort("onSort");
+        events.DataBound("onDataBound");
+
+    })
+    .Resizable(resize => resize.Columns(true))
+    .Reorderable(reorder => reorder.Columns(true))
+    .DataSource(dataSource => dataSource
+        .Ajax()
+        .Batch(true)
+        .PageSize(20)
+        .ServerOperation(true)
+        .Events(events => events.Error("error_handler"))
+        .Model(model =>
+        {
+            model.Id(p => p.DARURLTypeID);
+            model.Field(p => p.CreateUser).Editable(false);
+            model.Field(p => p.CreateTime).Editable(false);
+            model.Field(p => p.LastEditUser).Editable(false);
+            model.Field(p => p.LastEditTime).Editable(false);
+
+        })
+        .Create("Editing_Create", "UrlType")
+        .Read("Editing_Read", "UrlType")
+        .Update("Editing_Update", "UrlType")
+        .Destroy("Editing_Destroy", "UrlType")
+    )
+)
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+    $("#grid").on("click", "#refreshButton", function (e) {
+        e.preventDefault(); // prevent postback
+        $("#grid").data("kendoGrid").dataSource.read();
+    });
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+</script>

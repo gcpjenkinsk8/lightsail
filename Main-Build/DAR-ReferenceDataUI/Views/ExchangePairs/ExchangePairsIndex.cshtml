@@ -1,0 +1,1474 @@
+﻿
+@{
+    ViewBag.Title = "Exchange Pairs Map";
+}
+<input type="hidden" id="exchangepair" name="exchangepair" value="TBD">
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Exchange Pairs")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="exchangepairs" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ExchangePairsV2ViewModel>()
+                            .Name("gridExchangePairs")
+                            .Columns(columns =>
+                            {
+                                columns.Command(command => { command.Custom("Change Going Forward").Click("roll_exchange_pairs_v2"); command.Custom("Change Historical").Click("adjust_exchange_pairs_v2"); command.Custom("Remove").Click("remove_exchange_pairs_v2"); }).Title("Action").Width(500).Locked(true);
+                                columns.Bound(p => p.ExchangeName).Title("Exchange").Width(250);
+                                columns.Bound(p => p.ExchangePair).Title("ExchangePair").Width(250);
+                                columns.Bound(p => p.AssetTicker).Title("AssetTicker").Width(250);
+                                columns.Bound(p => p.AssetName).Title("AssetName").Width(250);
+                                columns.Bound(p => p.CurrencyTicker).Title("PairCurrency").Width(250);
+                                columns.Bound(p => p.CurrencyName).Title("CurrencyName").Width(250);
+                                columns.Bound(p => p.DARExchangeID).Title("DARExchangeID").Width(250);
+                                columns.Bound(p => p.DARCurrencyID).Title("DARCurrencyID").Width(250);
+                                columns.Bound(p => p.DARAssetID).Title("DARAssetID").Width(250);
+                                columns.Bound(p => p.legacyExchangeID).Title("LegacyExchangeID").Width(250);
+                                columns.Bound(p => p.legacyAssetID).Title("LegacyAssetID").Width(250);
+                                columns.Bound(p => p.legacyCurrencyID).Title("LegacyCurrencyID").Width(250);
+                                columns.Bound(p => p.blockchain).Title("Blockchain").Width(250);
+                                columns.Bound(p => p.contractAddress).Title("ContractAddress").Width(250);
+                                columns.Bound(p => p.darPairID).Title("DarPairID").Width(250);
+                                columns.Bound(p => p.StartDate).Title("StartDate").Width(250);
+                                columns.Bound(p => p.EndDate).Title("EndDate").Width(250);
+                                columns.Bound(p => p.LoadTimestamp).Width(250);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Clean Unmapped Trades").HtmlAttributes(new { id = "cleanUnmappedTrades", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.ExchangeName);
+                                        search.Field(f => f.AssetTicker);
+                                        search.Field(f => f.AssetName);
+                                        search.Field(f => f.DARCurrencyID);
+                                        search.Field(f => f.ExchangePair);
+                                        search.Field(f => f.CurrencyTicker);
+                                        search.Field(f => f.CurrencyName);
+                                        search.Field(f => f.DARExchangeID);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("ExchangePairs.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ExchangePairID);
+                                    model.Field(p => p.LoadTimestamp).Editable(false);
+                                    model.Field(p => p.blockchain).DefaultValue("na");
+                                    model.Field(p => p.contractAddress).DefaultValue("na");
+                                    model.Field(p => p.StartDate).DefaultValue(DateTime.Parse("1900-01-01 00:00:00.000000"));
+                                    model.Field(p => p.EndDate).DefaultValue(DateTime.MaxValue);
+
+                                })
+                                .Create("Editing_Exchange_Pair_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Exchange_Pair_Read", "ExchangePairs"))
+                                .Update("Editing_Exchange_Pair_Update", "ExchangePairs")
+                                .Destroy("Editing_Exchange_Pair_Destroy", "ExchangePairs")
+                            )
+                        )
+
+
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("Exchange Status")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="exchnagestatus" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ExchangeStatusViewModel>()
+                            .Name("gridExchangeStatus")
+                            .Columns(columns =>
+                            {
+                                columns.Command(command => { command.Custom("Change Going Forward").Click("roll"); command.Custom("Change Historical").Click("adjust"); command.Custom("Remove").Click("remove_exchange_status"); }).Title("Action").Width(500).Locked(true);
+                                columns.Bound(p => p.DARExchangeID).Title("DARExchangeID").Width(250);
+                                columns.ForeignKey(p => p.DARMnemonicFamily, (System.Collections.IEnumerable)ViewData["DARMnemonic"], "Name", "Name").Width(120).Title("DARMnemonicFamily").Width(150);
+                                columns.ForeignKey(p => p.vettedStatus, (System.Collections.IEnumerable)ViewData["ExchangeVettingStatus"], "ID", "Name").Width(120).Title("VettedStatus").Width(300); ;
+                                columns.Bound(p => p.StartTime).Title("StartTime").Width(250);
+                                columns.Bound(p => p.EndTime).Title("EndTime").Width(250);
+                                columns.Bound(p => p.LoadTimestamp).Width(250);
+                                // columns.Bound(p => p.ExchangeStatusID).Title("ExchangeStatusID").Width(250);
+                                // columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARExchangeID);
+                                        search.Field(f => f.DARMnemonicFamily);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("ExchangeStatus.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave_exchangeID_Status");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ExchangeStatusID);
+                                    model.Field(p => p.LoadTimestamp).Editable(false);
+                                    model.Field(p => p.StartTime).DefaultValue(DateTime.Parse("1900-01-01 00:00:00.000000"));
+                                    model.Field(p => p.EndTime).DefaultValue(DateTime.MaxValue);
+                                })
+                                .Create("Editing_Exchange_Status_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Exchange_Status_Read", "ExchangePairs"))
+                                .Update("Editing_Exchange_Status_Update", "ExchangePairs")
+                                .Destroy("Editing_Exchange_Status_Destroy", "ExchangePairs")
+                            )
+                        )
+
+                    </div>
+                   </text>);
+              tabstrip.Add().Text("Exclude From Pricing")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="excludefrompricing" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ExcludeFromPricingViewModel>()
+                            .Name("gridExcludefromPricing")
+                            .Columns(columns =>
+                            {
+                                columns.Command(command => { command.Custom("Change Going Forward").Click("roll_exclude_from_pricing"); command.Custom("Change Historical").Click("adjust_exclude_from_pricing"); command.Custom("Remove").Click("remove_exclude_from_pricing"); }).Title("Action").Width(500).Locked(true);
+                                columns.Bound(p => p.DARExchangeID).Title("DARExchangeID").Width(250);
+                                columns.Bound(p => p.ExchangeName).Title("Exchange Name").Width(250);
+                                columns.Bound(p => p.ExchangePair).Title("ExchangePair").Width(250);
+                                columns.Bound(p => p.StartDate).Title("StartDate").Width(250);
+                                columns.Bound(p => p.EndDate).Title("EndDate").Width(250);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARExchangeID);
+                                        search.Field(f => f.ExchangePair);
+                                        search.Field(f => f.ExchangeName);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("ExcludeFromPricing.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave_exchangeID_exclude_from_pricing");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ExcludefromPricingID);
+                                    model.Field(p => p.StartDate).DefaultValue(DateTime.Parse("1900-01-01 00:00:00.000000"));
+                                    model.Field(p => p.EndDate).DefaultValue(DateTime.MaxValue);
+                                })
+
+                                .Create("Editing_Exclude_from_Pricing_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Exclude_from_Pricing_Read", "ExchangePairs"))
+                                .Update("Editing_Exclude_from_Pricing_Update", "ExchangePairs")
+                                .Destroy("Editing_Exclude_from_Pricing_Destroy", "ExchangePairs")
+                            )
+                        )
+
+                    </div>
+                   </text>);
+              tabstrip.Add().Text("Serv List V2")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="servlistv2" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ServListV2ViewModel>()
+                            .Name("gridservlistv2")
+                            .Columns(columns =>
+                            {
+                                columns.Command(command => { command.Custom("Change Going Forward").Click("roll_servlist_v2"); command.Custom("Change Historical").Click("adjust_servlist_v2"); command.Custom("Remove").Click("remove_servlist_v2"); }).Title("Action").Width(500).Locked(true);
+                                //columns.Bound(p => p.Servlistv2ID).Title("Servlistv2ID").Width(250);
+                                columns.ForeignKey(p => p.darMnemonic, (System.Collections.IEnumerable)ViewData["DARMnemonics"], "Name", "Name").Width(120).Title("DARMnemonic").Width(250);
+                                columns.ForeignKey(p => p.priceTier, (System.Collections.IEnumerable)ViewData["PricingTier"], "ID", "Name").Width(120).Title("Price Tier").Width(150); ;
+                                columns.Bound(p => p.darAssetID).Title("DARAssetID").Width(250);
+                                columns.Bound(p => p.darTicker).Title("DARTicker").Width(250);
+                                columns.Bound(p => p.startTime).Title("StartTime").Width(250);
+                                columns.Bound(p => p.endTime).Title("EndTime").Width(250);
+                                columns.Bound(p => p.LoadTimeStamp).Width(250);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.darAssetID);
+                                        search.Field(f => f.darMnemonic);
+                                        search.Field(f => f.darTicker);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("ServListV2.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave_DARAssetID");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Servlistv2ID);
+                                    model.Field(p => p.LoadTimeStamp).Editable(false);
+                                    model.Field(p => p.startTime).DefaultValue(DateTime.Parse("1900-01-01 00:00:00.000000"));
+                                    model.Field(p => p.endTime).DefaultValue(DateTime.MaxValue);
+                                })
+
+                                .Create("Editing_Serv_List_V2_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Serv_List_V2_Read", "ExchangePairs"))
+                                .Update("Editing_Serv_List_V2_Update", "ExchangePairs")
+                                .Destroy("Editing_Serv_List_V2_Destroy", "ExchangePairs")
+                            )
+                        )
+                    </div>
+                   </text>);
+              tabstrip.Add().Text("Non Pricing Serv List")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="nonpricingservlist" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.NonPricingServListViewModel>()
+                            .Name("gridnonpricingservlist")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.darMnemonic).Title("DARMnemonic").Width(250);
+                                columns.Bound(p => p.darAssetID).Title("DARAssetID").Width(250);
+                                columns.Bound(p => p.note).Title("Note").Width(250);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.darAssetID);
+                                        search.Field(f => f.darMnemonic);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("nonpricingservlist.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                //events.Sort("onSort");
+                                //events.DataBound("onDataBound");
+                                //events.Save("onSave");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.darAssetID);
+                                })
+
+                                //.Create("Editing_Serv_List_V2_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Non_Pricing_Serv_List_Read", "ExchangePairs"))
+                                //.Update("Editing_Serv_List_V2_Update", "ExchangePairs")
+                                //.Destroy("Editing_Serv_List_V2_Destroy", "ExchangePairs")
+                            )
+                        )
+                    </div>
+                   </text>);
+              tabstrip.Add().Text("Include Pricing Currency")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div id="includepricingcurrency" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.IncludePricingCurrencyViewModel>()
+                            .Name("gridincludePRicingCurrency")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.darMnemonicFamily).Title("DARMnemonic").Width(250);
+                                columns.ForeignKey(p => p.priceTier, (System.Collections.IEnumerable)ViewData["PricingTier"], "ID", "Name").Width(120).Title("Price Tier").Width(150); ;
+                                columns.Bound(p => p.currencyTicker).Title("Currency Ticker").Width(250);
+                                columns.Bound(p => p.startDate).Title("Start Date").Width(250);
+                                columns.Bound(p => p.endDate).Title("End Date").Width(250);
+                                //columns.Command(command => { command.Edit(); command.Destroy(); }).Width(250);
+                            })
+                                .ToolBar(toolbar => {
+
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                    toolbar.Search();
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.priceTier);
+                                        search.Field(f => f.currencyTicker);
+                                        search.Field(f => f.darMnemonicFamily);
+                                    })
+                            .Height(800)
+                            .Pageable()
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("includepricingcurrency.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                //events.Sort("onSort");
+                                //events.DataBound("onDataBound");
+                                //events.Save("onSave");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(false)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.darMnemonicFamily);
+                                })
+
+                                //.Create("Editing_Serv_List_V2_Create", "ExchangePairs")
+                                .Read(read => read.Action("Editing_Include_Pricing_Currency_Read", "ExchangePairs"))
+                            //.Update("Editing_Serv_List_V2_Update", "ExchangePairs")
+                            //.Destroy("Editing_Serv_List_V2_Destroy", "ExchangePairs")
+                            )
+                        )
+                    </div>
+                   </text>);
+              tabstrip.Add().Text("Upload")
+                  .Selected(false)
+                  .Content(@<text>
+                        <div id="includepricingcurrency" class="dar-tab">
+                           @Html.Partial("ExchangePairUpload")
+                        </div>
+                  </text>);
+
+
+            })
+    .Events(events => events.Select("onTabSelect"))
+       )
+</div>
+
+
+<script>
+    function onUploadExchangePairs(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'ExchangePairUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+    function onUploadExclude(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'ExcludePairfromServListUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+
+    function remove_exchange_status(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["DARExchangeID"] + '?');
+
+        if (response) {
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_exchange_status", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(result);
+                    $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+
+    function roll(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Roll", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+    function adjust(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Adjust", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+        $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+    }
+
+    function remove_exchange_pairs_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["ExchangePair"] + '?');
+
+        if (response) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_exchange_pairs_v2", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(result);
+                    $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+        }
+
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+    function roll_exchange_pairs_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Roll_exchange_pairs_v2", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+    function adjust_exchange_pairs_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Adjust_exchange_pairs_v2", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+        $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+    }
+
+    function roll_servlist_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Roll_servlist_v2", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+
+                $("#gridservlistv2").data("kendoGrid").dataSource.read();
+
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+    function adjust_servlist_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Adjust_servlist_v2", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridservlistv2").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+        $("#gridservlistv2").data("kendoGrid").dataSource.read();
+    }
+
+
+    function remove_servlist_v2(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["darTicker"] + '?');
+
+        if (response) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_servlist_v2", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert("Removed!");
+                    $("#gridservlistv2").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+            //var obj = JSON.parse(out_result);
+
+            //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+            $("#gridservlistv2").data("kendoGrid").dataSource.read();
+        }
+    }
+
+    function roll_exclude_from_pricing(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Roll_exclude_from_pricing", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+
+    function remove_exclude_from_pricing(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        const response = confirm('Are you sure you want permanently delete ' + dataItem["ExchangePair"] + '?');
+        if (response) {
+
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("remove_exclude_from_pricing", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert("Removed!");
+                    $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+        $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+    }
+    function adjust_exclude_from_pricing(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Adjust_exclude_from_pricing", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: JSON.stringify(dataItem) },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert(result);
+                $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        //var obj = JSON.parse(out_result);
+
+        //alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+        $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+    }
+
+    function lookupExchange(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupExchangePublic", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+
+        return JSON.parse(out_result);
+    }
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+    function lookupToken(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupToken", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+    function lookupTokenName(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupToken_Name", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+    function onSave(e) {
+
+        var grid = $("#gridExchangePairs").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupToken(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.AssetTicker = mappedValue.darTicker
+                dataItem.AssetName = mappedValue.Name
+                dataItem.legacyAssetID = mappedValue.legacyID
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "AssetName") {
+            var mappedValue = lookupTokenName(e.values['AssetName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['AssetName'] + " is an invalid entry!");
+            }
+            else
+                dataItem.AssetTicker = mappedValue.darTicker
+                dataItem.DARAssetID = mappedValue.darAssetID
+                dataItem.legacyAssetID = mappedValue.legacyID
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "AssetTicker") {
+            var mappedValue = lookupToken(e.values['AssetTicker']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['AssetTicker'] + " is an invalid entry!");
+            }
+            else
+                dataItem.AssetName = mappedValue.Name
+                dataItem.DARAssetID = mappedValue.darAssetID
+                dataItem.legacyAssetID = mappedValue.legacyID
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARExchangeID") {
+            var mappedValue = lookupExchange(e.values['DARExchangeID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARExchangeID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.legacyExchangeID = mappedValue.LegacyId;
+                dataItem.ExchangeName = mappedValue.ShortName;
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "ExchangeName") {
+            var mappedValue = lookupExchange(e.values['ExchangeName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeName'] + " is an invalid entry!");
+            }
+            else
+                dataItem.legacyExchangeID = mappedValue.LegacyId;
+                dataItem.DARExchangeID = mappedValue.DARExchangeID;
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARCurrencyID") {
+            var mappedValue = lookupToken(e.values['DARCurrencyID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARCurrencyID'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.CurrencyTicker = mappedValue.darTicker;
+                dataItem.CurrencyName = mappedValue.Name;
+                dataItem.legacyCurrencyID = mappedValue.legacyID;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "CurrencyName") {
+            var mappedValue = lookupToken(e.values['CurrencyName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['CurrencyName'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.CurrencyTicker = mappedValue.darTicker;
+                dataItem.DARCurrencyID = mappedValue.darAssetID;
+                dataItem.legacyCurrencyID = mappedValue.legacyID;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "CurrencyTicker") {
+            var mappedValue = lookupToken(e.values['CurrencyTicker']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['CurrencyTicker'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.CurrencyName = mappedValue.Name;
+                dataItem.DARCurrencyID = mappedValue.darAssetID;
+                dataItem.legacyCurrencyID = mappedValue.legacyID;
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+
+    }
+
+    function onSave_exchangeID_Status(e) {
+
+        var grid = $("#gridExchangeStatus").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "DARExchangeID") {
+            var mappedValue = lookupExchange(e.values['DARExchangeID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARExchangeID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.ShortName = mappedValue.ShortName;
+
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+
+    }
+
+    function onSave_exchangeID_exclude_from_pricing(e) {
+
+        var grid = $("#gridExcludefromPricing").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "DARExchangeID") {
+            var mappedValue = lookupExchange(e.values['DARExchangeID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARExchangeID'] + " is an invalid entry!");
+            }
+            else
+                dataItem.ExchangeName = mappedValue.ShortName;
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "ExchangeName") {
+            var mappedValue = lookupExchange(e.values['ExchangeName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['ExchangeName'] + " is an invalid entry!");
+            }
+            else
+                dataItem.DARExchangeID = mappedValue.DARExchangeID;
+
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+    }
+
+    function onSave_DARAssetID(e) {
+
+        var grid = $("#gridservlistv2").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "darAssetID") {
+            var mappedValue = lookupToken(e.values['darAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['darAssetID'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.darTicker = mappedValue.darTicker;
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+        dataItem.dirty = true;
+    }
+
+    function reloadData(e) {
+        if (e.type === 'update') {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+        }
+
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton");
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton");
+        }
+    }
+
+    $("#gridExchangePairs").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridExchangePairs").on("click", "#cleanUnmappedTrades", function (e) {
+        e.preventDefault();  //prevents postback
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("CleanUnmappedTrades", "ExchangePairs")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: 'unmapped_clean_prod' },
+            async: false,
+            success: function (result) {
+                out_result = result;
+                alert("Cleanup started.");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+
+    });
+
+
+    $("#gridExchangeStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridExcludefromPricing").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+    });
+
+
+    $("#gridservlistv2").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridservlistv2").data("kendoGrid").dataSource.read();
+    });
+
+
+    function gridExchangeStatus_saveChanges(e) {
+
+        e.preventDefault();
+        var grid = $("#gridExchangeStatus").data("kendoGrid");
+        var dataItem = grid.dataItem("tbody tr:eq(0)");
+        if (dataItem["ExchangeStatusID"]) {
+            alert("Please pick an action from the action column to save changes.");
+
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Add", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(out_result);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+            $("#gridExchangeStatus").data("kendoGrid").dataSource.read();
+
+        }
+    }
+
+    $(document).ready(function () {
+        var grid = $("#gridExchangeStatus").data("kendoGrid");
+        grid.bind("saveChanges", gridExchangeStatus_saveChanges);
+    });
+
+    function gridservlistv2_saveChanges(e) {
+
+        e.preventDefault();
+        var grid = $("#gridservlistv2").data("kendoGrid");
+        var dataItem = grid.dataItem("tbody tr:eq(0)");
+        if (dataItem["Servlistv2ID"]) {
+            alert("Please pick an action from the action column to save changes.");
+
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Add_servlist_v2", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(out_result);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+            $("#gridservlistv2").data("kendoGrid").dataSource.read();
+
+        }
+    }
+
+    $(document).ready(function () {
+        var grid = $("#gridservlistv2").data("kendoGrid");
+        grid.bind("saveChanges", gridservlistv2_saveChanges);
+    });
+
+    function gridexchangepairs_saveChanges(e) {
+
+        e.preventDefault();
+        var grid = $("#gridExchangePairs").data("kendoGrid");
+        var dataItem = grid.dataItem("tbody tr:eq(0)");
+        if (dataItem["ExchangePairID"]) {
+            alert("Please pick an action from the action column to save changes.");
+
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Add_exchange_pair_v2", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(out_result);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+            $("#gridExchangePairs").data("kendoGrid").dataSource.read();
+
+        }
+    }
+
+    $(document).ready(function () {
+        var grid = $("#gridExchangePairs").data("kendoGrid");
+        grid.bind("saveChanges", gridexchangepairs_saveChanges);
+    });
+
+    function gridexcludefrompricing_saveChanges(e) {
+
+        e.preventDefault();
+        var grid = $("#gridExcludefromPricing").data("kendoGrid");
+        var dataItem = grid.dataItem("tbody tr:eq(0)");
+        if (dataItem["ExcludefromPricingID"]) {
+            alert("Please pick an action from the action column to save changes.");
+
+        }
+        else {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Add_exclude_from_pricing", "ExchangePairs")',
+                contentType: 'application/json; charset=utf-8', // this
+                datatype: 'json',
+                data: { input: JSON.stringify(dataItem) },
+                async: false,
+                success: function (result) {
+                    out_result = result;
+                    alert(out_result);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("Status: " + textStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+
+            $("#gridExcludefromPricing").data("kendoGrid").dataSource.read();
+
+        }
+    }
+
+    $(document).ready(function () {
+        var grid = $("#gridExcludefromPricing").data("kendoGrid");
+        grid.bind("saveChanges", gridexcludefrompricing_saveChanges);
+    });
+
+	function onSelect(e) {
+        //console.log("Select :: " + getFileInfo(e));
+    }
+
+    function onUpload(e) {
+        //console.log("Upload :: " + getFileInfo(e));
+    }
+
+    function onError(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onComplete(e) {
+
+
+    }
+
+    function onCancel(e) {
+        //console.log("Cancel :: " + getFileInfo(e));
+    }
+
+    function onRemove(e) {
+        //console.log("Remove :: " + getFileInfo(e));
+    }
+
+    function onProgress(e) {
+        //console.log("Upload progress :: " + e.percentComplete + "% :: " + getFileInfo(e));
+    }
+
+    function onClear(e) {
+        //console.log("Clear");
+    }
+
+    function onSuccess(e) {
+        //e.preventDefault();  //prevents postback
+        //alert("Success");
+    }
+
+</script>
+
