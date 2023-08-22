@@ -3,7 +3,7 @@ name: Restart IIS
 on:
   workflow_dispatch:
   workflow_run:
-    workflows: ["Copy Git to Lighsail"]
+    workflows: ["Copy File to Deploy Location"]
     types:
       - completed
 
