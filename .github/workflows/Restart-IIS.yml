@@ -2,10 +2,10 @@ name: Restart IIS
 
 on:
   workflow_dispatch:
-  #workflow_run:
-   # workflows: ["Copy Git to Lighsail"]
-    #types:
-     # - completed
+  workflow_run:
+    workflows: ["Copy Git to Lighsail"]
+    types:
+      - completed
 
 jobs:
   Restart-IIS:
