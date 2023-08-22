@@ -18,15 +18,15 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln  # Adjust the path
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
 
       - name: Build
         run: dotnet build --configuration Release
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln  # Adjust the path
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/ # Adjust the path
 
       - name: Publish
         run: dotnet publish --configuration Release --output ./publish
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln  # Adjust the path
+        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
 
       - name: Create zip
         run: |
