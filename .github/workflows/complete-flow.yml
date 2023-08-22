@@ -1,16 +1,57 @@
-name: Comp Deployment
+name: Comp Flow
 
 on:
   workflow_dispatch:
-  #workflow_run:
-    #workflows: ["Copy Git to Lighsail"]
-    #types:
-      #- completed
+
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
 
 jobs:
+  build-publish:
+    runs-on: windows-latest  # Use the Windows runner
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Cache NuGet packages
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.NUGET_PACKAGES }}
+        key: nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: nuget-
+        
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Clean NuGet packages
+      run: nuget locals all -clear
+
+    - name: Restore NuGet packages
+      run: nuget restore
+      
+    - name: Restore dependencies
+      run: msbuild /restore
+      
+
+    - name: Build Solution
+      run: |
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build"
+        
+
+    - name: Set artifact name
+      id: artifact-name
+      run: echo "::set-output name=name::Build-$(date +%Y%m%d)"
+
+    - name: Publish artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.artifact-name.outputs.name }}
+        path: "./_build"
+  
   Copy-file-git-lighsail:
     runs-on: ubuntu-latest
 
@@ -36,9 +77,8 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_USER="Administrator"
           WINDOWS_SERVER_IP="3.110.130.37"
-          SOURCE_FOLD="C:/DeploymentFiles/VersionFolder"
-          DESTINATION_FOLDER="C:/DeploymentFiles/ReleaseFolder"
           sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:"${{ env.SOURCE_FOLDER }}"
+
 
   # Stop-IIS:
   #   name: Stop-IIS 
