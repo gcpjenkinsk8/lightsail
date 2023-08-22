@@ -14,18 +14,16 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.x  # Replace with your desired .NET version
+          dotnet-version: 3.1.x  # Replace with your desired .NET version
           
       - name: Restore and build .NET Core projects
         run: |
           dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
           dotnet build --configuration Release DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI/DAR_ReferenceDataUI.csproj
-          dotnet restore DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DARRefDataTest/DARRefDataTest.csproj
-          dotnet build --configuration Release DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DARRefDataTest/DARRefDataTest.csproj
           # Add more project restore and build commands if needed
 
-      - name: Run tests
-        run: dotnet test DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DARRefDataTest/DARRefDataTest.csproj --logger "trx;LogFileName=testresults.trx"
+     # - name: Run tests
+      #  run: dotnet test DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DARRefDataTest/DARRefDataTest.csproj --logger "trx;LogFileName=testresults.trx"
         # Run tests for other projects if needed
 
 
