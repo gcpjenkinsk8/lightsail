@@ -14,21 +14,30 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 3.1.x  # Replace with your desired .NET version
+          dotnet-version: 3.1.426  # Replace with your desired .NET version
+    
+      - name: Restore NuGet packages
+        run: dotnet restore DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
-      - name: Restore dependencies
-        run: dotnet restore
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
+      - name: Build project
+        run: dotnet build --configuration Release DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
-      - name: Build
-        run: dotnet build --configuration Release
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/ # Adjust the path
+      - name: Run tests
+        run: dotnet test --no-restore --verbosity normal DAR-ReferenceDataUI/DAR-ReferenceDataUI.csproj
 
-      - name: Publish
-        run: dotnet publish --configuration Release --output ./publish
-        working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
+      #- name: Restore dependencies
+       # run: dotnet restore
+        #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
 
-      - name: Create zip
-        run: |
-          zip -r build.zip ./publish
-          mv build.zip $GITHUB_WORKSPACE/build2208.zip
+      #- name: Build
+       # run: dotnet build --configuration Release
+        #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/ # Adjust the path
+
+      #- name: Publish
+       # run: dotnet publish --configuration Release --output ./publish
+        #working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/  # Adjust the path
+
+      #- name: Create zip
+       # run: |
+        #  zip -r build.zip ./publish
+         # mv build.zip $GITHUB_WORKSPACE/build2208.zip
