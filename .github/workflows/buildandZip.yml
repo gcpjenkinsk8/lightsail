@@ -19,7 +19,7 @@ jobs:
       run: dotnet restore Main-Build
 
     - name: Restore dependencies
-      run: msbuild /restore
+      run: msbuild /restore Main-Build
 
     - name: Build .NET code
       run: msbuild /p:Configuration=Release Main-Build
