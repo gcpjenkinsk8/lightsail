@@ -29,8 +29,8 @@ jobs:
     - name: Publish .NET code
       run: msbuild /t:Publish /p:Configuration=Release /p:OutputPath=./publish Main-Build
  
-    - name: Publish artifact
+    - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: dotnet-code-artifact
-        path: ./publish
+        name: build-artifacts
+        path: ./publish  # Change this to the correct path
