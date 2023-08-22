@@ -1,0 +1,255 @@
+﻿
+@{
+    ViewBag.Title = "Finalized Events";
+}
+
+<div class="divTable">
+    <div class="divTableBody">
+        <div class="divTableRow">
+            <div class="divTableCell darLabel">Event Date Start:</div>
+            <div class="divTableCell darDatePicker">
+                @(Html.Kendo().DatePicker()
+                      .Name("dpStartDate")
+                      .Events(e =>
+                      {
+                          e.Change("change");
+                      })
+                )
+            </div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+        </div>
+        <div class="divTableRow">
+            <div class="divTableCell darLabel">Event Date End:</div>
+            <div class="divTableCell darDatePicker">
+                @(Html.Kendo().DatePicker()
+                      .Name("dpEndDate")
+                      .Events(e =>
+                      {
+                          e.Change("change");
+                      })
+                )
+            </div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+        </div>            
+        <div class="divTableRow">
+            <div class="divTableCell darLabel">&nbsp;</div>
+            <div class="divTableCell darDatePicker">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+            <div class="divTableCell">&nbsp;</div>
+        </div>
+    </div>
+</div>
+<div class="demo-section k-content">
+
+    @(Html.Kendo().Grid<DARReferenceData.ViewModels.StagedCryptoEventViewModel>()
+            .Name("grid")
+            .Columns(columns =>
+            {
+                columns.Bound(p => p.DAREventID).Title("DAR<br/>Event<br/>ID").Format("{0:" + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + "}").Width(120);
+                columns.Bound(p => p.DateofReview).Title("Date<br/>Of<br/>Review").Format("{0:" + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + "}").Width(120);
+                columns.Bound(p => p.EventType).Title("Event<br/>Type").Width(120);
+                columns.Bound(p => p.DARAssetID).Title("DAR<br/>Asset<br/>ID").Width(120);
+                columns.Bound(p => p.ExchangeAssetTicker).Title("Exchange<br/>Asset<br/>Ticker").Width(120);
+                columns.Bound(p => p.ExchangeAssetName).Title("Exchange<br/>Asset<br/>Name").Width(120);
+                columns.Bound(p => p.EventDate).Title("Event<br/>Date").Width(120).Format("{0:" + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + "}").Width(120);
+                columns.Bound(p => p.AnnouncementDate).Title("Announcement<br/>Date").Width(120).Format("{0:" + System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern + "}").Width(120);
+                columns.Bound(p => p.EventDescription).Title("Event<br/>Description").Width(120);
+                columns.Bound(p => p.SourceURL).Title("Source<br/>URL").Width(150);
+                columns.Bound(p => p.Notes).Width(150);
+                columns.Bound(p => p.BlockHeight).Title("Block<br/>Height").Width(120); ;
+                columns.Bound(p => p.EventStatus).Title("Status").Width(120);
+
+                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+
+            })
+            .ToolBar(toolbar =>
+            {
+                toolbar.Excel();
+                toolbar.Search();
+                toolbar.Create();
+                toolbar.Save();
+                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+
+            })
+            .Scrollable()
+            .Search(
+                search =>
+                {
+                    search.Field(f => f.DARAssetID);
+                    search.Field(f => f.EventDescription);
+                    search.Field(f => f.EventType);
+                    search.Field(f => f.ExchangeAssetTicker);
+                    search.Field(f => f.ExchangeAssetName);
+                    search.Field(f => f.SourceURL);
+                    search.Field(f => f.Notes);
+                })
+            .Height(800)
+            .Editable(editable => editable.Mode(GridEditMode.InCell))
+            .Pageable()
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .Groupable()
+            .Filterable()
+            .Events(events =>
+            {
+                events.Sort("onSort");
+                events.DataBound("onDataBound");
+
+            })
+            .Excel(excel => excel
+                                .AllPages(true)
+                                .FileName("Finalized_Events.xlsx")
+                                .Filterable(true)
+                                .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DAREventID);
+                                    model.Field(p => p.DAREventID).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+
+                                })
+                                .Read(read => read.Action("FinalizedCrypoEvents_Read", "StagedCryptoEvents").Data("getInput"))
+                                .Create("FinalizedCrypoEvents_Create", "StagedCryptoEvents")
+                                .Update("FinalizedCrypoEvents_Update", "StagedCryptoEvents")
+                                .Destroy("FinalizedCrypoEvents_Destroy", "StagedCryptoEvents")
+                       )
+               .Resizable(resize => resize.Columns(true))
+               .Reorderable(reorder => reorder.Columns(true))
+)
+</div>
+
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+
+    //function onSort(e) {
+    //    var gridData = e.sender.dataSource.data()
+    //    gridData.forEach(function (element) {
+    //        if (!element.ProductName) {
+    //            e.preventDefault()
+    //        }
+    //    });
+    //}
+
+    function getInput() {
+        return {
+            startDate: $("#dpStartDate").data("kendoDatePicker").value()
+            , endDate: $("#dpEndDate").data("kendoDatePicker").value()
+        }
+    }
+
+    function open() {
+        kendoConsole.log("Open");
+    }
+
+    function close() {
+        kendoConsole.log("Close");
+    }
+
+    function change() {
+        $("#grid").data("kendoGrid").dataSource.read();
+    }
+
+    $("#grid").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#grid").data("kendoGrid").dataSource.read();
+    });
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    $(document).ready(function () {
+        $("#dpStartDate").data("kendoDatePicker").value(new Date());
+        $("#dpEndDate").data("kendoDatePicker").value(new Date());
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+
+</script>
+
+<style>
+    /* DivTable.com */
+
+    .divTable {
+        display: table;
+        width: 100%;
+    }
+    .divTableRow {
+        display: table-row;
+    }
+    .divTableHeading {
+        background-color: #EEE;
+        display: table-header-group;
+    }
+
+    .divTableCell, .divTableHead {
+        border: 0px solid #999999;
+        display: table-cell;
+        padding: 3px 10px;
+    }
+
+    .divTableHeading {
+        background-color: #EEE;
+        display: table-header-group;
+        font-weight: bold;
+    }
+
+    .divTableFoot {
+        background-color: #EEE;
+        display: table-footer-group;
+        font-weight: bold;
+    }
+
+    .divTableBody {
+        display: table-row-group;
+    }
+    /*Override width of darLable here */
+    .darLabel {
+        font-weight: bold;
+        font-size: 10pt;
+        text-align: right;
+        max-width: 25px;
+ 
+    }
+
+    .darDatePicker {
+        max-width: 100px;
+    }
+
+</style>

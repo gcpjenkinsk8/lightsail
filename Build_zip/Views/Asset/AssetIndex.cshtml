@@ -1,0 +1,794 @@
+﻿@{
+    ViewBag.Title = "Asset";
+}
+<input type="hidden" id="assetName" name="assetName" value="TBD">
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Asset")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="assetTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.AssetViewModel>()
+                            .Name("gridAsset")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARAssetID).Title("Asset</br>Identifier").Width(120).Locked(true).ClientTemplate("#= LineItems_Databound(DARAssetID,LastEditTime)#");
+                                columns.Bound(p => p.DARTicker).Title("DAR</br>Ticker").Width(120).Locked(true);
+                                columns.Bound(p => p.Name).Title("Name").Width(120).Locked(true);
+                                columns.Bound(p => p.AssetType).Title("Asset</br>Type").Width(120).Locked(true);
+                                columns.Bound(p => p.Description).Width(300);
+                                columns.Command(command => { command.Custom("View").Click("showDetails"); command.Custom("Price").Click("showPrice"); command.Custom("Price Input").Click("showPriceInput"); }).Title("Details").Width(275).Locked(true);
+                                columns.Bound(p => p.CoinGeckoId).Width(300);
+                                columns.Bound(p => p.CoinMarketCapId).Width(300);
+
+                                columns.Bound(p => p.Sponsor).Width(300);
+                                columns.Bound(p => p.IsBenchmarkAsset).Title("Is</br>Benchmark</br>Asset").Width(130);
+                                columns.Bound(p => p.GovernanceToken).Title("Is</br>Governance</br>Token").Width(130);
+                                columns.Bound(p => p.LayerOne).Title("Layer</br>One").Width(120);
+                                columns.Bound(p => p.DevelopmentStage).Title("Development</br>Stage").Width(140);
+                                columns.Bound(p => p.DARSuperSector).Title("DAR</br>Super</br>Sector").Width(120);
+                                columns.Bound(p => p.DARSuperSectorCode).Title("DAR</br>Super</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DARSector).Title("DAR</br>Sector").Width(120);
+                                columns.Bound(p => p.DARSectorCode).Title("DAR</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DARSubSector).Title("DAR</br>Sub</br>Sector").Width(120);
+                                columns.Bound(p => p.DARSubSectorCode).Title("DAR</br>Sub</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DarTaxonomyVersion).Title("Dar</br>Taxonomy</br>Version").Format("{0:n2}").Width(120);
+
+                                columns.Bound(p => p.DATSSuperSector).Title("DATS</br>Super</br>Sector").Width(120);
+                                columns.Bound(p => p.DATSSuperSectorCode).Title("DATS</br>Super</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DATSSector).Title("DATS</br>Sector").Width(120);
+                                columns.Bound(p => p.DATSSectorCode).Title("DATS</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DATSSubSector).Title("DATS</br>Sub</br>Sector").Width(120);
+                                columns.Bound(p => p.DATSSubSectorCode).Title("DATS</br>Sub</br>Sector</br>Code").Width(120);
+                                columns.Bound(p => p.DATSGovernance).Title("DATS</br>Governance").Width(120);
+                                columns.Bound(p => p.DATSLayer1).Title("DATS</br>Layer</br>1").Width(120);
+                                columns.Bound(p => p.DATSTaxonomyVersion).Title("DATS</br>Taxonomy</br>Version").Format("{0:n2}").Width(120);
+
+                                columns.Bound(p => p.IssuanceFramework).Title("Issuance</br>Framework").Width(120);
+                                //columns.Bound(p => p.IsRestricted).Title("Is</br>Restricted").Width(120);
+                                columns.Bound(p => p.CirculatingSupply).Title("Estimated</br>Circulating</br>Supply").Width(130);
+                                columns.Bound(p => p.EstimatedCirculatingSupply).Title("Estimated</br>Circulating</br>Supply").Width(130);
+                                columns.Bound(p => p.MaxSupply).Title("Max</br>Supply").Format("{0:n}").Width(120);
+                                columns.Bound(p => p.MessariTaxonomyCategory).Title("Messari</br>Taxonomy</br>Category").Width(120);
+                                columns.Bound(p => p.MessariTaxonomySector).Title("Messari</br>Taxonomy</br>Sector").Width(120);
+                                columns.Bound(p => p.InstitutionalCustodyAvailable).Title("Institutional</br>Custody</br>Available").Width(120);
+                                columns.Bound(p => p.HasERC20Version).Title("ERC-20</br>Token").Width(120);
+                                columns.Bound(p => p.HasNYDFSCustoday).Title("On</br>NYDFS</br>Custody</br>Greenlist").Width(120);
+                                columns.Bound(p => p.LegacyDARAssetId).Title("Legacy</br>Asset</br>Identifier").Width(120);
+                                columns.Bound(p => p.LegacyId).Width(120);
+                                columns.Bound(p => p.SEDOL).Width(120);
+                                columns.Bound(p => p.ISIN).Width(120);
+                                columns.Bound(p => p.CUSIP).Width(120);
+                                columns.Bound(p => p.DTI).Width(120);
+                                columns.Bound(p => p.IsoCurrencyCode).Title("ISO</br>Currency</br>Code").Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(350);
+
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.DARTicker);
+                                        search.Field(f => f.Name);
+                                        search.Field(f => f.AssetType);
+                                        search.Field(f => f.Description);
+                                        search.Field(f => f.SEDOL);
+                                        search.Field(f => f.ISIN);
+                                        search.Field(f => f.CUSIP);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Assets.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARAssetID);
+                                    model.Field(p => p.DARAssetID).Editable(false);
+                                    model.Field(p => p.CirculatingSupply).Editable(true);
+
+                                })
+                                .Create("Editing_Create", "Asset")
+                                .Read("Editing_Read", "Asset")
+                                .Update("Editing_Update", "Asset")
+                                .Destroy("Editing_Destroy", "Asset")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Asset Token")
+                  .Content(@<text>
+                    <div id="assetTokenTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.AssetTokenViewModel>()
+                            .Name("gridAssetToken")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARTokenID).Width(120);
+                                columns.Bound(p => p.TokenName).Width(150);
+                                columns.Bound(p => p.TokenContractAddress).Width(120);
+                                columns.Bound(p => p.DARAssetID).Title("Asset</br>Identifier").Width(120);
+                                columns.Bound(p => p.DARTicker).Title("DAR</br>Ticker").Width(120);
+                                columns.Bound(p => p.AssetName).Title("Asset Name").Width(120);
+                                columns.Bound(p => p.BlockChain).Width(120);
+                                columns.Bound(p => p.ConsensusMechanism).Width(120);
+                                columns.Bound(p => p.HashAlgorithm).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.DARTicker);
+                                        search.Field(f => f.TokenContractAddress);
+                                        search.Field(f => f.AssetName);
+                                        search.Field(f => f.DARTokenID);
+                                        search.Field(f => f.TokenName);
+                                        search.Field(f => f.BlockChain);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AssetToken.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            }).Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.DARTokenID).Editable(false);
+                                    model.Field(p => p.TokenName).Editable(false);
+                                    model.Field(p => p.DARTicker).Editable(false);
+                                    model.Field(p => p.AssetName).Editable(false);
+                                    model.Field(p => p.ConsensusMechanism).Editable(false);
+                                    model.Field(p => p.HashAlgorithm).Editable(false);
+                                })
+                                .Create("AssetToken_Create", "Asset")
+                                .Read("AssetToken_Read", "Asset")
+                                .Update("AssetToken_Update", "Asset")
+                                .Destroy("AssetToken_Destroy", "Asset")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Themes")
+                  .Content(@<text>
+                    <div id="assetThemeTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.AssetThemeViewModel>()
+                            .Name("gridAssetTheme")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARAssetID).Width(120);
+                                columns.Bound(p => p.AssetName).Width(120);
+                                columns.ForeignKey(p => p.ThemeName, (System.Collections.IEnumerable)ViewData["Themes"], "Name", "Name").Width(120).Title("Theme");
+                                columns.Bound(p => p.ThemeType).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+
+                             })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AssetTheme.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.DARAssetID).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+                                })
+                                .Create("Editing_Create", "AssetTheme")
+                                .Read("Editing_Read", "AssetTheme")
+                                .Update("Editing_Update", "AssetTheme")
+                                .Destroy("Editing_Destroy", "AssetTheme")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Asset URL")
+                  .Content(@<text>
+                    <div id="assetUrlTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.AssetURLViewModel>()
+                            .Name("gridAssetURL")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.DARAssetID).Width(120);
+                                columns.Bound(p => p.Asset).Width(120);
+                                //columns.ForeignKey(p => p.Asset, (System.Collections.IEnumerable)ViewData["Assets"], "Name", "Name").Width(120).Title("Asset");
+                                //columns.Bound(p => p.URLType).Width(120);
+                                columns.ForeignKey(p => p.URLType, (System.Collections.IEnumerable)ViewData["UrlTypes"], "Name", "Name").Width(120).Title("URLTypes");
+                                columns.Bound(p => p.URLPath).Width(120);
+                                //columns.Bound(p => p.IsActive).Width(120);
+                                //columns.Bound(p => p.CreateUser).Width(150);
+                                //columns.Bound(p => p.CreateTime).Width(120);
+                                //columns.Bound(p => p.LastEditUser).Width(120);
+                                //columns.Bound(p => p.LastEditTime).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                             })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AssetUrl.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARURLTypeID);
+                                    model.Field(p => p.DARAssetID).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+
+                                })
+                                .Create("Editing_Create", "AssetURL")
+                                .Read("Editing_Read", "AssetURL")
+                                .Update("Editing_Update", "AssetURL")
+                                .Destroy("Editing_Destroy", "AssetURL")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+               tabstrip.Add().Text("Blockchain")
+                  .Content(@<text>
+                    <div id="assetUrlTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.BlockChainViewModel>()
+                            .Name("gridBlockchain")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Name).Width(120);
+                                columns.Bound(p => p.Description).Width(120);
+                                columns.Bound(p => p.ConsensusMechanism).Width(120);
+                                columns.Bound(p => p.HashAlgorithm).Width(120);
+                                columns.Bound(p => p.IsActive).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                 toolbar.Search();
+                             })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.Name);
+                                    search.Field(f => f.Description);
+                                    search.Field(f => f.HashAlgorithm);
+                                })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Blockchain.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARBlockchainID);
+
+                                })
+                                .Create("Blockchain_Create", "Asset")
+                                .Read("Blockchain_Read", "Asset")
+                                .Update("Blockchain_Update", "Asset")
+                                .Destroy("Blockchain_Destroy", "Asset")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+                  tabstrip.Add().Text("Asset Custodians")
+                  .Content(@<text>
+      
+                    <div id="assetCustodianTab" class="dar-tab">
+                       @(Html.Kendo().Grid<DARReferenceData.ViewModels.AssetCustodianViewModel>()
+                            .Name("gridAssetCustodians")
+                            .Columns(columns =>
+                            {
+                                columns.ForeignKey(p => p.Custodian, (System.Collections.IEnumerable)ViewData["Custodian"], "Name", "Name").Width(120).Title("Custodian");
+                                columns.Bound(p => p.DARAssetID).Title("DAR Asset ID").Width(120);
+                                columns.Bound(p => p.AssetName).Title("Asset Name").Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                            .ToolBar(toolbar => {
+                                toolbar.Create();
+                                toolbar.Save();
+                                toolbar.Search();
+                                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                            })
+                            .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.AssetName);
+                                        search.Field(f => f.Custodian);
+                                        search.Field(f => f.DARAssetID);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                            .AllPages(true)
+                            .FileName("AssetVettingStatus.xlsx")
+                            .Filterable(true)
+                            .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            }).Resizable(resize => resize.Columns(true))
+                                                    .Reorderable(reorder => reorder.Columns(true))
+                                                    .DataSource(dataSource => dataSource
+                                                        .Ajax()
+                                                        .Batch(true)
+                                                        .PageSize(20)
+                                                        .ServerOperation(true)
+                                                        .Events(events =>
+                                                        {
+                                                            events.Error("error_handler");
+                                                            events.RequestEnd("reloadData");
+                                                        })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.DARAssetID).Editable(true);
+                                    model.Field(p => p.AssetName).Editable(false);
+                                })
+                                .Create(read => read.Action("AssetCustodian_Create", "Asset").Data("getInput"))
+                                .Read(read => read.Action("AssetCustodian_Read", "Asset").Data("getInput"))
+                                .Update(read => read.Action("AssetCustodian_Update", "Asset").Data("getInput"))
+                                .Destroy("AssetCustodian_Destroy", "Asset")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+               tabstrip.Add().Text("Custodians")
+                  .Content(@<text>
+                    <div id="assetTokenTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.CustodianViewModel>()
+                            .Name("gridCustodian")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Name).Width(120);
+                                columns.Bound(p => p.Description).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.Name);
+                                        search.Field(f => f.Description);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Custodian.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            }).Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARCustodianID);
+                                })
+                                .Create("Custodian_Create", "Asset")
+                                .Read("Custodian_Read", "Asset")
+                                .Update("Custodian_Update", "Asset")
+                                .Destroy("Custodian_Destroy", "Asset")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Upload")
+                  .Content(@<text>
+                        <div>
+                           @Html.Partial("AssetUpload")
+                        </div>
+                  </text>);
+
+          })
+    .Events(events => events.Select("onTabSelect"))
+    )
+</div>
+@(Html.Kendo().Window().Name("Details")
+    .Title("Asset Details")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Width(600)
+)
+
+<script type="text/x-kendo-template" id="template">
+    <div id="details-container">
+        <h4>#= DARAssetID # #= DARTicker #</h4>
+        <em>#= Name #</em>
+        <dl>
+            <dt>Custodians: #= Custodians #</dt>
+            <dt>DAR Themes: #= DarTheme #</dt>
+            <dt>DATS Themes: #= DatsTheme #</dt>
+            <dt>PrimaryURL: #= PrimaryURL #</dt>
+            <dt>Twitter: #= Twitter #</dt>
+            <dt>Reddit: #= Reddit #</dt>
+            <dt>Blog: #= Blog #</dt>
+            <dt>WhitePaper: #= WhitePaper #</dt>
+            <dt>CodeRepositoryURL: #= CodeRepositoryURL #</dt>
+        </dl>
+    </div>
+</script>
+
+<script>
+    function LineItems_Databound(inputValue, LastEditTime) {
+
+        var d1 = Date.parse(LastEditTime);
+        var d2 = Date.now();
+        const diffTime = Math.abs(d2 - d1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 90) {
+            return "<div style='color: #CC0000; font-weight: bold;'>" + inputValue + " </div>";
+        }
+        else {
+            return "<div style='color: #548235; font-weight: bold;'>" + inputValue + " </div>";
+        }
+    }
+
+    function onTabSelect(e) {
+
+        if ($(e.item).text() == "Asset Custodians") {
+            //  alert($(e.item).text());
+            // $("#assetList").data("kendoDropDownList").dataSource.read();
+        }
+
+    }
+    function getInput() {
+        return {
+
+            assetName: document.getElementById('assetName').value
+        }
+    }
+
+    function onAssetListSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('assetName').value = e.dataItem.DARAssetID;
+        $("#assetList").kendoDropDownList.value = e.dataItem.DARAssetID;
+        var dropdownlist = $("#assetList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.DARAssetID);
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    }
+    function showPrice(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+
+        var out_result;
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupPrice", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: dataItem.DARAssetID },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        var obj = JSON.parse(out_result);
+
+        alert('DAR Asset ID: ' + obj.DARAssetID + '\nTicker: ' + obj.Ticker + '\nPrice: ' + obj.LastPrice);
+    }
+
+
+
+    function showPriceInput(e) {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var url = '@Url.Action("DownlaodPriceInput", "Helper")?input=' + dataItem.DARTicker;
+        window.open(url, "_blank");
+
+        @*var out_result;
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupPriceInput", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: dataItem.DARTicker },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });*@
+
+
+
+
+    }
+
+
+    function showDetails(e) {
+        e.preventDefault();
+
+        var detailsTemplate = kendo.template($("#template").html());
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var wnd = $("#Details").data("kendoWindow");
+
+        wnd.content(detailsTemplate(dataItem));
+        wnd.center().open();
+    }
+
+    function reloadData(e) {
+        //if (e.type === 'create') {
+        //    if (!e.response.Errors) {
+        //        e.sender.read();
+        //    }
+        //}
+
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    $("#gridAsset").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAsset").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetToken").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetToken").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetVettingStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetVettingStatus").data("kendoGrid").dataSource.read();
+    });
+    $("#gridCustodian").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridCustodian").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetCustodians").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetTheme").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetTheme").data("kendoGrid").dataSource.read();
+    });
+    $("#gridBlockchain").on("click", "#refreshButton", function (e) {
+        e.preventDefault(); // prevent postback
+        $("#gridBlockchain").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetURL").on("click", "#refreshButton", function (e) {
+        e.preventDefault(); // prevent postback
+        $("#gridAssetURL").data("kendoGrid").dataSource.read();
+    });
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+    });
+</script>

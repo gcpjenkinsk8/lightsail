@@ -1,0 +1,1202 @@
+﻿@{
+    ViewBag.Title = "DAR Ref Master";
+}
+
+
+<input type="hidden" id="assetName" name="assetName" value="TBD">
+<div class="demo-section k-content">
+    <div id="example">
+        <div id="tilelayout"></div>
+
+        <!-- container text templates -->
+        <script id="conversion-rate" type="text/x-kendo-template">
+            <h3>9%</h3>
+            <div>Visitor to Customer</div>
+        </script>
+        <script id="current" type="text/x-kendo-template">
+            <h3>2, 399</h3>
+            <div>Active users right now</div>
+        </script>
+        <script id="bounce-rate" type="text/x-kendo-template">
+            <h1>55 %</h1>
+            <div>The percentage of all sessions on your site in which users viewed only a single page.</div>
+        </script>
+
+        <!-- container chart templates -->
+        <script id="pages-chart-template" type="text/x-kendo-template">
+            <div id="pages-chart" style="height:100%; width:100%"></div>
+        </script>
+        <script id="views-chart-template" type="text/x-kendo-template">
+            <div id="views-chart" style="height:100%; width:100%"></div>
+        </script>
+        @*<div>
+                @(Html.Kendo().Chart<DAR_ReferenceDataUI.Controllers.ElectricityProduction>()
+                    .Name("chart")
+                    .Title("Spain electricity production (GWh)")
+                    .Legend(legend => legend
+                        .Position(ChartLegendPosition.Top)
+                    )
+                    .DataSource(ds => ds.Read(read => read.Action("_SpainElectricityProduction", "AssetMap")))
+                    .Series(series => {
+                        series.Line(model => model.Nuclear).Name("Nuclear").CategoryField("Year");
+                        series.Line(model => model.Hydro).Name("Hydro").CategoryField("Year");
+                        series.Line(model => model.Wind).Name("Wind").CategoryField("Year");
+                    })
+                    .CategoryAxis(axis => axis
+                        .Labels(labels => labels.Rotation(-90))
+                        .Crosshair(c => c.Visible(true))
+                    )
+                    .ValueAxis(axis => axis.Numeric()
+                        .Labels(labels => labels.Format("{0:N0}"))
+                        .MajorUnit(10000)
+                    )
+                    .Tooltip(tooltip => tooltip
+                        .Visible(true)
+                        .Shared(true)
+                        .Format("{0:N0}")
+                    )
+                )
+            </div>*@
+        <script id="visitors-chart-template" type="text/x-kendo-template">
+            <div id="visitors-chart" style="height:100%; width:100%"></div>
+        </script>
+        <script id="conversion-chart-template" type="text/x-kendo-template">
+            <div id="conversion-chart" style="height:100%; width:100%"></div>
+        </script>
+
+        <!-- container grid templates -->
+        <script id="conversions-grid-template" type="text/x-kendo-template">
+            <div id="conversions-grid" style="height:100%;"></div>
+        </script>
+        <script id="users-grid-template" type="text/x-kendo-template">
+            <div id="users-grid" style="height:100%;"></div>
+        </script>
+
+        <script>
+                            $("#tilelayout").kendoTileLayout({
+                                containers: [{
+                                    colSpan: 3,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "Derivative Contracts Collected"
+                                    },
+                                    bodyTemplate: kendo.template($("#views-chart-template").html())
+                                }, {
+                                    colSpan: 1,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "Conversion Rate"
+                                    },
+                                    bodyTemplate: kendo.template($("#conversion-rate").html())
+                                }, {
+                                    colSpan: 1,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "Currently"
+                                    },
+                                    bodyTemplate: kendo.template($("#current").html())
+                                }, {
+                                    colSpan: 2,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "API Calls"
+                                    },
+                                    bodyTemplate: kendo.template($("#pages-chart-template").html())
+                                }, {
+                                    colSpan: 2,
+                                    rowSpan: 2,
+                                    header: {
+                                        text: "Fluctuating Price"
+                                    },
+                                    bodyTemplate: kendo.template($("#conversions-grid-template").html())
+                                }, {
+                                    colSpan: 1,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "Bounce Rate"
+                                    },
+                                    bodyTemplate: kendo.template($("#bounce-rate").html())
+                                }, {
+                                    colSpan: 2,
+                                    rowSpan: 2,
+                                    header: {
+                                        text: "API Calls"
+                                    },
+                                    bodyTemplate: kendo.template($("#users-grid-template").html())
+                                }, {
+                                    colSpan: 1,
+                                    rowSpan: 2,
+                                    header: {
+                                        text: "Visitors"
+                                    },
+                                    bodyTemplate: kendo.template($("#visitors-chart-template").html())
+                                }, {
+                                    colSpan: 2,
+                                    rowSpan: 1,
+                                    header: {
+                                        text: "Conversion This Month"
+                                    },
+                                    bodyTemplate: kendo.template($("#conversion-chart-template").html())
+                                }],
+                                columns: 5,
+                                columnsWidth: 300,
+                                rowsHeight: 235,
+                                reorderable: true,
+                                resizable: true,
+                                resize: function (e) {
+                                    var rowSpan = e.container.css("grid-column-end");
+                                    var chart = e.container.find(".k-chart").data("kendoChart");
+                                    // hide chart labels when the space is limited
+                                    if (rowSpan === "span 1" && chart) {
+                                        chart.options.categoryAxis.labels.visible = false;
+                                        chart.redraw();
+                                    }
+                                    // show chart labels when the space is enough
+                                    if (rowSpan !== "span 1" && chart) {
+                                        chart.options.categoryAxis.labels.visible = true;
+                                        chart.redraw();
+                                    }
+
+                                    // for widgets that do not auto resize
+                                    // https://docs.telerik.com/kendo-ui/styles-and-layout/using-kendo-in-responsive-web-pages
+                                    kendo.resize(e.container, true);
+                                }
+                            });
+
+                            var gridDs = new kendo.data.DataSource({
+                                data: [
+                                    { channel: "Price Latest", conversion: 8232, users: 70500 },
+                                    { channel: "Asset Master", conversion: 6574, users: 24900 },
+                                    { channel: "Derivatives", conversion: 4932, users: 20000 },
+                                    { channel: "Asset List", conversion: 2928, users: 19500 },
+                                    { channel: "Add Assets", conversion: 2456, users: 18100 },
+                                    { channel: "Derivative Risk", conversion: 1172, users: 16540 },
+                                ],
+                                schema: {
+                                     model: {
+                                        fields: {
+                                            conversion: { type: "number" },
+                                            users: { type: "number" }
+                                        }
+                                    }
+                                }
+                            });
+
+
+
+                            //$("#conversions-grid").kendoGrid({
+                            //    dataSource: gridDs,
+                            //    columns: [{
+                            //        field: "channel", title: "Channel", width: 100
+                            //    }, {
+                            //        field: "conversion", title: "Conversion", format: "{0:n0}", width: 80
+                            //    }],
+                            //});
+
+                            $("#conversions-grid").kendoGrid({
+                                dataSource: {
+                                    type: "aspnetmvc-ajax",
+                                    transport: {
+                                        read: {
+                                            url: '@Url.Action("Read", "AssetMap")'
+                                        }
+                                    },
+                                    schema: {
+                                        data: "Data",
+                                        model: {
+                                            id: "ID",
+                                            fields: {
+                                                "DARAssetID": { type: "string" },
+                                                "DARTicker": { type: "string" },
+                                                "Name": { type: "string" }
+
+                                            }
+                                        }
+                                    },
+                                    pageSize: 20,
+                                    serverPaging: true,
+                                    serverSorting: true,
+                                },
+                                height: 400,
+                                filterable: true,
+                                sortable: true,
+                                pageable: true,
+                                columns: [{ field: "DARAssetID", title: "DARAssetID" },
+                                    { field: "DARTicker" },
+                                    { field: "Name" }
+                                ]
+                            });
+
+
+                            $("#users-grid").kendoGrid({
+                                dataSource: gridDs,
+                                columns: [{
+                                    field: "channel", title: "Channel", width: 100
+                                }, {
+                                    field: "users", title: "Users", format: "{0:n0}", width: 80
+                                }]
+                            });
+
+                            function GetNewDerivativeContractByDay() {
+                                // alert("Call remote here");
+
+                                var out_result;
+
+                                $.ajax({
+                                        type: 'GET',
+                                        url: '@Url.Action("GetNewDerivativeContractByDay", "Home")',
+                                        contentType: 'application/json; charset=utf-8', // this
+                                        datatype: 'json',
+                                        async: false,
+                                        success: function (result) {
+                                            out_result = result;
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                            alert("Status: " + textStatus);
+                                            alert("Error: " + errorThrown);
+                                        }
+                                    });
+
+                                // alert(out_result);
+                                var as = JSON.parse(out_result);
+                                //var result = [
+                                //    { value: 2000, date: new Date(2020, 2, 30) },
+                                //    { value: 80000, date: new Date(2020, 3, 5) },
+                                //    { value: 130000, date: new Date(2020, 3, 10) },
+                                //    { value: 170000, date: new Date(2020, 3, 15) },
+                                //    { value: 190000, date: new Date(2020, 3, 20) },
+                                //    { value: 150000, date: new Date(2020, 3, 25) },
+                                //    { value: 160000, date: new Date(2020, 3, 30) }];
+                                //var result = [
+                                //    { value: 2000, date: 'March' },
+                                //    { value: 80000, date: 'April' },
+                                //    { value: 130000, date: 'May' },
+                                //    { value: 170000, date: 'June' },
+                                //    { value: 190000, date: 'July' },
+                                //    { value: 150000, date: 'August' },
+                                //    { value: 160000, date: 'Sept' }];
+
+                                //alert(as);
+                                return as;
+                            }
+
+                            function createCharts() {
+                                var showLabels = $(document).width() > 677;
+
+
+
+
+
+                                $("#views-chart").kendoChart({
+                                    dataSource: {
+                                        data: GetNewDerivativeContractByDay()
+                                    },
+                                    legend: {
+                                        visible: false
+                                    },
+                                    seriesDefaults: {
+                                        type: "line",
+                                        style: "smooth",
+                                        markers: {
+                                            visible: false
+                                        }
+                                    },
+                                    series: [{
+                                        field: "value",
+                                        categoryField: "category"
+                                    }],
+                                    valueAxis: {
+                                        line: {
+                                            width: 0
+                                        },
+                                        labels: {
+                                            step: 2
+                                        },
+                                        min: 0,
+                                        max: 400,
+                                    },
+                                    categoryAxis: {
+                                        baseUnit: "fit",
+                                        labels: {
+                                            rotation:"auto",
+                                            // format: "{0:d MMMM}",
+                                            visible: showLabels
+                                        },
+                                        majorGridLines: {
+                                            visible: false
+                                        },
+                                        majorTicks: {
+                                            visible: false
+                                        }
+                                    }
+                                });
+
+
+                                function GetApiClientCallCount() {
+
+                                    var out_result;
+                                    $.ajax({
+                                            type: 'GET',
+                                            url: '@Url.Action("GetApiClientCallCount", "Home")',
+                                            contentType: 'application/json; charset=utf-8', // this
+                                            datatype: 'json',
+                                            async: false,
+                                            success: function (result) {
+                                                out_result = result;
+                                            },
+                                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                                alert("Status: " + textStatus);
+                                                alert("Error: " + errorThrown);
+                                            }
+                                        });
+
+
+                                    var as = JSON.parse(out_result);
+                                    return as;
+
+                                }
+
+
+                                function GetApiClients() {
+
+                                    var out_result;
+                                    $.ajax({
+                                            type: 'GET',
+                                            url: '@Url.Action("GetApiClients", "Home")',
+                                            contentType: 'application/json; charset=utf-8', // this
+                                            datatype: 'json',
+                                            async: false,
+                                            success: function (result) {
+                                                out_result = result;
+                                            },
+                                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                                alert("Status: " + textStatus);
+                                                alert("Error: " + errorThrown);
+                                            }
+                                        });
+
+
+                                    var as = JSON.parse(out_result);
+                                    return as;
+
+                                }
+                                
+                                //["Home", "Price", "Sign-up", "Product", "Blog"]
+                                $("#pages-chart").kendoChart({
+                                    legend: {
+                                        visible: false
+                                    },
+                                    seriesDefaults: {
+                                        type: "column"
+                                    },
+                                    series: [{
+                                        data: GetApiClientCallCount()
+                                    }],
+                                    valueAxis: {
+                                        line: {
+                                            width: 0
+                                        },
+                                        labels: {
+                                            step: 5
+                                        },
+                                        majorUnit: 200000,
+                                        min: 0,
+                                        max: 3000000
+                                    },
+
+                                    categoryAxis: {
+                                        categories: GetApiClients(),
+                                        labels: {
+                                            rotation: "auto",
+                                            visible: showLabels
+                                        },
+                                        majorGridLines: {
+                                            visible: false
+                                        },
+                                        majorTicks: {
+                                            visible: false
+                                        }
+                                    }
+                                });
+
+                                $("#conversion-chart").kendoChart({
+                                    dataSource: {
+                                        data: [
+                                            { value: 2000, date: new Date(2020, 3, 1) },
+                                            { value: 80000, date: new Date(2020, 3, 5) },
+                                            { value: 130000, date: new Date(2020, 3, 10) },
+                                            { value: 170000, date: new Date(2020, 3, 15) },
+                                            { value: 190000, date: new Date(2020, 3, 20) },
+                                            { value: 190000, date: new Date(2020, 3, 30) }
+                                        ]
+                                    },
+                                    legend: {
+                                        visible: false
+                                    },
+                                    seriesDefaults: {
+                                        type: "line",
+                                        style: "smooth",
+                                        markers: {
+                                            visible: false
+                                        }
+                                    },
+                                    series: [{
+                                        field: "value",
+                                        categoryField: "date"
+                                    }],
+                                    valueAxis: {
+                                        line: {
+                                            width: 0
+                                        },
+                                        labels: {
+                                            step: 2
+                                        },
+                                        min: 0,
+                                        max: 200000,
+                                    },
+                                    categoryAxis: {
+                                        baseUnitStep: "auto",
+                                        autoBaseUnitSteps: {
+                                            days: [9]
+                                        },
+                                        labels: {
+                                            rotation: "auto",
+                                            format: "{0:d MMMM}",
+                                            visible: showLabels
+                                        },
+                                        majorGridLines: {
+                                            visible: false
+                                        },
+                                        majorTicks: {
+                                            visible: false
+                                        }
+                                    }
+                                });
+
+                                $("#visitors-chart").kendoChart({
+                                    dataSource: {
+                                        data: [
+                                            { value: 70, type: "New" },
+                                            { value: 30, type: "Returning" },
+                                        ]
+                                    },
+                                    series: [{
+                                        type: "donut",
+                                        field: "value",
+                                        categoryField: "type",
+                                        startAngle: 70,
+                                        holeSize: 30
+                                    }],
+                                    legend: {
+                                        position: "bottom"
+                                    }
+                                });
+
+                                kendo.resize($(".k-grid"));
+                            }
+
+                            $(document).ready(createCharts);
+                            $(document).bind("kendo:skinChange", createCharts);
+
+                            $(window).on("resize", function () {
+                                kendo.resize($(".k-chart"));
+                            });
+        </script>
+    </div>
+
+</div>
+@(Html.Kendo().Window().Name("AssetMap")
+    .Title("Asset Map")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Width(900)
+)
+
+<script type="text/x-kendo-template" id="template">
+    <div id="details-container">
+        <h4>#= DARAssetID # #= DARTicker #</h4>
+        <em>#= Name #</em>
+        <dl>
+            <dt>Custodians: #= Custodians #</dt>
+            <dt>DAR Themes: #= DarTheme #</dt>
+            <dt>DATS Themes: #= DatsTheme #</dt>
+            <dt>PrimaryURL: #= PrimaryURL #</dt>
+            <dt>Twitter: #= Twitter #</dt>
+            <dt>Reddit: #= Reddit #</dt>
+            <dt>Blog: #= Blog #</dt>
+            <dt>WhitePaper: #= WhitePaper #</dt>
+            <dt>CodeRepositoryURL: #= CodeRepositoryURL #</dt>
+        </dl>
+    </div>
+</script>
+
+<script>
+    function LineItems_Databound(inputValue, LastEditTime) {
+
+        var d1 = Date.parse(LastEditTime);
+        var d2 = Date.now();
+        const diffTime = Math.abs(d2 - d1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 90) {
+            return "<div style='color: #CC0000; font-weight: bold;'>" + inputValue + " </div>";
+        }
+        else {
+            return "<div style='color: #548235; font-weight: bold;'>" + inputValue + " </div>";
+        }
+    }
+
+    function onTabSelect(e) {
+
+        if ($(e.item).text() == "Asset Custodians") {
+            //  alert($(e.item).text());
+            $("#assetList").data("kendoDropDownList").dataSource.read();
+
+        }
+
+
+
+
+
+    }
+    function getInput() {
+        return {
+
+            assetName: document.getElementById('assetName').value
+        }
+    }
+
+    function onAssetListSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('assetName').value = e.dataItem.DARAssetID;
+        $("#assetList").kendoDropDownList.value = e.dataItem.DARAssetID;
+        var dropdownlist = $("#assetList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.DARAssetID);
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    }
+
+
+    function showDetails(e) {
+        e.preventDefault();
+
+        var detailsTemplate = kendo.template($("#template").html());
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var wnd = $("#Details").data("kendoWindow");
+
+        wnd.content(detailsTemplate(dataItem));
+        wnd.center().open();
+    }
+
+
+    function reloadData(e) {
+        //if (e.type === 'create') {
+        //    if (!e.response.Errors) {
+        //        e.sender.read();
+        //    }
+        //}
+
+    }
+
+
+
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function lookupExchange(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupExchange", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+    function onDeleteClick(e){
+        alert("deleted pressed!");
+        //var grid = $("#gridExchangePair").data("kendoGrid");
+        //grid.removeRow(grid.select());
+
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+        dataItem.dirty = true;
+
+        $("#gridExchangePair").data("kendoGrid").refresh();
+
+        //$("#gridExchangePair").data("kendoGrid").dataSource.sync();
+        //e.preventDefault();
+
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSave(e) {
+
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "DARExchangeID") {
+            var mappedValue = lookupExchange(e.values['DARExchangeID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARExchangeID'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.set("DARExchangeID", mappedValue);
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupAsset(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.set("DARAssetID", mappedValue);
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARCurrencyID") {
+            var mappedValue = lookupAsset(e.values['DARCurrencyID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARCurrencyID'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.set("DARCurrencyID", mappedValue);
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+
+        dataItem.dirty = true;
+        $("#gridExchangePair").data("kendoGrid").refresh();
+        $("#gridExchangePair").data("kendoGrid").dataSource.sync();
+
+        //var grid = $("#KendoGridName").data("kendoGrid");
+        //var curCell = grid.find(".k-edit-cell");
+        //grid.editCell(curCell.next()); // To move the cursor to the next cell and put the cell in edit mode
+        //grid.select(curCell.next()); // To select the next cell
+        //grid.focus(curCell.next()); // To set focus on to next cell
+        e.preventDefault();
+    }
+
+    $("#gridExchangePair").on("click", "#saveButton", function (e) {
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var data = grid.dataSource.data();
+        var dirty = $.grep(data, function (item) {
+            return item.dirty
+        });
+        alert(dirty.length);
+    });
+
+
+    $("#gridExchangePair").on("click", "#commitDeleteButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangePair").data("kendoGrid").dataSource.sync();
+    })
+    $("#gridExchangePair").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangePair").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetToken").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetToken").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetVettingStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetVettingStatus").data("kendoGrid").dataSource.read();
+    });
+    $("#gridCustodian").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridCustodian").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetCustodians").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    });
+
+
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+
+
+    $(document).ready(function () {
+
+        var crudServiceBaseUrl = "https://demos.telerik.com/kendo-ui/service",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/detailproducts",
+                        dataType: "jsonp"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/detailproducts/Update",
+                        dataType: "jsonp"
+                    },
+                    destroy: {
+                        url: crudServiceBaseUrl + "/detailproducts/Destroy",
+                        dataType: "jsonp"
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+                autoSync: true,
+                //aggregate: [{
+                //    field: "TotalSales",
+                //    aggregate: "sum"
+                //}],
+                //group: {
+                //    field: "Category.CategoryName",
+                //    dir: "desc",
+                //    aggregates: [
+                //        { field: "TotalSales", aggregate: "sum" }
+                //    ]
+                //},
+                schema: {
+                    model: {
+                        id: "ProductID",
+                        fields: {
+                            ProductID: { editable: false, nullable: true },
+                            Discontinued: { type: "boolean", editable: false },
+                            TotalSales: { type: "number", editable: false },
+                            TargetSales: { type: "number", editable: false },
+                            LastSupply: { type: "date" },
+                            UnitPrice: { type: "number" },
+                            UnitsInStock: { type: "number" },
+                            Category: {
+                                defaultValue: {
+                                    CategoryID: 8,
+                                    CategoryName: "Seafood"
+                                }
+                            },
+                            Country: {
+                                defaultValue: {
+                                    CountryNameLong: "Bulgaria",
+                                    CountryNameShort: "bg"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        //$("#gridServList").kendoGrid({
+        //    dataSource: dataSource,
+        //    columnMenu: {
+        //        filterable: false
+        //    },
+        //    height: 680,
+        //    editable: "incell",
+        //    pageable: true,
+        //    sortable: true,
+        //    navigatable: true,
+        //    resizable: true,
+        //    reorderable: true,
+        //    groupable: true,
+        //    filterable: true,
+        //    dataBound: onDataBound,
+        //    toolbar: ["excel", "pdf", "search"],
+        //    columns: [{
+        //        selectable: true,
+        //        width: 75,
+        //        attributes: {
+        //            "class": "checkbox-align",
+        //        },
+        //        headerAttributes: {
+        //            "class": "checkbox-align",
+        //        }
+        //    }, {
+        //        field: "ProductName",
+        //        title: "Product Name",
+        //        template: "<div class='product-photo' style='background-image: url(../content/web/foods/#:data.ProductID#.jpg);'></div><div class='product-name'>#: ProductName #</div>",
+        //        width: 300
+        //    }, {
+        //        field: "UnitPrice",
+        //        title: "Price",
+        //        format: "{0:c}",
+        //        width: 105
+        //    }, {
+        //        field: "Discontinued",
+        //        title: "In Stock",
+        //        template: "<span id='badge_#=ProductID#' class='badgeTemplate'></span>",
+        //        width: 130,
+        //    }, {
+        //        field: "Category.CategoryName",
+        //        title: "Category",
+        //        editor: clientCategoryEditor,
+        //        groupHeaderTemplate: "Category: #=data.value#, Total Sales: #=kendo.format('{0:c}', aggregates.TotalSales.sum)#",
+        //        width: 125
+        //    }, {
+        //        field: "CustomerRating",
+        //        title: "Rating",
+        //        template: "<input id='rating_#=ProductID#' data-bind='value: CustomerRating' class='rating'/>",
+        //        editable: returnFalse,
+        //        width: 140
+        //    }, {
+        //        field: "Country.CountryNameLong",
+        //        title: "Country",
+        //        template: "<div class='k-text-center'><img src='../content/web/country-flags/#:data.Country.CountryNameShort#.png' alt='#: data.Country.CountryNameLong#' title='#: data.Country.CountryNameLong#' width='30' /></div>",
+        //        editor: clientCountryEditor,
+        //        width: 120
+        //    }, {
+        //        field: "UnitsInStock",
+        //        title: "Units",
+        //        width: 105
+        //    }, {
+        //        field: "TotalSales",
+        //        title: "Total Sales",
+        //        format: "{0:c}",
+        //        width: 140,
+        //        aggregates: ["sum"],
+        //    }, {
+        //        field: "TargetSales",
+        //        title: "Target Sales",
+        //        format: "{0:c}",
+        //        template: "<span id='chart_#= ProductID#' class='sparkline-chart'></span>",
+        //        width: 220
+        //    },
+        //    { command: "destroy", title: "&nbsp;", width: 120 }],
+        //});
+
+
+        // With Parameter
+        @*$.ajax({
+            type: 'GET',
+            url: '@Url.Action("Get_Fluctuating_Assets", "AssetMap")',
+            contentType: 'application/json', // this
+            datatype: 'json',
+            data: { clients: "input" }, // and this
+            success: function (result) {
+                alert(result);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });*@
+
+        // Without Parameter
+        @*var data_unmapped_asset;
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Get_Fluctuating_Assets_NP", "AssetMap")',
+            contentType: 'application/json', // this
+            datatype: 'json',
+            success: function (result) {
+                alert(result);
+                data_unmapped_asset = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });*@
+    });
+
+
+    function onDataBound(e) {
+        var grid = this;
+        grid.table.find("tr").each(function () {
+            var dataItem = grid.dataItem(this);
+            var themeColor = dataItem.Discontinued ? 'success' : 'error';
+            var text = dataItem.Discontinued ? 'available' : 'not available';
+
+            // Following is to change color, draw chart etc in the grid
+            //$(this).find(".badgeTemplate").kendoBadge({
+            //    themeColor: themeColor,
+            //    text: text,
+            //});
+
+            //$(this).find(".rating").kendoRating({
+            //    min: 1,
+            //    max: 5,
+            //    label: false,
+            //    selection: "continuous"
+            //});
+
+            //$(this).find(".sparkline-chart").kendoSparkline({
+            //    legend: {
+            //        visible: false
+            //    },
+            //    data: [dataItem.TargetSales],
+            //    type: "bar",
+            //    chartArea: {
+            //        margin: 0,
+            //        width: 180,
+            //        background: "transparent"
+            //    },
+            //    seriesDefaults: {
+            //        labels: {
+            //            visible: true,
+            //            format: '{0}%',
+            //            background: 'none'
+            //        }
+            //    },
+            //    categoryAxis: {
+            //        majorGridLines: {
+            //            visible: false
+            //        },
+            //        majorTicks: {
+            //            visible: false
+            //        }
+            //    },
+            //    valueAxis: {
+            //        type: "numeric",
+            //        min: 0,
+            //        max: 130,
+            //        visible: false,
+            //        labels: {
+            //            visible: false
+            //        },
+            //        minorTicks: { visible: false },
+            //        majorGridLines: { visible: false }
+            //    },
+            //    tooltip: {
+            //        visible: false
+            //    }
+            //});
+
+            //kendo.bind($(this), dataItem);
+        });
+    }
+
+    function returnFalse() {
+        return false;
+    }
+
+    function clientCategoryEditor(container, options) {
+        $('<input required name="Category">')
+            .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                dataTextField: "CategoryName",
+                dataValueField: "CategoryID",
+                dataSource: {
+                    data: categories
+                }
+            });
+    }
+
+    function clientCountryEditor(container, options) {
+        $('<input required name="Country">')
+            .appendTo(container)
+            .kendoDropDownList({
+                dataTextField: "CountryNameLong",
+                dataValueField: "CountryNameShort",
+                template: "<div class='dropdown-country-wrap'><img src='../content/web/country-flags/#:CountryNameShort#.png' alt='#: CountryNameLong#' title='#: CountryNameLong#' width='30' /><span>#:CountryNameLong #</span></div>",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: " https://demos.telerik.com/kendo-ui/service/countries",
+                            dataType: "jsonp"
+                        }
+                    }
+                },
+                autoWidth: true
+            });
+    }
+
+    var categories = [{
+        "CategoryID": 1,
+        "CategoryName": "Beverages"
+    }, {
+        "CategoryID": 2,
+        "CategoryName": "Condiments"
+    }, {
+        "CategoryID": 3,
+        "CategoryName": "Confections"
+    }, {
+        "CategoryID": 4,
+        "CategoryName": "Dairy Products"
+    }, {
+        "CategoryID": 5,
+        "CategoryName": "Grains/Cereals"
+    }, {
+        "CategoryID": 6,
+        "CategoryName": "Meat/Poultry"
+    }, {
+        "CategoryID": 7,
+        "CategoryName": "Produce"
+    }, {
+        "CategoryID": 8,
+        "CategoryName": "Seafood"
+    }];
+
+</script>
+
+<style>
+    .k-card-header {
+        flex: 0 0 auto;
+    }
+
+    .k-card-body {
+        overflow: hidden;
+    }
+
+    .customer-photo {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-size: 32px 35px;
+        background-position: center center;
+        vertical-align: middle;
+        line-height: 32px;
+        box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+        margin-left: 5px;
+    }
+
+    .customer-name {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 32px;
+        padding-left: 3px;
+    }
+
+    .k-grid tr .checkbox-align {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .product-photo {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-size: 32px 35px;
+        background-position: center center;
+        vertical-align: middle;
+        line-height: 32px;
+        box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+        margin-right: 5px;
+    }
+
+    .product-name {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 32px;
+        padding-left: 3px;
+    }
+
+    .k-rating-container .k-rating-item {
+        padding: 4px 0;
+    }
+
+        .k-rating-container .k-rating-item .k-icon {
+            font-size: 16px;
+        }
+
+    .dropdown-country-wrap {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+        .dropdown-country-wrap img {
+            margin-right: 10px;
+        }
+
+    #grid .k-grid-edit-row > td > .k-rating {
+        margin-left: 0;
+        width: 100%;
+    }
+</style>
+

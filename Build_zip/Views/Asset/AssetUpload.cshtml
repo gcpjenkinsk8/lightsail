@@ -1,0 +1,177 @@
+﻿<div id="assetUploadTab" class="dar-tab">
+    <input type="hidden" id="logType" name="logType" value="TBD">
+    <input type="hidden" id="uploadTime" name="uploadTime" value="TBD">
+    <div class="demo-section k-content">
+        @(Html.Kendo().TabStrip()
+            .Name("tabstripAssetUpload")
+            .Events(events => events.Select("onTabSelect"))
+            .Items(tabstrip =>
+            {
+                tabstrip.Add().Text("Assets")
+                    .Selected(true)
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("files")
+                                    .Async(a => a
+                                        .Save("Events_Save", "Asset")
+                                        .Remove("Events_Remove", "Asset")
+                                        .AutoUpload(false)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onUploadAsset")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+                tabstrip.Add().Text("Tokens")
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("filesTokens")
+                                    .Async(a => a
+                                        .Save("Token_Upload", "Asset")
+                                        .Remove("Events_Remove", "Asset")
+                                        .AutoUpload(false)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onUploadTokens")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+                tabstrip.Add().Text("Blockchain")
+                    .Content(@<text>
+                        <div class="weather">
+                            <p>This function is not available at this time </p>
+                        </div>
+                    </text>);
+
+            })
+        )
+
+    </div>
+</div>
+<div>
+    @Html.Partial("RefLog")
+</div>
+
+
+<script>
+
+    function onTabSelect(e) {
+        //var tab = $("#tabstripAssetUpload").kendoTabStrip().getSelectedTab();
+        //alert(tab);
+        switch (e.item.innerText) {
+            case "Tokens":
+                document.getElementById('logType').value = 'TokenUpload';
+                break;
+            case "Assets":
+                document.getElementById('logType').value = 'AssetUpload';
+                break;
+            default:
+            // code block
+        }
+
+        $("#gridLog").data("kendoGrid").dataSource.read();
+    }
+
+    function onUploadAsset(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'AssetUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+    function onUploadTokens(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'TokenUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+    function onUploadTier(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'TierUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+
+
+
+    function onSelect(e) {
+        //kendoConsole.log("Select :: " + getFileInfo(e));
+    }
+
+    function onUpload(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+    }
+
+    function onSuccess(e) {
+        //kendoConsole.log("Success (" + e.operation + ") :: " + getFileInfo(e));
+    }
+
+    function onError(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onComplete(e) {
+
+
+    }
+
+    function onCancel(e) {
+        //kendoConsole.log("Cancel :: " + getFileInfo(e));
+    }
+
+    function onRemove(e) {
+        //kendoConsole.log("Remove :: " + getFileInfo(e));
+    }
+
+    function onProgress(e) {
+        //kendoConsole.log("Upload progress :: " + e.percentComplete + "% :: " + getFileInfo(e));
+    }
+
+    function onClear(e) {
+        //kendoConsole.log("Clear");
+    }
+
+
+    function getFileInfo(e) {
+        return $.map(e.files, function (file) {
+            var info = file.name;
+
+            // File size is not available in all browsers
+            if (file.size > 0) {
+                info += " (" + Math.ceil(file.size / 1024) + " KB)";
+            }
+            return info;
+        }).join(", ");
+    }
+
+    $(document).ready(function () {
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!canUpdate) {
+            $("#files").data("kendoUpload").disable();
+            $("#filesTokens").data("kendoUpload").disable();
+        }
+
+    });
+</script>

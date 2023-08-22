@@ -1,0 +1,106 @@
+﻿
+@{
+    ViewBag.Title = "Log";
+}
+<input type="hidden" id="logType" name="logType" value="TBD">
+
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Logs")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="assetTab" class="dar-tab">
+                        <div class="k-d-flex k-justify-content-left" style="padding-top: 10px; padding-bottom: 10px;">
+                        <div class="k-w-300">
+                            @(Html.Kendo().TextBox()
+                                .Name("gobackTextbox")
+                                .Value("5")
+                                .Label(l => l.Content("Go back (minutes):").Floating(true))
+                            )
+                        </div>
+                    </div>
+
+                    <style>
+                        .k-floating-label-container {
+                            width: 100%;
+                        }
+                    </style>
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.LogViewModel>()
+                            .Name("gridLog")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.MessageType).Width(200);
+                                columns.Bound(p => p.Message).Width(1000);
+                                columns.Bound(p => p.LoadTime).Width(250);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "customButton", @class = "floatRight" });
+                             })
+                            .Height(800)
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events => events.Sort("onSort"))
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Read(read => read.Action("ReadLog", "Home").Data("getInput"))
+                            )
+                        )
+
+                    </div>
+                  </text>);
+          })
+    )
+</div>
+
+<script>
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+    $("#gridLog").on("click", "#customButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridLog").data("kendoGrid").dataSource.read();
+    });
+
+    function getInput() {
+        
+        return {
+
+            logType: document.getElementById('logType').value
+            , goback: document.getElementById('gobackTextbox').value
+        }
+    }
+</script>
