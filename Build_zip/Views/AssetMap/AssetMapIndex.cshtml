@@ -1,0 +1,863 @@
+﻿
+@{
+    ViewBag.Title = "Asset Map";
+}
+
+<input type="hidden" id="assetName" name="assetName" value="TBD">
+@*<input type="hidden" id="currentRow" name="currentRow" value="TBD">
+<input type="hidden" id="currentCell" name="currentCell" value="TBD">*@
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstripExchangePairMap")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+          tabstrip.Add().Text("Exchange Pair Map")
+                  .Content(@<text>
+                    <div id="exchangePiarMap" class="dar-tab">
+                             @(Html.Kendo().Grid<DARReferenceData.ViewModels.ExchangePairsViewModel>()
+                            .Name("gridExchangePair")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Exchange).Width(120);
+                                columns.Bound(p => p.ExchangePair).Width(120);
+                                columns.Bound(p => p.Asset).Width(120);
+                                columns.Bound(p => p.Currency).Width(120);
+                                columns.Bound(p => p.StartTime).Width(120);
+                                columns.Bound(p => p.EndTime).Width(120);
+                                columns.Bound(p => p.DARPairID).Width(120);
+                                columns.Bound(p => p.DARExchangeID).Width(120);
+                                columns.Bound(p => p.DARAssetID).Width(120);
+                                columns.Bound(p => p.DARCurrencyID).Width(120);
+                                // columns.Command(command => { command.Edit(); command.Custom("DeleteRecord").Text("Delete").Click("onDeleteClick"); }).Width(200);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 //toolbar.Save();
+                                 toolbar.Search();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                 toolbar.Custom().Text("Save Changes").HtmlAttributes(new { id = "commitDeleteButton", @class = "floatRight" });
+
+
+                             })
+                            .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.DARPairID);
+                                        search.Field(f => f.DARExchangeID);
+                                        search.Field(f => f.ExchangePair);
+                                        search.Field(f => f.DARAssetID);
+                                        search.Field(f => f.DARCurrencyID);
+                                        search.Field(f => f.Exchange);
+                                        search.Field(f => f.Asset);
+                                        search.Field(f => f.Currency);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AssetTheme.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+                                events.Save("onSave");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARPairID);
+                                    model.Field(p => p.StartTime).DefaultValue(DateTime.Today);
+                                    model.Field(p => p.EndTime).DefaultValue(DateTime.MaxValue);
+                                    model.Field(p => p.DARPairID).Editable(false);
+                                    model.Field(p => p.DARExchangeID).Editable(false);
+                                    model.Field(p => p.DARAssetID).Editable(false);
+                                    model.Field(p => p.DARCurrencyID).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+
+
+                                })
+                                .Create("Editing_ExchangePair_Create", "AssetMap")
+                                .Read("Editing_ExchangePair_Read", "AssetMap")
+                                .Update("Editing_ExchangePair_Update", "AssetMap")
+                                .Destroy("Editing_ExchangePair_Destroy", "AssetMap")
+                            )
+                        )
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("Serv List")
+                  .Content(@<text>
+                    <div id="servList" class="dar-tab">
+                        <div id="gridServList"></div>
+
+                    </div>
+                  </text>);
+
+
+          })
+    .Events(events => events.Select("onTabSelect"))
+    .SelectedIndex(0)
+    )
+</div>
+@(Html.Kendo().Window().Name("AssetMap")
+    .Title("Asset Map")
+    .Visible(false)
+    .Modal(true)
+    .Draggable(true)
+    .Width(900)
+)
+
+<script type="text/x-kendo-template" id="template">
+    <div id="details-container">
+        <h4>#= DARAssetID # #= DARTicker #</h4>
+        <em>#= Name #</em>
+        <dl>
+            <dt>Custodians: #= Custodians #</dt>
+            <dt>DAR Themes: #= DarTheme #</dt>
+            <dt>DATS Themes: #= DatsTheme #</dt>
+            <dt>PrimaryURL: #= PrimaryURL #</dt>
+            <dt>Twitter: #= Twitter #</dt>
+            <dt>Reddit: #= Reddit #</dt>
+            <dt>Blog: #= Blog #</dt>
+            <dt>WhitePaper: #= WhitePaper #</dt>
+            <dt>CodeRepositoryURL: #= CodeRepositoryURL #</dt>
+        </dl>
+    </div>
+</script>
+
+<script>
+    function LineItems_Databound(inputValue, LastEditTime) {
+
+        var d1 = Date.parse(LastEditTime);
+        var d2 = Date.now();
+        const diffTime = Math.abs(d2 - d1);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 90) {
+            return "<div style='color: #CC0000; font-weight: bold;'>" + inputValue + " </div>";
+        }
+        else {
+            return "<div style='color: #548235; font-weight: bold;'>" + inputValue + " </div>";
+        }
+    }
+
+    function onTabSelect(e) {
+
+        if ($(e.item).text() == "Asset Custodians") {
+            //  alert($(e.item).text());
+            $("#assetList").data("kendoDropDownList").dataSource.read();
+
+        }
+
+
+
+
+
+    }
+    function getInput() {
+        return {
+
+            assetName: document.getElementById('assetName').value
+        }
+    }
+
+    function onAssetListSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('assetName').value = e.dataItem.DARAssetID;
+        $("#assetList").kendoDropDownList.value = e.dataItem.DARAssetID;
+        var dropdownlist = $("#assetList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.DARAssetID);
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    }
+
+
+    function showDetails(e) {
+        e.preventDefault();
+
+        var detailsTemplate = kendo.template($("#template").html());
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        var wnd = $("#Details").data("kendoWindow");
+
+        wnd.content(detailsTemplate(dataItem));
+        wnd.center().open();
+    }
+
+
+    function reloadData(e) {
+        //if (e.type === 'create') {
+        //    if (!e.response.Errors) {
+        //        e.sender.read();
+        //    }
+        //}
+
+    }
+
+
+
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function lookupExchange(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupExchange", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+        return JSON.parse(out_result);
+    }
+
+
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+
+    function onDeleteClick(e){
+        alert("deleted pressed!");
+        //var grid = $("#gridExchangePair").data("kendoGrid");
+        //grid.removeRow(grid.select());
+
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+        dataItem.dirty = true;
+
+        $("#gridExchangePair").data("kendoGrid").refresh();
+
+        //$("#gridExchangePair").data("kendoGrid").dataSource.sync();
+        //e.preventDefault();
+
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSave(e) {
+
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "Exchange") {
+            var mappedValue = lookupExchange(e.values['Exchange']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['Exchange'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARExchangeID = mappedValue.DARExchangeID;
+                dataItem.Exchange = mappedValue.ShortName;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "Asset") {
+            var mappedValue = lookupAsset(e.values['Asset']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['Asset'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+                dataItem.Asset = mappedValue.Name;
+            }
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "Currency") {
+            var mappedValue = lookupAsset(e.values['Currency']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['Currency'] + " is an invalid entry!");
+            }
+            else {
+
+                dataItem.DARCurrencyID = mappedValue.DARAssetID;
+                dataItem.Currency = mappedValue.Name;
+            }
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+        }
+
+
+        //var nextCellRow = parseInt(grid.current().closest("tr").index());
+        //var nextCellCol = parseInt(grid.current().closest("td").index()) + 1;
+
+        //document.getElementById('currentRow').value = nextCellRow;
+        //document.getElementById('currentCell').value = nextCellCol;
+
+        dataItem.dirty = true;
+        //$("#gridExchangePair").data("kendoGrid").refresh();
+        //$("#gridExchangePair").data("kendoGrid").dataSource.sync();
+
+
+        //e.preventDefault();
+        //alert(nextCellRow);
+        //alert(nextCellCol);
+        //setTimeout(function () {
+        //    grid.editCell(grid.tbody.find("tr:eq(" + nextCellRow + ") td:eq(" + nextCellCol + ")"));
+        //    //grid.editCell(current.next())
+        //}, "1000");
+
+      
+    }
+
+    $("#gridExchangePair").on("click", "#saveButton", function (e) {
+        var grid = $("#gridExchangePair").getKendoGrid();
+        var data = grid.dataSource.data();
+        var dirty = $.grep(data, function (item) {
+            return item.dirty
+        });
+        alert(dirty.length);
+    });
+
+
+    $("#gridExchangePair").on("click", "#commitDeleteButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangePair").data("kendoGrid").dataSource.sync();
+    })
+    $("#gridExchangePair").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridExchangePair").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetToken").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetToken").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetVettingStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetVettingStatus").data("kendoGrid").dataSource.read();
+    });
+    $("#gridCustodian").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridCustodian").data("kendoGrid").dataSource.read();
+    });
+    $("#gridAssetCustodians").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAssetCustodians").data("kendoGrid").dataSource.read();
+    });
+
+
+
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+
+
+    $(document).ready(function () {
+
+        //var grid = $('#gridExchangePair').data('kendoGrid');
+
+        //grid.table.on('keydown', function (e) {
+        //    if (e.keyCode === kendo.keys.TAB && $($(e.target).closest('.k-edit-cell'))[0]) {
+        //        e.preventDefault();
+        //        var currentNumberOfItems = grid.dataSource.view().length;
+        //        var row = $(e.target).closest('tr').index();
+        //        var col = grid.cellIndex($(e.target).closest('td'));
+        //        row = parseInt(document.getElementById('currentRow').value);
+        //        col = parseInt(document.getElementById('currentCell').value);
+
+        //        var dataItem = grid.dataItem($(e.target).closest('tr'));
+        //        var field = grid.columns[col].field;
+        //        var value = $(e.target).val();
+
+        //        //dataItem.set(field, value);
+
+        //        if (row >= 0 && row < currentNumberOfItems && col >= 0 && col < grid.columns.length) {
+        //            var nextCellRow = row;
+        //            var nextCellCol = col;
+
+        //            //alert(nextCellRow + ' ' + nextCellCol);
+        //            //alert(nextCellRow);
+        //            // wait for cell to close and Grid to rebind when changes have been made
+        //            setTimeout(function () {
+        //                grid.editCell(grid.tbody.find("tr:eq(" + nextCellRow + ") td:eq(" + nextCellCol + ")"));
+        //            }, "1000");
+        //        }
+        //    }
+        //});
+
+        var crudServiceBaseUrl = "https://demos.telerik.com/kendo-ui/service",
+            dataSource = new kendo.data.DataSource({
+                transport: {
+                    read: {
+                        url: crudServiceBaseUrl + "/detailproducts",
+                        dataType: "jsonp"
+                    },
+                    update: {
+                        url: crudServiceBaseUrl + "/detailproducts/Update",
+                        dataType: "jsonp"
+                    },
+                    destroy: {
+                        url: crudServiceBaseUrl + "/detailproducts/Destroy",
+                        dataType: "jsonp"
+                    },
+                    parameterMap: function (options, operation) {
+                        if (operation !== "read" && options.models) {
+                            return { models: kendo.stringify(options.models) };
+                        }
+                    }
+                },
+                batch: true,
+                pageSize: 20,
+                autoSync: true,
+                //aggregate: [{
+                //    field: "TotalSales",
+                //    aggregate: "sum"
+                //}],
+                //group: {
+                //    field: "Category.CategoryName",
+                //    dir: "desc",
+                //    aggregates: [
+                //        { field: "TotalSales", aggregate: "sum" }
+                //    ]
+                //},
+                schema: {
+                    model: {
+                        id: "ProductID",
+                        fields: {
+                            ProductID: { editable: false, nullable: true },
+                            Discontinued: { type: "boolean", editable: false },
+                            TotalSales: { type: "number", editable: false },
+                            TargetSales: { type: "number", editable: false },
+                            LastSupply: { type: "date" },
+                            UnitPrice: { type: "number" },
+                            UnitsInStock: { type: "number" },
+                            Category: {
+                                defaultValue: {
+                                    CategoryID: 8,
+                                    CategoryName: "Seafood"
+                                }
+                            },
+                            Country: {
+                                defaultValue: {
+                                    CountryNameLong: "Bulgaria",
+                                    CountryNameShort: "bg"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+        //$("#gridServList").kendoGrid({
+        //    dataSource: dataSource,
+        //    columnMenu: {
+        //        filterable: false
+        //    },
+        //    height: 680,
+        //    editable: "incell",
+        //    pageable: true,
+        //    sortable: true,
+        //    navigatable: true,
+        //    resizable: true,
+        //    reorderable: true,
+        //    groupable: true,
+        //    filterable: true,
+        //    dataBound: onDataBound,
+        //    toolbar: ["excel", "pdf", "search"],
+        //    columns: [{
+        //        selectable: true,
+        //        width: 75,
+        //        attributes: {
+        //            "class": "checkbox-align",
+        //        },
+        //        headerAttributes: {
+        //            "class": "checkbox-align",
+        //        }
+        //    }, {
+        //        field: "ProductName",
+        //        title: "Product Name",
+        //        template: "<div class='product-photo' style='background-image: url(../content/web/foods/#:data.ProductID#.jpg);'></div><div class='product-name'>#: ProductName #</div>",
+        //        width: 300
+        //    }, {
+        //        field: "UnitPrice",
+        //        title: "Price",
+        //        format: "{0:c}",
+        //        width: 105
+        //    }, {
+        //        field: "Discontinued",
+        //        title: "In Stock",
+        //        template: "<span id='badge_#=ProductID#' class='badgeTemplate'></span>",
+        //        width: 130,
+        //    }, {
+        //        field: "Category.CategoryName",
+        //        title: "Category",
+        //        editor: clientCategoryEditor,
+        //        groupHeaderTemplate: "Category: #=data.value#, Total Sales: #=kendo.format('{0:c}', aggregates.TotalSales.sum)#",
+        //        width: 125
+        //    }, {
+        //        field: "CustomerRating",
+        //        title: "Rating",
+        //        template: "<input id='rating_#=ProductID#' data-bind='value: CustomerRating' class='rating'/>",
+        //        editable: returnFalse,
+        //        width: 140
+        //    }, {
+        //        field: "Country.CountryNameLong",
+        //        title: "Country",
+        //        template: "<div class='k-text-center'><img src='../content/web/country-flags/#:data.Country.CountryNameShort#.png' alt='#: data.Country.CountryNameLong#' title='#: data.Country.CountryNameLong#' width='30' /></div>",
+        //        editor: clientCountryEditor,
+        //        width: 120
+        //    }, {
+        //        field: "UnitsInStock",
+        //        title: "Units",
+        //        width: 105
+        //    }, {
+        //        field: "TotalSales",
+        //        title: "Total Sales",
+        //        format: "{0:c}",
+        //        width: 140,
+        //        aggregates: ["sum"],
+        //    }, {
+        //        field: "TargetSales",
+        //        title: "Target Sales",
+        //        format: "{0:c}",
+        //        template: "<span id='chart_#= ProductID#' class='sparkline-chart'></span>",
+        //        width: 220
+        //    },
+        //    { command: "destroy", title: "&nbsp;", width: 120 }],
+        //});
+
+
+        // With Parameter
+        @*$.ajax({
+            type: 'GET',
+            url: '@Url.Action("Get_Fluctuating_Assets", "AssetMap")',
+            contentType: 'application/json', // this
+            datatype: 'json',
+            data: { clients: "input" }, // and this
+            success: function (result) {
+                alert(result);
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });*@
+
+        // Without Parameter
+        @*var data_unmapped_asset;
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Get_Fluctuating_Assets_NP", "AssetMap")',
+            contentType: 'application/json', // this
+            datatype: 'json',
+            success: function (result) {
+                alert(result);
+                data_unmapped_asset = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });*@
+    });
+
+
+    function onDataBound(e) {
+        var grid = this;
+        grid.table.find("tr").each(function () {
+            var dataItem = grid.dataItem(this);
+            var themeColor = dataItem.Discontinued ? 'success' : 'error';
+            var text = dataItem.Discontinued ? 'available' : 'not available';
+
+            // Following is to change color, draw chart etc in the grid
+            //$(this).find(".badgeTemplate").kendoBadge({
+            //    themeColor: themeColor,
+            //    text: text,
+            //});
+
+            //$(this).find(".rating").kendoRating({
+            //    min: 1,
+            //    max: 5,
+            //    label: false,
+            //    selection: "continuous"
+            //});
+
+            //$(this).find(".sparkline-chart").kendoSparkline({
+            //    legend: {
+            //        visible: false
+            //    },
+            //    data: [dataItem.TargetSales],
+            //    type: "bar",
+            //    chartArea: {
+            //        margin: 0,
+            //        width: 180,
+            //        background: "transparent"
+            //    },
+            //    seriesDefaults: {
+            //        labels: {
+            //            visible: true,
+            //            format: '{0}%',
+            //            background: 'none'
+            //        }
+            //    },
+            //    categoryAxis: {
+            //        majorGridLines: {
+            //            visible: false
+            //        },
+            //        majorTicks: {
+            //            visible: false
+            //        }
+            //    },
+            //    valueAxis: {
+            //        type: "numeric",
+            //        min: 0,
+            //        max: 130,
+            //        visible: false,
+            //        labels: {
+            //            visible: false
+            //        },
+            //        minorTicks: { visible: false },
+            //        majorGridLines: { visible: false }
+            //    },
+            //    tooltip: {
+            //        visible: false
+            //    }
+            //});
+
+            //kendo.bind($(this), dataItem);
+        });
+    }
+
+    function returnFalse() {
+        return false;
+    }
+
+    function clientCategoryEditor(container, options) {
+        $('<input required name="Category">')
+            .appendTo(container)
+            .kendoDropDownList({
+                autoBind: false,
+                dataTextField: "CategoryName",
+                dataValueField: "CategoryID",
+                dataSource: {
+                    data: categories
+                }
+            });
+    }
+
+    function clientCountryEditor(container, options) {
+        $('<input required name="Country">')
+            .appendTo(container)
+            .kendoDropDownList({
+                dataTextField: "CountryNameLong",
+                dataValueField: "CountryNameShort",
+                template: "<div class='dropdown-country-wrap'><img src='../content/web/country-flags/#:CountryNameShort#.png' alt='#: CountryNameLong#' title='#: CountryNameLong#' width='30' /><span>#:CountryNameLong #</span></div>",
+                dataSource: {
+                    transport: {
+                        read: {
+                            url: " https://demos.telerik.com/kendo-ui/service/countries",
+                            dataType: "jsonp"
+                        }
+                    }
+                },
+                autoWidth: true
+            });
+    }
+
+    var categories = [{
+        "CategoryID": 1,
+        "CategoryName": "Beverages"
+    }, {
+        "CategoryID": 2,
+        "CategoryName": "Condiments"
+    }, {
+        "CategoryID": 3,
+        "CategoryName": "Confections"
+    }, {
+        "CategoryID": 4,
+        "CategoryName": "Dairy Products"
+    }, {
+        "CategoryID": 5,
+        "CategoryName": "Grains/Cereals"
+    }, {
+        "CategoryID": 6,
+        "CategoryName": "Meat/Poultry"
+    }, {
+        "CategoryID": 7,
+        "CategoryName": "Produce"
+    }, {
+        "CategoryID": 8,
+        "CategoryName": "Seafood"
+    }];
+
+</script>
+
+<style>
+    .k-card-header {
+        flex: 0 0 auto;
+    }
+
+    .k-card-body {
+        overflow: hidden;
+    }
+    .customer-photo {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-size: 32px 35px;
+        background-position: center center;
+        vertical-align: middle;
+        line-height: 32px;
+        box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+        margin-left: 5px;
+    }
+
+    .customer-name {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 32px;
+        padding-left: 3px;
+    }
+
+    .k-grid tr .checkbox-align {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .product-photo {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-size: 32px 35px;
+        background-position: center center;
+        vertical-align: middle;
+        line-height: 32px;
+        box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+        margin-right: 5px;
+    }
+
+    .product-name {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 32px;
+        padding-left: 3px;
+    }
+
+    .k-rating-container .k-rating-item {
+        padding: 4px 0;
+    }
+
+        .k-rating-container .k-rating-item .k-icon {
+            font-size: 16px;
+        }
+
+    .dropdown-country-wrap {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+        .dropdown-country-wrap img {
+            margin-right: 10px;
+        }
+
+    #grid .k-grid-edit-row > td > .k-rating {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+</style>

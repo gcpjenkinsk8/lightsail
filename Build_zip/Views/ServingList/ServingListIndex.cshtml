@@ -1,0 +1,665 @@
+﻿
+@{
+    ViewBag.Title = "Serving List";
+}
+<input type="hidden" id="logType" name="logType" value="TBD">
+<input type="hidden" id="uploadTime" name="uploadTime" value="TBD">
+<input type="hidden" id="snapshotName" name="snapshotName" value="TBD">
+<input type="hidden" id="processName" name="processName" value="TBD">
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Last Upload")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div>
+                        @(Html.Kendo().DropDownList()
+                              .Name("processList")
+                              .HtmlAttributes(new { style = "width: 600px" })
+                              .DataTextField("Name")
+                              .DataValueField("Name")
+                              .DataSource(source => source
+                                  .Custom()
+                                  .Transport(transport => transport
+                                        .Read(read =>
+                                        {
+                                            read.Action("GetProcessNames", "ServingList");
+
+                                        })
+                                  )
+                              )
+                             .Events(e =>
+                             {
+                                    e.Select("onProcessSelect");
+                             })
+                        )
+                    </div>
+                    <div id="assetTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ServingListViewModel>()
+                            .Name("gridLastUpload")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.ProcessName).Width(250).Locked(true);
+                                //columns.Bound(p => p.Start).Width(120).Format("{0:yyyy-MM-dd HH:mm}");
+                                //columns.Bound(p => p.End).Width(120).Format("{0:yyyy-MM-dd HH:mm}");
+                                columns.Bound(p => p.StartDisplay).Title("Start").Width(175).Locked(true);
+                                columns.Bound(p => p.EndDisplay).Title("End").Width(175).Locked(true);
+                                columns.Bound(p => p.ExchangePairName).Width(120).Title("Pair");
+                                //columns.Bound(p => p.AssetName).Width(150);
+                                columns.Bound(p => p.AssetTicker).Width(120);
+                                columns.Bound(p => p.AssetTierDescription).Title("Asset Status").Width(120);
+                                columns.Bound(p => p.AssetTierCode).Width(120).Title("Asset Code");
+                                //columns.Bound(p => p.CurrencyName).Width(150);
+                                //columns.Bound(p => p.CurrencyTicker).Width(120);
+                                ////columns.Bound(p => p.QuoteAssetTierDescription).Width(120);
+                                //columns.Bound(p => p.QuoteAssetTierCode).Width(120);
+                                columns.Bound(p => p.Exchange).Width(120);
+                                columns.Bound(p => p.ExchangeVettingStatusDescription).Width(175).Title("Exchange Status");
+                                columns.Bound(p => p.ExchangeVettingStatus).Width(120).Title("Exchange Code");
+                                columns.Bound(p => p.AssetLegacyId).Width(120);
+                                columns.Bound(p => p.AssetLegacyDARAssetId).Width(120);
+                                columns.Bound(p => p.ExchangeLegacyId).Width(120);
+                                columns.Bound(p => p.Lookback).Width(120);
+                                columns.Bound(p => p.LookbackUnit).Width(120);
+                                columns.Bound(p => p.Frequency).Width(120);
+                                columns.Bound(p => p.FrequencyUnit).Width(120);
+                                //columns.Bound(p => p.QuoteAssetLegacyId).Width(120);
+                                //columns.Bound(p => p.QuoteAssetLegacyDARAssetId).Width(120);
+                                columns.Command(command => { command.Destroy(); }).Width(200);
+                            })
+                            .ToolBar(toolbar => {
+                                toolbar.Search();
+                                //toolbar.Create();
+                                toolbar.Save();
+                                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                toolbar.Custom().Text("Snap").HtmlAttributes(new { id = "snapServingList", @class = "floatRight" });
+                            })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.ProcessName);
+                                    search.Field(f => f.ProcessDescription);
+                                    search.Field(f => f.ExchangePairName);
+                                    search.Field(f => f.Exchange);
+                                    search.Field(f => f.AssetTicker);
+                                    search.Field(f => f.AssetName);
+                                    search.Field(f => f.CurrencyName);
+                                    search.Field(f => f.CurrencyTicker);
+                                    search.Field(f => f.CurrencyDarId);
+                                    search.Field(f => f.AssetDarId);
+                                })
+                            .Groupable(g => g.ShowFooter(true))
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("LastUploadList.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            }).Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(100)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ServingListID);
+                                    model.Field(p => p.ProcessName).Editable(false);
+                                    model.Field(p => p.Start).Editable(false);
+                                    model.Field(p => p.End).Editable(false);
+                                    model.Field(p => p.AssetTicker).Editable(false);
+                                    model.Field(p => p.AssetName).Editable(false);
+                                    model.Field(p => p.AssetDarId).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+                                    model.Field(p => p.Exchange).Editable(false);
+                                    model.Field(p => p.ExchangePairName).Editable(false);
+                                    model.Field(p => p.CurrencyTicker).Editable(false);
+                                    model.Field(p => p.CurrencyDarId).Editable(false);
+                                    model.Field(p => p.CurrencyName).Editable(false);
+                                    model.Field(p => p.Lookback).Editable(false);
+                                    model.Field(p => p.LookbackUnit).Editable(false);
+                                    model.Field(p => p.Frequency).Editable(false);
+                                    model.Field(p => p.FrequencyUnit).Editable(false);
+
+                                })
+                                //.Create("Pair_Create", "ServingList")
+                                .Read(read => read.Action("ServingList_Read", "ServingList").Data("getInputProcess"))
+                                .Update("Pair_Update", "ServingList")
+                                .Destroy("ServingList_Destroy", "ServingList")
+                            )
+                        )
+
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("History")
+                  .Selected(false)
+                  .Content(@<text>
+                    <div>
+
+
+                        @(Html.Kendo().DropDownList()
+                              .Name("snapshotList")
+                              .HtmlAttributes(new { style = "width: 600px" })
+                              .DataTextField("SnapshotName")
+                              .DataValueField("SnapshotName")
+                              .DataSource(source => source
+                                  .Custom()
+                                  .Transport(transport => transport
+                                        .Read(read =>
+                                        {
+                                            read.Action("ServingListSnapshot_GetSnapshotNames", "ServingList");
+
+                                        })
+                                  )
+                              )
+                             .Events(e =>
+                             {
+                                    e.Select("onSnapshotSelect");
+                             })
+                        )
+                    </div>
+                    <div id="assetTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ServingListSnapshotViewModel>()
+                            .Name("gridPublishedServingList")
+                            .Columns(columns =>
+                            {
+                                //columns.Bound(p => p.SnapshotName).Width(120);
+                                columns.Bound(p => p.ProcessName).Width(120);
+                                columns.Bound(p => p.SnapshotVersion).Width(120);
+                                columns.Bound(p => p.IsActive).Width(120);
+                                columns.Bound(p => p.Start).Width(120).Format("{0:yyyy-MM-dd HH:mm}");
+                                columns.Bound(p => p.End).Width(120).Format("{0:yyyy-MM-dd HH:mm}");
+                                columns.Bound(p => p.ExchangePairName).Width(120).Title("Pair");
+                                columns.Bound(p => p.AssetTicker).Width(120);
+                                columns.Bound(p => p.AssetTierDescription).Width(120);
+                                columns.Bound(p => p.AssetTierCode).Width(120).Title("Asset Code");
+                                columns.Bound(p => p.Exchange).Width(120);
+                                columns.Bound(p => p.ExchangeVettingStatus).Width(120).Title("Contribution Status");
+                                columns.Bound(p => p.ExchangeVettingStatusCode).Width(120).Title("Exchange Code");
+                                columns.Bound(p => p.AssetLegacyId).Width(120);
+                                columns.Bound(p => p.AssetLegacyDARAssetId).Width(120);
+                                columns.Bound(p => p.ExchangeLegacyId).Width(120);
+                                columns.Bound(p => p.Lookback).Width(120);
+                                columns.Bound(p => p.LookbackUnit).Width(120);
+                                columns.Bound(p => p.Frequency).Width(120);
+                                columns.Bound(p => p.FrequencyUnit).Width(120);
+                            })
+                            .ToolBar(toolbar => {
+                                toolbar.Search();
+                                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                            })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.ProcessName);
+                                    search.Field(f => f.SnapshotName);
+                                })
+                            .Groupable(g => g.ShowFooter(true))
+                            .Height(800)
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("ServingListSnapshot.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            }).Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(100)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.SnapshotName).Editable(false);
+                                    model.Field(p => p.ProcessName).Editable(false);
+                                    model.Field(p => p.SnapshotVersion).Editable(false);
+                                    model.Field(p => p.Start).Editable(false);
+                                    model.Field(p => p.End).Editable(false);
+                                })
+                                //.Create("Pair_Create", "ServingList")
+                                .Read(read => read.Action("ServingListSnapshot_Read", "ServingList").Data("getInput"))
+                            )
+                        )
+
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Process")
+                  .Content(@<text>
+                    <div id="assetThemeTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ProcessViewModel>()
+                            .Name("gridProcess")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Name).Width(120);
+                                columns.Bound(p => p.Description).Width(120);
+                                columns.Bound(p => p.Lookback).Width(150);
+                                columns.ForeignKey(p => p.LookbackUnit, (System.Collections.IEnumerable)ViewData["TimeUnits"], "Name", "Name").Width(120).Title("LookbackUnit");
+                                columns.Bound(p => p.Frequency).Width(120);
+                                columns.ForeignKey(p => p.FrequencyUnit, (System.Collections.IEnumerable)ViewData["TimeUnits"], "Name", "Name").Width(120).Title("FrequencyUnit");
+
+
+                                columns.Command(command => { command.Destroy(); }).Width(200);
+                            })
+                            .ToolBar(toolbar => {
+                                toolbar.Create();
+                                toolbar.Save();
+                                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                            })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+
+                                })
+                                .Create("Process_Create", "ServingList")
+                                .Read("Process_Read", "ServingList")
+                                .Update("Process_Update", "ServingList")
+                                .Destroy("Process_Destroy", "ServingList")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Pairs")
+                  .Content(@<text>
+                    <div id="assetUrlTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.PairViewModel>()
+                            .Name("gridPairs")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.ID).Width(120);
+                                columns.Bound(p => p.Exchange).Width(120);
+                                columns.Bound(p => p.ExchangePairName).Width(120);
+                                columns.Bound(p => p.AssetTicker).Width(120);
+                                columns.Bound(p => p.AssetDarId).Width(120);
+                                columns.Bound(p => p.AssetName).Width(150);
+                                columns.Bound(p => p.CurrencyDarId).Width(120);
+                                columns.Bound(p => p.CurrencyName).Width(120);
+                                columns.Bound(p => p.AssetLegacyId).Width(120);
+                                columns.Bound(p => p.AssetLegacyDARAssetId).Width(120);
+                                columns.Bound(p => p.QuoteAssetLegacyId).Width(120);
+                                columns.Bound(p => p.QuoteAssetLegacyDARAssetId).Width(120);
+                                //columns.Bound(p => p.AssetTierDescription).Width(120);
+                                //columns.Bound(p => p.AssetTierCode).Width(120);
+                                //columns.Bound(p => p.QuoteAssetTierDescription).Width(120);
+                                //columns.Bound(p => p.QuoteAssetTierCode).Width(120);
+
+                                columns.Command(command => { command.Destroy(); }).Width(200);
+                            })
+                            .ToolBar(toolbar => {
+                                toolbar.Search();
+                                //toolbar.Create();
+                                toolbar.Save();
+                                toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                            })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.ExchangePairName);
+                                    search.Field(f => f.Exchange);
+                                    search.Field(f => f.AssetTicker);
+                                    search.Field(f => f.AssetName);
+                                    search.Field(f => f.AssetDarId);
+                                    search.Field(f => f.CurrencyName);
+                                    search.Field(f => f.CurrencyTicker);
+                                    search.Field(f => f.CurrencyDarId);
+                                })
+                            .Groupable(g => g.ShowFooter(true))
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Pairs.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                  )
+                            .ToolBar(tools => tools.Excel())
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(100)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ID);
+                                    model.Field(p => p.ID).Editable(false);
+                                    model.Field(p => p.AssetDarId).Editable(false);
+                                    model.Field(p => p.AssetTicker).Editable(false);
+                                    model.Field(p => p.AssetName).Editable(false);
+                                    model.Field(p => p.AssetDarId).Editable(false);
+                                    model.Field(p => p.CreateUser).Editable(false);
+                                    model.Field(p => p.CreateTime).Editable(false);
+                                    model.Field(p => p.LastEditUser).Editable(false);
+                                    model.Field(p => p.LastEditTime).Editable(false);
+                                    model.Field(p => p.Exchange).Editable(false);
+                                    model.Field(p => p.ExchangePairName).Editable(false);
+                                    model.Field(p => p.CurrencyTicker).Editable(false);
+                                    model.Field(p => p.CurrencyDarId).Editable(false);
+                                    model.Field(p => p.CurrencyName).Editable(false);
+
+
+                                })
+                                //  .Create("Pair_Create", "ServingList")
+                                .Read("Pair_Read", "ServingList")
+                                .Update("Pair_Update", "ServingList")
+                                .Destroy("Pair_Destroy", "ServingList")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Upload")
+                  .Content(@<text>
+                   <div id="servingListUploadTab" class="dar-tab">
+                        <div><b>Upload Pairs:</b></div>
+                        <div class="demo-section k-content">
+                            @(Html.Kendo().Upload()
+                                .Name("files")
+                                .Async(a => a
+                                    .Save("Events_Upload", "ServingList")
+                                    .Remove("Events_Remove", "ServingList")
+                                    .AutoUpload(false)
+                                )
+                                .Events(events => events
+                                    .Cancel("onCancel")
+                                    .Clear("onClear")
+                                    .Complete("onComplete")
+                                    .Error("onError")
+                                    .Progress("onProgress")
+                                    .Remove("onRemove")
+                                    .Select("onSelect")
+                                    .Success("onSuccess")
+                                    .Upload("onUpload")
+                                )
+                            )
+                        </div>
+                    </div>
+                    <div>
+                           @Html.Partial("RefLog")
+                    </div>
+                  </text>);
+          })
+          .Events(events => events.Select("onTabSelect"))
+    )
+</div>
+
+
+<script>
+
+    function onTabSelect(e) {
+
+        if ($(e.item).text() == "History") {
+            //  alert($(e.item).text());
+            $("#snapshotList").data("kendoDropDownList").dataSource.read();
+        }
+
+
+
+    }
+
+
+    function reloadData(e) {
+        //if (e.type === 'destroy') {
+        //    if (!e.response.Errors) {
+        //        e.sender.read();
+        //    }
+        //}
+
+    }
+
+    function onSelect(e) {
+        //kendoConsole.log("Select :: " + getFileInfo(e));
+    }
+
+    function onUpload(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'PairUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+
+
+    function onSuccess(e) {
+        //kendoConsole.log("Success (" + e.operation + ") :: " + getFileInfo(e));
+    }
+
+    function onError(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onComplete(e) {
+
+
+    }
+
+    function onCancel(e) {
+        //kendoConsole.log("Cancel :: " + getFileInfo(e));
+    }
+
+    function onRemove(e) {
+        //kendoConsole.log("Remove :: " + getFileInfo(e));
+    }
+
+    function onProgress(e) {
+        //kendoConsole.log("Upload progress :: " + e.percentComplete + "% :: " + getFileInfo(e));
+    }
+
+    function onClear(e) {
+        //kendoConsole.log("Clear");
+    }
+
+    function getFileInfo(e) {
+        return $.map(e.files, function (file) {
+            var info = file.name;
+
+            // File size is not available in all browsers
+            if (file.size > 0) {
+                info += " (" + Math.ceil(file.size / 1024) + " KB)";
+            }
+            return info;
+        }).join(", ");
+    }
+
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+
+    function onSnapshotSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('snapshotName').value = e.dataItem.SnapshotName;
+        $("#snapshotList").kendoDropDownList.value = e.dataItem.SnapshotName;
+        var dropdownlist = $("#snapshotList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.SnapshotName);
+        $("#gridPublishedServingList").data("kendoGrid").dataSource.read();
+    }
+
+    function onProcessSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('processName').value = e.dataItem.Name;
+        $("#processList").kendoDropDownList.value = e.dataItem.Name;
+        var dropdownlist = $("#processList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.Name);
+        $("#gridLastUpload").data("kendoGrid").dataSource.read();
+    }
+
+    
+    function getInputProcess() {
+        return {
+
+            processName: document.getElementById('processName').value
+        }
+    }
+    function getInput() {
+        return {
+
+            snapshotName: document.getElementById('snapshotName').value
+        }
+    }
+
+
+    $(document).ready(function () {
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+
+        setGridEditMode(canUpdate);
+
+
+        if (!canUpdate) {
+            $("#files").data("kendoUpload").disable();
+        }
+    });
+
+
+    $("#gridLastUpload").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridLastUpload").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridLastUpload").on("click", "#snapServingList", function (e) {
+        e.preventDefault();  //prevents postback
+        $.post("@Url.Action("ServingList_Snap", "ServingList")", getInputProcess() ,function(data){
+            alert(data);
+        });
+
+    });
+
+    $("#gridProcess").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridProcess").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridPairs").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridPairs").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridPublishedServingList").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridPublishedServingList").data("kendoGrid").dataSource.read();
+    });
+
+
+
+
+
+
+
+</script>

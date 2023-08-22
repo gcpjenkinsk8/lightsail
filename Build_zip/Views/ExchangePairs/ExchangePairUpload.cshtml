@@ -1,0 +1,159 @@
+﻿<div id="ExchangePairsUploadTab" class="dar-tab">
+    <input type="hidden" id="logType" name="logType" value="TBD">
+    <input type="hidden" id="uploadTime" name="uploadTime" value="TBD">
+    <div class="demo-section k-content">
+        @(Html.Kendo().TabStrip()
+            .Name("tabstripExchangeUpload")
+            .Events(events => events.Select("onTabSelect"))
+            .Items(tabstrip =>
+            {
+                tabstrip.Add().Text("ExchangePairs")
+                    .Selected(true)
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("files")
+                                    .Async(a => a
+                                        .Save("Save", "ExchangePairs")
+                                        .Remove("Remove", "ExchangePairs")
+                                        .AutoUpload(true)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onUpload")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+                tabstrip.Add().Text("ExcludeFromPricing")
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("filesexcludepairs")
+                                    .Async(a => a
+                                        .Save("exclude_pairs_from_servlist_Save", "ExchangePairs")
+                                        .Remove("exclude_pairs_from_servlist_Remove", "ExchangePAirs")
+                                        .AutoUpload(true)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onUpload")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+                    tabstrip.Add().Text("ServListV2")
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("filesservlistV2")
+                                    .Async(a => a
+                                        .Save("servlistv2_Save", "ExchangePairs")
+                                        .Remove("servlistv2_Remove", "ExchangePAirs")
+                                        .AutoUpload(true)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onUpload")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+
+            })
+        )
+
+    </div>
+</div>
+
+
+
+<script>
+
+    function onTabSelect(e) {
+        //var tab = $("#tabstripAssetUpload").kendoTabStrip().getSelectedTab();
+        //alert(tab);
+        //switch (e.item.innerText) {
+        //    case "Tokens":
+        //        document.getElementById('logType').value = 'TokenUpload';
+        //        break;
+        //    case "Assets":
+        //        document.getElementById('logType').value = 'AssetUpload';
+        //        break;
+        //    default:
+        //    // code block
+        //}
+
+        //$("#gridLog").data("kendoGrid").dataSource.read();
+    }
+  // File upload
+    function onSelect(e) {
+        //console.log("Select :: " + getFileInfo(e));
+    }
+
+    function onUpload(e) {
+        //console.log("Upload :: " + getFileInfo(e));
+    }
+
+    function onSuccess(e) {
+        //console.log("Success (" + e.operation + ") :: " + getFileInfo(e));
+
+    }
+
+    function onError(e) {
+        alert(e.XMLHttpRequest.response);
+
+    }
+
+    function onComplete(e) {
+
+
+    }
+
+    function onCancel(e) {
+        //console.log("Cancel :: " + getFileInfo(e));
+    }
+
+    function onRemove(e) {
+        //console.log("Remove :: " + getFileInfo(e));
+    }
+
+    function onProgress(e) {
+        //console.log("Upload progress :: " + e.percentComplete + "% :: " + getFileInfo(e));
+    }
+
+    function onClear(e) {
+        //console.log("Clear");
+    }
+
+    function onSuccess(e) {
+        //e.preventDefault();  //prevents postback
+        alert("Success");
+    }
+
+
+</script>

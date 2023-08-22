@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "Configuration";
+}
+<input type="hidden" id="clientName" name="clientName" value="TBD">
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Clients")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="clientTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ClientViewModel>()
+                            .Name("gridClient")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.ClientName).Width(200);
+                                columns.Bound(p => p.Description).Width(300);
+                                columns.Bound(p => p.APIKey).Width(200);
+                                columns.Bound(p => p.Derivatives).Width(200);
+                                columns.Bound(p => p.HasFullAccess).Width(130);
+                                columns.Bound(p => p.HourlyPrice).Width(130);
+                                columns.Bound(p => p.LatestPrice).Width(130);
+                                columns.Bound(p => p.NFT).Width(130);
+                                columns.Bound(p => p.Websocket).Width(130);
+                                columns.Bound(p => p.Events).Width(130);
+                                columns.Bound(p => p.LiquidityPoolPrice).Width(130);
+                                columns.Bound(p => p.ExpiryDate).Width(130);
+                                columns.Bound(p => p.LookbackDays).Width(130);
+                                columns.Bound(p => p.DomainName).Width(130);
+                                columns.Bound(p => p.CirculatingSupply).Width(130);
+                                columns.Bound(p => p.MarketCap).Width(130);
+                                columns.Bound(p => p.Price400ms).Width(130);
+                                columns.Bound(p => p.ExternalClientName).Width(130);
+                                columns.Bound(p => p.OHLCV).Width(130);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(300);
+
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                 toolbar.Search();
+                             })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.ClientName);
+                                    search.Field(f => f.Description);
+                                })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Excel(excel => excel
+                                        .AllPages(true)
+                                        .FileName("clients.xlsx")
+                                        .Filterable(true)
+                                        .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                )
+                            .ToolBar(tools => tools.Excel())
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.ClientName);
+
+                                })
+                                .Create("Client_Create", "Configuration")
+                                .Read("Client_Read", "Configuration")
+                                .Update("Client_Update", "Configuration")
+                                .Destroy("Client_Destroy", "Configuration")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Caller ID")
+              .Content(@<text>
+                    <div id="client_ip_tab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.CallerIDViewModel>()
+                            .Name("gridCallerId")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.CallerID).Width(200);
+                                columns.ForeignKey(p => p.ClientName, (System.Collections.IEnumerable)ViewData["Clients"], "Name", "Name");
+                                columns.Bound(p => p.EmailAddress);
+                                columns.Bound(p => p.IsActive).Title("Active?").Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(300);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                 toolbar.Search();
+                             })
+                            .Search(
+                                search =>
+                                {
+                                    search.Field(f => f.CallerID);
+                                    search.Field(f => f.ClientName);
+                                })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Scrollable()
+                            .Events(events =>
+                            {
+                                events.Sort("onSort");
+                                events.DataBound("onDataBound");
+
+                            })
+                            .Excel(excel => excel
+                                        .AllPages(true)
+                                        .FileName("client_ipaddresses.xlsx")
+                                        .Filterable(true)
+                                        .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                )
+                            .ToolBar(tools => tools.Excel())
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    // events.RequestEnd("reloadClientData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARClientID);
+                                    model.Field(p => p.ClientName).Editable(true);
+
+                                })
+                                .Create("CallerID_Create", "Configuration")
+                                .Read(read => read.Action("CallerID_Read", "Configuration"))
+                                .Update(read => read.Action("CallerID_Update", "Configuration"))
+                                .Destroy(read => read.Action("CallerID_Destroy", "Configuration"))
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Client Assets")
+                        .Content(@<text>
+                     <div>
+                        @(Html.Kendo().DropDownList()
+                                      .Name("clientList")
+                                      .HtmlAttributes(new { style = "width: 600px" })
+                                      .DataTextField("ClientName")
+                                      .DataValueField("ClientName")
+                                      .DataSource(source => source
+                                          .Custom()
+                                          .Transport(transport => transport
+                                                .Read(read =>
+                                                {
+                                                    read.Action("GetClientNames", "Configuration");
+
+                                                })
+                                          )
+                                      )
+                                     .Events(e =>
+                                     {
+                                         e.Select("onSelect");
+                                     })
+                        )
+                    </div>
+                    <div id="clientAssetsTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.ClientAssetsViewModel>()
+                                    .Name("gridClientAssets")
+                                    .Columns(columns =>
+                                    {
+                                        columns.Bound(p => p.DARAssetID).Width(120);
+                                        columns.Bound(p => p.AssetName).Width(120);
+                                        columns.Bound(p => p.DARTicker).Width(120);
+                                        columns.Bound(p => p.ReferenceData).Width(120);
+                                        columns.Bound(p => p.Price).Width(120);
+                                        columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                                    })
+                                     .ToolBar(toolbar =>
+                                     {
+                                         toolbar.Create();
+                                         toolbar.Save();
+                                         toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                         toolbar.Search();
+                                     })
+                                    .Search(
+                                        search =>
+                                        {
+                                            search.Field(f => f.AssetName);
+                                            search.Field(f => f.DARTicker);
+                                            search.Field(f => f.DARAssetID);
+                                        })
+                                    .Height(800)
+                                    .Editable(editable => editable.Mode(GridEditMode.InCell))
+                                    .Pageable()
+                                    .Navigatable()
+                                    .Sortable()
+                                    .Filterable()
+                                    .Scrollable()
+                                    .Events(events =>
+                                    {
+                                        events.Sort("onSort");
+                                        events.DataBound("onDataBound");
+                                        events.Save("onSave");
+
+                                    })
+                                    .Excel(excel => excel
+                                                .AllPages(true)
+                                                .FileName("client_assets.xlsx")
+                                                .Filterable(true)
+                                                .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                                        )
+                                    .ToolBar(tools => tools.Excel())
+                                    .Resizable(resize => resize.Columns(true))
+                                    .Reorderable(reorder => reorder.Columns(true))
+                                    .DataSource(dataSource => dataSource
+                                        .Ajax()
+                                        .Batch(true)
+                                        .PageSize(20)
+                                        .ServerOperation(true)
+                                        .Events(events =>
+                                        { 
+                                            events.Error("error_handler");
+                                            events.RequestEnd("reloadData");
+                                        })
+                                        .Model(model =>
+                                        {
+                                            model.Id(p => p.DARClientID);
+                                            model.Field(p => p.DARTicker).Editable(true);
+                                            model.Field(p => p.ReferenceData).Editable(true);
+                                            model.Field(p => p.Price).Editable(true);
+                                        })
+                                        .Create(read => read.Action("ClientAssets_Create", "Configuration").Data("getInput"))
+                                        .Read(read => read.Action("ClientAssets_Read", "Configuration").Data("getInput"))
+                                        .Update(read => read.Action("ClientAssets_Update", "Configuration"))
+                                        .Destroy(read => read.Action("ClientAssets_Destroy", "Configuration"))
+
+                                    )
+                        )
+                    </div>
+                  </text>);
+          })
+    )
+</div>
+
+<script>
+    function reloadClientData(e) {
+         if (e.type === 'update') {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+         }
+
+    }
+
+    function onSelect(e) {
+        e.preventDefault();  //prevents postback
+        document.getElementById('clientName').value = e.dataItem.ClientName;
+        $("#clientList").kendoDropDownList.value = e.dataItem.ClientName;
+        var dropdownlist = $("#clientList").data("kendoDropDownList");
+        dropdownlist.value(e.dataItem.ClientName);
+        $("#gridClientAssets").data("kendoGrid").dataSource.read();
+    }
+    function getInput() {
+        return {
+
+            clientName: document.getElementById('clientName').value
+        }
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    function reloadData(e) {
+        if (e.type === 'update') {
+            if (!e.response.Errors) {
+                e.sender.read();
+            }
+        }
+
+    }
+
+    function onDataBound(e) {
+
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!this.dataSource.data().length == 0) {
+            $(".k-grid-edit").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+
+            $(".k-grid-delete").kendoButton({ enable: canUpdate })
+                .data("kendoButton").enable(canUpdate);
+        }
+    }
+    $("#gridVettingStatus").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridVettingStatus").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridClient").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridClient").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridCallerId").on("click", "#refreshButton", function (e) {
+        e.preventDefault();
+        $("#gridCallerId").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridClientAssets").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridClientAssets").data("kendoGrid").dataSource.read();
+    });
+
+    $(document).ready(function () {
+
+        setGridEditMode(getBoolFromString('@User.IsInRole("DARUserWrite")'));
+
+    });
+
+
+
+    function lookupAsset(input) {
+        // alert("Call remote here");
+
+        var out_result;
+
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("LookupAsset", "Helper")',
+            contentType: 'application/json; charset=utf-8', // this
+            datatype: 'json',
+            data: { input: input },
+            async: false,
+            success: function (result) {
+                out_result = result;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Status: " + textStatus);
+                alert("Error: " + errorThrown);
+            }
+        });
+
+        return JSON.parse(out_result);
+    }
+    function onSave(e) {
+
+        var grid = $("#gridClientAssets").getKendoGrid();
+        var current = grid.current();
+        var dataItem = null;
+        if (current == null) {
+            var firstRow = grid.items()[0];
+            dataItem = grid.dataItem(firstRow);
+        }
+        else {
+            dataItem = grid.dataItem(grid.current().closest("tr"));
+        }
+
+        if (this.columns[this.cellIndex(e.container)].field === "AssetName") {
+            var mappedValue = lookupAsset(e.values['AssetName']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['AssetName'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.AssetName = mappedValue.Name;
+                dataItem.DARTicker = mappedValue.DARTicker;
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+            }
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARAssetID") {
+            var mappedValue = lookupAsset(e.values['DARAssetID']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.AssetName = mappedValue.Name;
+                dataItem.DARTicker = mappedValue.DARTicker;
+            }
+
+        }
+        else if (this.columns[this.cellIndex(e.container)].field === "DARTicker") {
+            var mappedValue = lookupAsset(e.values['DARTicker']);
+
+            if (mappedValue == null || mappedValue === "") {
+                alert(e.values['DARAssetID'] + " is an invalid entry!");
+            }
+            else {
+                dataItem.AssetName = mappedValue.Name;
+                dataItem.DARTicker = mappedValue.DARTicker;
+                dataItem.DARAssetID = mappedValue.DARAssetID;
+            }
+
+        }
+        else {
+            dataItem.set(this.columns[this.cellIndex(e.container)].field, e.values[this.columns[this.cellIndex(e.container)].field]);
+
+        }
+
+        //if (this.columns[this.cellIndex(e.container)].field === "ReferenceData") {
+        //    dataItem.set("ReferenceData", e.values['ReferenceData']);
+        //}
+        //if (this.columns[this.cellIndex(e.container)].field === "Price") {
+        //    dataItem.set("Price", e.values['Price']);
+        //}
+
+        
+
+
+        dataItem.dirty = true;
+        //$("#gridClientAssets").data("kendoGrid").refresh();
+        //$("#gridClientAssets").data("kendoGrid").dataSource.sync();
+
+        //var grid = $("#KendoGridName").data("kendoGrid");
+        //var curCell = grid.find(".k-edit-cell");
+        //grid.editCell(curCell.next()); // To move the cursor to the next cell and put the cell in edit mode
+        //grid.select(curCell.next()); // To select the next cell
+        //grid.focus(curCell.next()); // To set focus on to next cell   
+        //e.preventDefault();
+    }
+
+</script>

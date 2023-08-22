@@ -1,0 +1,85 @@
+﻿<div id="assetUploadTab" class="dar-tab">
+    <input type="hidden" id="logType" name="logType" value="TBD">
+    <input type="hidden" id="uploadTime" name="uploadTime" value="TBD">
+    <div class="demo-section k-content">
+        @(Html.Kendo().TabStrip()
+            .Name("tabStripExchangeUpload")
+            .Events(events => events.Select("onTabSelect"))
+            .Items(tabstrip =>
+            {
+                tabstrip.Add().Text("Exchanges")
+                    .Selected(true)
+                    .Content(@<text>
+                           <div>
+                                @(Html.Kendo().Upload()
+                                    .Name("files")
+                                    .Async(a => a
+                                        .Save("Events_Save", "Exchange")
+                                        .Remove("Events_Remove", "Exchange")
+                                        .AutoUpload(false)
+                                    )
+                                    .Events(events => events
+                                        .Cancel("onCancel")
+                                        .Clear("onClear")
+                                        .Complete("onComplete")
+                                        .Error("onError")
+                                        .Progress("onProgress")
+                                        .Remove("onRemove")
+                                        .Select("onSelect")
+                                        .Success("onSuccess")
+                                        .Upload("onExchangeUpload")
+                                    )
+                                )
+                           </div>
+                    </text>);
+
+
+            })
+
+
+        )
+
+    </div>
+</div>
+<div>
+    @Html.Partial("RefLog")
+</div>
+
+
+<script>
+
+    function onTabSelect(e) {
+        //var tab = $("#tabStripDerivativesUpload").kendoTabStrip().getSelectedTab();
+        //alert(tab);
+        switch (e.item.innerText) {
+            case "Derivatives":
+                document.getElementById('logType').value = 'Derivatives';
+                break;
+            default:
+            // code block
+        }
+
+        $("#gridLog").data("kendoGrid").dataSource.read();
+    }
+
+    function onExchangeUpload(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'ExchangeUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+
+    function onExchangeVettingStatusUpload(e) {
+        //kendoConsole.log("Upload :: " + getFileInfo(e));
+        document.getElementById('logType').value = 'ExchangeVettingStatusUpload';
+        document.getElementById('uploadTime').value = (new Date()).toUTCString();
+    }
+
+    $(document).ready(function () {
+        var canUpdate = getBoolFromString('@User.IsInRole("DARUserWrite")');
+        if (!canUpdate) {
+            $("#files").data("kendoUpload").disable();
+        }
+
+    });
+</script>

@@ -1,0 +1,246 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title</title>
+    <link href="https://kendo.cdn.telerik.com/2021.2.616/styles/kendo.bootstrap-v4.min.css" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/bootstrap.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/dar.js")"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.2.616/js/jquery.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.2.616/js/jszip.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.2.616/js/kendo.all.min.js"></script>
+    <script src="https://kendo.cdn.telerik.com/2021.2.616/js/kendo.aspnetmvc.min.js"></script>
+    <script src="@Url.Content("~/Scripts/bootstrap.min.js")"></script>
+    <script src="@Url.Content("~/Scripts/kendo.modernizr.custom.js")"></script>
+
+</head>
+<body class="k-content">
+    <nav class="navbar navbar-inverse navbar-fixed-top p-3">
+        <div>
+            <a href="@Url.Action("Index", "Home")"> <img src="~/Images/darlogo.png" alt="" />
+            </a>
+        </div>
+        <div class="dar-logo">
+            @Html.ActionLink("DAR Reference Data Master", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+        </div>
+        <div class="container  p-0 p-sm-3">
+            <div>
+                @(Html.Kendo().Button()
+                        .Name("assetButton")
+                        .ImageUrl(@Url.Content("~/Images/asset.png"))
+                        .Events(e => e.Click("onAssetClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#assetButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(100)
+                        .Content("Assets")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("exchangeButton")
+                        .ImageUrl(@Url.Content("~/Images/exchange.png"))
+                        .Events(e => e.Click("onExchangeClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#exchangeButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("Exchanges")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("derivativeButton")
+                        .ImageUrl(@Url.Content("~/Images/derivative.png"))
+                        .Events(e => e.Click("onDerivativeClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#derivativeButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("Derivatives")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("circulatingSupplyButton")
+                        .ImageUrl(@Url.Content("~/Images/supply.png"))
+                        .Events(e => e.Click("onCirculatingSupplyClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#circulatingSupplyButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("Circulating Supply")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("servingListButton")
+                        .ImageUrl(@Url.Content("~/Images/servinglist.png"))
+                        .Events(e => e.Click("onServingListClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#servingListButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("Serving List")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("cryptoEventButton")
+                        .ImageUrl(@Url.Content("~/Images/cryptoevents.png"))
+                        .Events(e => e.Click("onCryptoEventClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#cryptoEventButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("Crypto Events")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("configurationButton")
+                        .ImageUrl(@Url.Content("~/Images/configuration.png"))
+                        .Events(e => e.Click("onConfigurationClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#configurationButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("System Configuration")
+                    )
+                @(Html.Kendo().Button()
+                        .Name("adminButton")
+                        .ImageUrl(@Url.Content("~/Images/admin.png"))
+                        .Events(e => e.Click("onAdminClickNavBar"))
+                        )
+                @(Html.Kendo().Tooltip()
+                        .For("#adminButton")
+                        .Position(TooltipPosition.Top)
+                        .Animation(e => e.Open(o => o.Zoom(ZoomDirection.In).Duration(150)))
+                        .Width(120)
+                        .Content("System Admin")
+                    )
+            </div>
+            <div id="responsive-panel" class="navbar-left">
+                @(Html.Kendo().Menu()
+                        .Name("Menu")
+                        .Items(items =>
+                        {
+                            items.Add().Text("Modules")
+                              .Items(children =>
+                              {
+                                  //children.Add().Text("Crypto Events")
+                                  //        .Items(innerChildren =>
+                                  //        {
+                                  //            innerChildren.Add().Text("Review Crypto Events").Action("Index", "StagedCryptoEvents", new { area = "" });
+                                  //            innerChildren.Add().Text("File Upload").Action("Index", "FileUpload", new { area = "" });
+                                  //            innerChildren.Add().Text("Finalized Events").Action("ReviewedEvents", "StagedCryptoEvents", new { area = "" });
+                                  //        });
+
+                                  children.Add().Text("Reference Master")
+                                          .Items(innerChildren =>
+                                          {
+                                              innerChildren.Add().Text("Asset").Action("AssetIndex", "Asset", new { area = "" });
+                                              innerChildren.Add().Text("Asset Map").Action("AssetMapIndex", "AssetMap", new { area = "" });
+                                              innerChildren.Add().Text("Derivatives").Action("DerivativesIndex", "Derivatives", new { area = "" });
+                                              innerChildren.Add().Text("URL Types").Action("UrlTypeIndex", "UrlType", new { area = "" });
+                                              innerChildren.Add().Text("Theme").Action("ThemeIndex", "Theme", new { area = "" });
+                                              innerChildren.Add().Text("Circulating Supply").Action("OutstandingSupplyIndex", "OutstandingSupply", new { area = "" });
+                                              innerChildren.Add().Text("Serving List").Action("ServingListIndex", "ServingList", new { area = "" });
+                                              innerChildren.Add().Text("Exchange").Action("ExchangeIndex", "Exchange", new { area = "" });
+                                              innerChildren.Add().Text("Exchange Pairs").Action("ExchangePairsIndex", "ExchangePairs", new { area = "" });
+                                              innerChildren.Add().Text("Crypto Events").Action("Index", "StagedCryptoEvents", new { area = "" });
+                                          });
+                                  children.Add().Text("System")
+                                          .Items(innerChildren =>
+                                          {
+                                              innerChildren.Add().Text("Configuration").Action("ConfigurationIndex", "Configuration", new { area = "" });
+                                              innerChildren.Add().Text("Upload Templates").Action("TemplateDownload", "Configuration", new { area = "" });
+                                              innerChildren.Add().Text("Run Test").Action("RunTest", "Home", new { area = "" });
+                                              innerChildren.Add().Text("Logs").Action("LogViewer", "Home", new { area = "" });
+                                          });
+
+
+                              });
+                            items.Add().Text("About").Action("About", "Home", new { area = "" });
+                            items.Add().Text("SysAdmin").Items(children =>
+                            {
+                                children.Add().Text("Admin").Action("Admin", "Admin", new { area = "" });
+                                children.Add().Text("Register User").Action("Register", "Home", new { area = "" });
+                            });
+                        })
+                    )
+            </div>
+        </div>
+        <div>
+            @if (@User.Identity.Name == "")
+            {@Html.ActionLink("Login", "Login", "Home") }
+        else
+        {
+            {@Html.ActionLink(@User.Identity.Name, "ChangePassword", "Home") } <text>&nbsp;</text> @Html.ActionLink("SignOut", "SignOut", "Home")}
+        </div>
+    </nav>
+    <main>
+        <div class=".container-fluid-custom">
+            <div style="padding-left:10px;padding-right:10px;">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer text-center d-flex align-items-center">
+        <div class="container pb-0">
+            <hr />
+            <p class="footer-text">Environment: [@DARReferenceData.DARApplicationInfo.CurrentDB]</p>
+        </div>
+    </footer>
+
+    <script>
+            $(document).ready(function () {
+                $("#responsive-panel").kendoResponsivePanel({
+                    breakpoint: 768,
+                    autoClose: false,
+                    orientation: "top"
+                });
+            });
+            function onclick(e) {
+                $("#responsive-panel").getKendoResponsivePanel().toggle();
+            }
+
+            function onAssetClickNavBar(e) {
+                window.location.href = '@Url.Content("~/Asset/AssetIndex/")';
+            }
+
+            function onExchangeClickNavBar(e) {
+                window.location.href = '@Url.Content("~/Exchange/ExchangeIndex/")';
+            }
+
+
+            function onDerivativeClickNavBar(e) {
+                window.location.href = '@Url.Content("~/Derivatives/DerivativesIndex/")';
+            }
+
+            function onCirculatingSupplyClickNavBar(e) {
+                window.location.href = '@Url.Content("~/OutstandingSupply/OutstandingSupplyIndex/")';
+            }
+            function onServingListClickNavBar(e) {
+                window.location.href = '@Url.Content("~/ExchangePairs/ExchangePairsIndex/")';
+            }
+            function onCryptoEventClickNavBar(e) {
+                window.location.href = '@Url.Content("~/StagedCryptoEvents/Index/")';
+            }
+            function onConfigurationClickNavBar(e) {
+                window.location.href = '@Url.Content("~/Configuration/ConfigurationIndex/")';
+            }
+            function onAdminClickNavBar(e) {
+                window.location.href = '@Url.Content("~/Admin/Admin/")';
+            }
+
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

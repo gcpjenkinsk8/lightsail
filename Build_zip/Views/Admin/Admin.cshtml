@@ -1,0 +1,403 @@
+﻿@{
+    ViewBag.Title = "Admin";
+}
+<div class="demo-section k-content">
+    @(Html.Kendo().TabStrip()
+          .Name("tabstrip")
+          .Animation(animation =>
+              animation.Open(effect =>
+                  effect.Fade(FadeDirection.In)))
+          .Items(tabstrip =>
+          {
+              tabstrip.Add().Text("Roles")
+                  .Selected(true)
+                  .Content(@<text>
+                    <div id="rolesTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.DARRoleViewModel>()
+                            .Name("gridRole")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.RoleId).Width(150);
+                                columns.Bound(p => p.RoleName).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f);
+                                        search.Field(f => f.RoleId);
+                                        search.Field(f => f.RoleName);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Roles.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => events.Sort("onSort"))
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.RoleId);
+                                    model.Field(p => p.RoleId).Editable(false);
+                                })
+                                .Create("Role_Editing_Create", "Admin")
+                                .Read("Role_Editing_Read", "Admin")
+                                .Update("Role_Editing_Update", "Admin")
+                                .Destroy("Role_Editing_Destroy", "Admin")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("Users")
+                  .Content(@<text>
+                    <div id="assetTokenTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.DARUserViewModel>()
+                            .Name("gridUsers")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.UserId).Width(120);
+                                columns.Bound(p => p.UserName).Width(150);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.UserId);
+                                        search.Field(f => f.UserName);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("Users.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => events.Sort("onSort"))
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.UserId);
+                                    model.Field(p => p.UserId).Editable(false);
+                                    model.Field(p => p.UserName).Editable(false);
+                                })
+                                .Create("User_Editing_Create", "Admin")
+                                .Read("User_Editing_Read", "Admin")
+                                .Update("User_Editing_Update", "Admin")
+                                .Destroy("User_Editing_Destroy", "Admin")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+              tabstrip.Add().Text("User Access")
+                  .Content(@<text>
+                    <div id="assetThemeTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.DARUserRoleViewModel>()
+                            .Name("gridUserRoles")
+                            .Columns(columns =>
+                            {
+                                columns.ForeignKey(p => p.UserName, (System.Collections.IEnumerable)ViewData["Users"], "UserName", "UserName").Width(120).Title("UserName");
+                                columns.ForeignKey(p => p.RoleName, (System.Collections.IEnumerable)ViewData["Roles"], "RoleName", "RoleName").Width(120).Title("RoleName");
+                                columns.Bound(p => p.UserId).Width(120);
+                                columns.Bound(p => p.RoleId).Width(120);
+                                columns.Command(command => { command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Search();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                             })
+                             .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.UserName);
+                                        search.Field(f => f.RoleName);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("UserRoles.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => {
+                                events.Sort("onSort");
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    model.Field(p => p.UserId).Editable(false);
+                                    model.Field(p => p.UserName).Editable(true);
+                                    model.Field(p => p.RoleId).Editable(false);
+                                    model.Field(p => p.RoleName).Editable(true);
+                                })
+                                .Create("UserRole_Editing_Create", "Admin")
+                                .Read("UserRole_Editing_Read", "Admin")
+                                .Update("UserRole_Editing_Update", "Admin")
+                                .Destroy("UserRole_Editing_Destroy", "Admin")
+                            )
+                        )
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("App Modules")
+                  .Content(@<text>
+                    <div id="rolesTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.AppModuleViewModel>()
+                            .Name("gridAppModules")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.ModuleName).Width(150);
+                                columns.Bound(p => p.ModuleDescription).Width(120);
+                                columns.Bound(p => p.ModuleLink).Width(120);
+                                columns.Bound(p => p.IsActive).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                                .ToolBar(toolbar => {
+                                    toolbar.Create();
+                                    toolbar.Save();
+                                    toolbar.Search();
+                                    toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+                                })
+                                .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.ModuleName);
+                                        search.Field(f => f.ModuleDescription);
+                                        search.Field(f => f.ModuleLink);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AppModules.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => events.Sort("onSort"))
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events =>
+                                {
+                                    events.Error("error_handler");
+                                    events.RequestEnd("reloadData");
+                                })
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.DARAppModuleID);
+                                })
+                                .Create("AppModule_Editing_Create", "Admin")
+                                .Read("AppModule_Editing_Read", "Admin")
+                                .Update("AppModule_Editing_Update", "Admin")
+                                .Destroy("AppModule_Editing_Destroy", "Admin")
+                            )
+                        )
+                    </div>
+                  </text>);
+              tabstrip.Add().Text("App Modules Access")
+                  .Content(@<text>
+                    <div id="assetThemeTab" class="dar-tab">
+                        @(Html.Kendo().Grid<DARReferenceData.ViewModels.RoleAppModuleViewModel>()
+                            .Name("gridRoleAppModule")
+                            .Columns(columns =>
+                            {
+                                columns.ForeignKey(p => p.ModuleName, (System.Collections.IEnumerable)ViewData["AppModules"], "ModuleName", "ModuleName").Width(250).Title("Module Name");
+                                columns.ForeignKey(p => p.RoleName, (System.Collections.IEnumerable)ViewData["Roles"], "RoleName", "RoleName").Width(120).Title("RoleName");
+                                columns.Bound(p => p.ModuleDescription).Width(120);
+                                columns.Bound(p => p.ModuleLink).Width(120);
+                                columns.Command(command => { command.Edit(); command.Destroy(); }).Width(200);
+                            })
+                             .ToolBar(toolbar => {
+                                 toolbar.Search();
+                                 toolbar.Create();
+                                 toolbar.Save();
+                                 toolbar.Custom().Text("Refresh").HtmlAttributes(new { id = "refreshButton", @class = "floatRight" });
+
+                             })
+                             .Search(
+                                    search =>
+                                    {
+                                        search.Field(f => f.ModuleName);
+                                        search.Field(f => f.RoleName);
+                                        search.Field(f => f.ModuleDescription);
+                                        search.Field(f => f.ModuleLink);
+                                    })
+                            .Height(800)
+                            .Editable(editable => editable.Mode(GridEditMode.InCell))
+                            .Pageable()
+                            .Navigatable()
+                            .Sortable()
+                            .Filterable()
+                            .Excel(excel => excel
+                                    .AllPages(true)
+                                    .FileName("AppModuleRoles.xlsx")
+                                    .Filterable(true)
+                                    .ProxyURL(Url.Action("Excel_Export_Save", "StagedCryptoEvents"))
+                            )
+                            .ToolBar(tools => tools.Excel())
+                            .Scrollable()
+                            .Events(events => {
+                                events.Sort("onSort");
+                            })
+                            .Resizable(resize => resize.Columns(true))
+                            .Reorderable(reorder => reorder.Columns(true))
+                            .DataSource(dataSource => dataSource
+                                .Ajax()
+                                .Batch(true)
+                                .PageSize(20)
+                                .ServerOperation(true)
+                                .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.RoleAppModuleId);
+                                    model.Field(p => p.ModuleDescription).Editable(false);
+                                    model.Field(p => p.ModuleLink).Editable(true);
+                                    model.Field(p => p.RoleId).Editable(false);
+                                    model.Field(p => p.RoleName).Editable(true);
+                                })
+                                .Create("RoleAppModule_Editing_Create", "Admin")
+                                .Read("RoleAppModule_Editing_Read", "Admin")
+                                .Update("RoleAppModule_Editing_Update", "Admin")
+                                .Destroy("RoleAppModule_Editing_Destroy", "Admin")
+                            )
+                        )
+                    </div>
+                  </text>);
+
+          })
+    )
+</div>
+
+<script>
+
+    function reloadData(e) {
+        //if (e.type === 'create') {
+        //    if (!e.response.Errors) {
+        //        e.sender.read();
+        //    }
+        //}
+
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "Errors:\n";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            alert(message);
+        }
+    }
+    // Prevent sorting when new record without Product Name is added
+    function onSort(e) {
+        var gridData = e.sender.dataSource.data()
+        gridData.forEach(function (element) {
+            if (!element.ProductName) {
+                e.preventDefault()
+            }
+        });
+    }
+
+    $("#gridRole").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridRole").data("kendoGrid").dataSource.read();
+    });
+    $("#gridUsers").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridUsers").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridUserRoles").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridUserRoles").data("kendoGrid").dataSource.read();
+    });
+
+    $("#gridAppModules").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridAppModules").data("kendoGrid").dataSource.read();
+    });
+    $("#gridRoleAppModule").on("click", "#refreshButton", function (e) {
+        e.preventDefault();  //prevents postback
+        $("#gridRoleAppModule").data("kendoGrid").dataSource.read();
+    });
+</script>
