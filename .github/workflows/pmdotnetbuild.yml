@@ -20,10 +20,10 @@ jobs:
 
     - name: Build .NET website
       run: dotnet build --configuration Release
-      working-directory: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/
+      
 
     - name: Publish artifact
       uses: actions/upload-artifact@v2
       with:
         name: website-artifact
-        path: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI/DAR-ReferenceDataUI.sln  # Change this to the directory containing the built files
+        path: DARRefMasterUI-DP-3166/DAR-ReferenceDataUI  # Change this to the directory containing the built files
