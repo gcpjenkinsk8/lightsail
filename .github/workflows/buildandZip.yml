@@ -22,10 +22,10 @@ jobs:
       run: msbuild /restore
 
     - name: Build .NET code
-      run: msbuild /p:Configuration=Release
+      run: msbuild /p:Configuration=Release Main-Build
 
     - name: Publish .NET code
-      run: msbuild /t:Publish /p:Configuration=Release /p:OutputPath=./publish
+      run: msbuild /t:Publish /p:Configuration=Release /p:OutputPath=./publish Main-Build
  
     - name: Publish artifact
       uses: actions/upload-artifact@v2
