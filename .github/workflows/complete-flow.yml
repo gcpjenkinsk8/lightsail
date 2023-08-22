@@ -6,6 +6,12 @@ on:
     #workflows: ["Copy Git to Lighsail"]
     #types:
       #- completed
+env:
+  DOCKER_IMAGE: redgate/flyway
+  SCHEMAS: $SchemaValue
+  MigrationPath1: '${{ github.event.inputs.MigrationFolder }}'
+  SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
+  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
 
 jobs:
   Copy-file-git-lighsail:
@@ -33,9 +39,9 @@ jobs:
           # Replace the placeholders with actual values
           WINDOWS_SERVER_USER="Administrator"
           WINDOWS_SERVER_IP="3.110.130.37"
-          SOURCE_FOLDER="C:/DeploymentFiles/VersionFolder"
+          SOURCE_FOLD="C:/DeploymentFiles/VersionFolder"
           DESTINATION_FOLDER="C:/DeploymentFiles/ReleaseFolder"
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:C:/DeploymentFiles/VersionFolder
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' scp -o StrictHostKeyChecking=no testfile.txt Administrator@3.110.130.37:'$SOURCE_FOLD'
 
   # Stop-IIS:
   #   name: Stop-IIS 
