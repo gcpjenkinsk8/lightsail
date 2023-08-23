@@ -64,20 +64,20 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-    - name: Create Folder abcd
-      run: mkdir abcd
+    - name: Create Folder abc
+      run: mkdir abc
 
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: ./abcd
+        path: ./abc
 
 
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r my-folder-artifact.zip abcd/*
+      run: zip -r my-folder-artifact.zip abc/*
     - name: cd files
       run: |
         ls
