@@ -62,14 +62,14 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-    - name: Create Folder abc
-      run: mkdir abc
+    #- name: Create Folder abc
+     # run: mkdir abc
 
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: ./abc
+        path: ./my-folder-artifact
 
 
 
