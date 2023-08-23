@@ -69,13 +69,13 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: ./my-folder-artifact
+        path: ./Main-Build/my-folder-artifact
 
 
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r my-folder-artifact.zip abcd/*
+      run: zip -r ./Main-Build/my-folder-artifact.zip abcd/*
     - name: cd files
       run: |
         ls
