@@ -49,7 +49,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: "./_build"
+        path: "./Main-Build"
   
   Copy-file-git-lighsail:
     name: Copy File
@@ -62,8 +62,8 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-    #- name: Create Folder abc
-     # run: mkdir abc
+    - name: Create Folder abcd
+      run: mkdir abcd
 
     - name: Download Artifact
       uses: actions/download-artifact@v2
@@ -75,7 +75,7 @@ jobs:
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r my-folder-artifact.zip abc/*
+      run: zip -r my-folder-artifact.zip abcd/*
     - name: cd files
       run: |
         ls
