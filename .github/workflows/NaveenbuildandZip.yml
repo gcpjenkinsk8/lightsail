@@ -33,15 +33,15 @@ jobs:
       run: nuget locals all -clear
 
     - name: Restore NuGet packages
-      run: nuget restore  ${{ github.workspace }}/Main-Build
+      run: nuget restore Main-Build
       
     - name: Restore dependencies
-      run: msbuild /restore ${{ github.workspace }}/Main-Build
+      run: msbuild /restore Main-Build
       
 
     - name: Build Solution
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-Build 
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" Main-Build 
     
     - name: Set artifact name
       id: artifact-name
@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: "${{ github.workspace }}/Main-Build/_build"
+        path: "Main-Build/_build"
   
   Copy-file-git-lighsail:
     name: Copy File
