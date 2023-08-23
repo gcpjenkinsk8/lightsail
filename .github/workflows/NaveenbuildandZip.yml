@@ -51,7 +51,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: "../_build"
+        path: "./_build"
   
   Copy-file-git-lighsail:
     name: Copy File
