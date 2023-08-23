@@ -16,14 +16,14 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-      with:
-        path: 'Main-Build'
+     # with:
+       # path: 'Main-Build'
       
     - name: Cache NuGet packages
       uses: actions/cache@v2
       with:
         path: ${{ env.NUGET_PACKAGES }}
-        key: nuget-${{ hashFiles('**/*.csproj') }}
+        key: nuget-${{ hashFiles('**/Main-Build/*.csproj') }}
         restore-keys: nuget-
         
     - name: Setup MSBuild
@@ -45,13 +45,13 @@ jobs:
     
     - name: Set artifact name
       id: artifact-name
-      run: echo "::set-output name=name::Build-$(date +%Y%m%d)"
+      run: echo "::set-output name=name::Build-$(date +%Y%m%d%H%M%S)"
 
     - name: Publish artifact
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: "Main-Build/_build"
+        path: "../_build"
   
   Copy-file-git-lighsail:
     name: Copy File
