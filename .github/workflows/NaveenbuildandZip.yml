@@ -51,13 +51,14 @@ jobs:
      
 
     - name: Set artifact name
-      id: artifact-name
+      id: set-artifact-name
       run: |
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
         Write-Host "Artifact name: $artifact_name"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        echo "::set-output name=ArtifactName::$artifact_name"
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
@@ -69,9 +70,10 @@ jobs:
        # echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
 
     - name: Publish artifact
+      id: upload-artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.ArtifactName }}
+        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
         path: Main-build/_build
   
   Copy-file-git-lighsail:
