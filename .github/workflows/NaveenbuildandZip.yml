@@ -56,10 +56,11 @@ jobs:
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        Write-Host "Artifact name: $artifact_name"
+        # Write-Host "Artifact name: $artifact_name"
         #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-        echo "::set-output name=ArtifactName::$artifact_name"
-       # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
+        echo "set-output name=$artifact_name"
+        # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
+         
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
