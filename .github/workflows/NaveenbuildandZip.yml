@@ -59,7 +59,7 @@ jobs:
         Write-Host "Artifact name: $artifact_name"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         echo "::set-output name=ArtifactName::$artifact_name"
-        echo "ArtifactName=$artifact_name" > artifact_name.txt
+        echo "$artifact_name" > artifact_name.txt
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
@@ -99,7 +99,7 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-        path: ./
+        path: ./abc
 
     - name: Set artifact name from file
       run: |
