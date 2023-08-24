@@ -92,9 +92,11 @@ jobs:
         name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
         path: ./abc 
 
-    - name: Zip Artifact
-      run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
-    - name: cd files
+    - name: Create a Zip of the Artifact
+      run: |
+        cd ./abc
+        zip -r ../${{ steps.set-artifact-name.outputs.ArtifactName }}.zip .
+    - name: check the files under abc directory
       run: |
         ls
 
