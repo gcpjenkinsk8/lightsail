@@ -22,7 +22,7 @@ jobs:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
       working-directory:  ${{ github.workspace }}/Main-build
     steps:
-    - name: Checkout repository
+    - name: Checkout the repository
       uses: actions/checkout@v2
       
     - name: Cache NuGet packages
@@ -32,39 +32,39 @@ jobs:
         key: nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: nuget-
         
-    - name: Setup MSBuild
+    - name: Setup the MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
      
-    - name: Clean NuGet packages
+    - name: Clean the NuGet packages
       run: nuget locals all -clear
       working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore NuGet packages
+    - name: Restore the NuGet packages
       run: nuget restore ${{ github.workspace }}/Main-build
       working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore dependencies
+    - name: Restore the dependencies
       run: msbuild /restore 
       working-directory:  ${{ github.workspace }}/Main-build
 
-    - name: Build Solution
+    - name: Build the Solution and making the artifact This step may take time to complete 
       run: |
         msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
      
 
-    - name: Set artifact name
+    - name: Set the artifact name to the build
       id: set-artifact-name
       run: |
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
         Write-Host "Artifact name: $artifact_name"
-        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         echo "::set-output name=ArtifactName::$artifact_name"
-        echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
+       # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
-    - name: Publish artifact
+    - name: Upload the artifact file
       id: upload-artifact
       uses: actions/upload-artifact@v2
       with:
@@ -72,7 +72,7 @@ jobs:
         path: Main-build/_build
   
   Copy-file-git-lighsail:
-    name: Copy File
+    name: Copy the File
     needs: build-publish
     if: success()  
     runs-on: ubuntu-latest
@@ -82,33 +82,18 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-   # - name: Create Folder abc
-   #   run: mkdir abc
+    - name: Create a Folder abc for downloading the build file
+      run: mkdir abc
 
-  #  - name: Download Artifact
-  #    uses: actions/download-artifact@v2
-   #   with:
-  #      name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-   #     path: ./abc 
-
-      # Zip the contents of the "abc" folder
- #   - name: Zip Artifact
-  #    run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
-
-    - name: Download Artifact
+    - name: Download the Artifact in the abc folder
+      id: donloaded-artifact
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-        path: ./abc
-
-    - name: Set artifact name from file
-      run: |
-        $artifact_name = Get-Content -Path "${{ github.workspace }}/Main-build/artifact_name.txt"
-        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-      shell: pwsh
+        path: ./abc 
 
     - name: Zip Artifact
-      run: zip -r ${{ env.ArtifactName }}.zip abc/*
+      run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
     - name: cd files
       run: |
         ls
