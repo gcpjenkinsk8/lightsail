@@ -52,21 +52,17 @@ jobs:
 
     - name: Set artifact name
       id: artifact-name
-      run: |
-        $ticket_number = $env:INPUT_TicketNumber
-        $current_time = Get-Date -Format "HHmmss"
-        $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
-      
-      shell: pwsh
-      env:
-        INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+     # run: |
+       # echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
+       #     shell: pwsh
+     # env:
+     #   INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
     
      # id: artifact-name
-     # run: |
-      #  ticket_number=${{ inputs.TicketNumber }}
-       # current_time=$(date +%H%M%S)
-        #echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
+      run: |
+        ticket_number=${{ inputs.TicketNumber }}
+        current_time=$(date +%H%M%S)
+        echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
 
     - name: Publish artifact
       uses: actions/upload-artifact@v2
