@@ -11,7 +11,7 @@ jobs:
   build-publish:
     runs-on: windows-latest  # Use the Windows runner
     env:
-      NUGET_PACKAGES: ${{ github.workspace }}Main-build/.nuget/packages
+      NUGET_PACKAGES: ${{ github.workspace }}/Main-build/.nuget/packages
 
     steps:
     - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
       run: nuget locals all -clear
 
     - name: Restore NuGet packages
-      run: nuget restore ${{ github.workspace }}Main-build
+      run: nuget restore ${{ github.workspace }}/Main-build
       
     - name: Restore dependencies
       run: msbuild /restore 
