@@ -83,31 +83,34 @@ jobs:
         path: ./abc 
 
     - name: Zip Artifact
-      run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
-    - name: cd files
-      run: |
-        ls
+      run: Compress-Archive -Path .\abc\* -DestinationPath ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
 
+  Copy-file-git-lighsail:
+    runs-on: ubuntu-latest
 
-    - name: Install sshpass dependency for ssh access
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v2
+    
+      - name: Install sshpass dependency for ssh access
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
 
-    - name: Create ~/.ssh directory for storing known hosts
-      run: mkdir -p ~/.ssh
+      - name: Create ~/.ssh directory for storing known hosts
+        run: mkdir -p ~/.ssh
 
-    - name: Update known_hosts file with the server ip to avoid fingerprint ask
-      run: |
-        WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
-        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+      - name: Update known_hosts file with the server ip to avoid fingerprint ask
+        run: |
+          WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
+          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-    - name: copy the latest files to version location 
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-    - name: copy the latest files to deployment location 
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+      - name: copy the latest files to version location 
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+      - name: copy the latest files to deployment location 
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
             
 
 
