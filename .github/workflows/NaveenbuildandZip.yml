@@ -49,33 +49,34 @@ jobs:
       run: |
         msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
      
-
+    - name: Create a Folder abc for downloading the build file
+      run: mkdir abc
     - name: Set the artifact name to the build
       id: set-artifact-name
       run: |
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        # Write-Host "Artifact name: $artifact_name"
-        #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        Write-Host "Artifact name: $artifact_name"
+        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         echo "set-output name=$artifact_name"
-        # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
+        echo "$artifact_name" > ./abc/artifact_name.txt
          
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
-    - name: Upload the artifact file
-      id: upload-artifact
+    - name: Publish artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+        name: ${{ env.ArtifactName }}
         path: Main-build/_build
+
   
   Copy-file-git-lighsail:
-    name: Copy the File
+    name: Copy File
     needs: build-publish
-    if: success()  
+    if: success()
     runs-on: ubuntu-latest
     env:
       SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
@@ -83,24 +84,17 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-    - name: Create a Folder abc for downloading the build file
+    - name: Create Folder abc
       run: mkdir abc
 
-    - name: Download the Artifact in the abc folder
-      id: donloaded-artifact
+    - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ needs.build-publish.steps.set-artifact-name.outputs.ArtifactName }}
-        path: ./abc 
+        name: ${{ env.ArtifactName }}
+        path: ./abc
 
-    - name: Create a Zip of the Artifact
-      run: |
-        cd ./abc
-        zip -r .zip abc/*
-    - name: check the files under abc directory
-      run: |
-        ls
-
+    - name: Zip Artifact
+      run: zip -r ${{ env.ArtifactName }}.zip abc/*
 
     - name: Install sshpass dependency for ssh access
       run: |
@@ -115,13 +109,10 @@ jobs:
         WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
         echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-    - name: copy the latest files to version location 
+    - name: copy the latest files to version location
       run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-    - name: copy the latest files to deployment location 
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ env.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+
+    - name: copy the latest files to deployment location
       run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-            
-
-
- 
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ env.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER }}"
