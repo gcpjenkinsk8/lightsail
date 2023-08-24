@@ -2,10 +2,15 @@ name: NaveenbuildandZip
 
 on:
   workflow_dispatch:
+    inputs:
+      TicketNumber:
+       description: 'Jira Ticket'     
+       required: true
 
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
+  TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
 
 jobs:
   build-publish:
@@ -47,7 +52,10 @@ jobs:
 
     - name: Set artifact name
       id: artifact-name
-      run: echo "::set-output name=name::Build-$(date +%Y%m%d)"
+      run: |
+        ticket_number=${{ inputs.TicketNumber }}
+        current_time=$(date +%H%M%S)
+        echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
 
     - name: Publish artifact
       uses: actions/upload-artifact@v2
@@ -79,7 +87,7 @@ jobs:
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r my-folder-artifact.zip abc/*
+      run: zip -r ${{ steps.artifact-name.outputs.name }}.zip abc/*
     - name: cd files
       run: |
         ls
@@ -98,9 +106,13 @@ jobs:
         WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
         echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-    - name: copy the latest files at C drive
+    - name: copy the latest files to version location 
       run: |
         sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/my-folder-artifact.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+    - name: copy the latest files to deployment location 
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/my-folder-artifact.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+            
 
 
  
