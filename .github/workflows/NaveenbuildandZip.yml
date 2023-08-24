@@ -70,7 +70,7 @@ jobs:
     - name: Publish artifact
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.artifact-name.outputs.name }}
+        name: ${{ env.ArtifactName }}
         path: Main-build/_build
   
   Copy-file-git-lighsail:
@@ -90,14 +90,14 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ steps.artifact-name.outputs.name }}
+        name: ${{ env.ArtifactName }}
         path: ./abc
 
 
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r ${{ steps.artifact-name.outputs.name }}.zip abc/*
+      run: zip -r ${{ env.ArtifactName }}.zip abc/*
     - name: cd files
       run: |
         ls
