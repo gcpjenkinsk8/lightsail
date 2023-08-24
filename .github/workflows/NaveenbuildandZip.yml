@@ -83,7 +83,7 @@ jobs:
         path: ./abc 
 
     - name: Zip Artifact
-      run: Compress-Archive -Path .\abc\* -DestinationPath ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
+      run: Compress-Archive -Path .\abc\* -DestinationPath "${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
    
     - name: Install sshpass dependency for ssh access
       run: |
