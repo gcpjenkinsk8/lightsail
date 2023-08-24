@@ -51,12 +51,13 @@ jobs:
      
 
     - name: Set artifact name
+      id: artifact-name
       run: |
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-        Write-Host "Artifact name: $artifact_name"
+        echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
+      
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
@@ -90,7 +91,7 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ env.ArtifactName }}
+        name: ${{ steps.artifact-name.outputs.name }}
         path: ./abc
 
 
