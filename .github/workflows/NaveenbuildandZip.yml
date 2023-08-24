@@ -87,7 +87,7 @@ jobs:
    
     - name: Install sshpass dependency for ssh access
       run: |
-        choco install -y openssh.portable
+        choco install -y openssh
 
     - name: Create SSH directory for storing known hosts
       run: mkdir C:\Users\runneradmin\.ssh
