@@ -97,10 +97,23 @@ jobs:
         $WINDOWS_SERVER_IP = "${{ secrets.REMOTE_HOSTGC }}"
         ssh-keyscan -t rsa $WINDOWS_SERVER_IP >> $env:USERPROFILE\.ssh\known_hosts
 
-    - name: Copy the latest files to version location
+   # - name: Copy the latest files to version location
+   #   run: |
+    #    #scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
+    #    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "Administrator:akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm@3.110.130.37:${{ env.SOURCE_FOLDER }}"
+
+    - name: Copy file to Windows server
       run: |
-        #scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
-        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "Administrator:akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm@3.110.130.37:${{ env.SOURCE_FOLDER }}"
+        # Replace these placeholders with actual values
+        $sourceFile = "${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
+        $destinationServer = "3.110.130.37"
+        $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
+        $username = "Administrator"
+        $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
+        $command = "pscp -pw $password $sourceFile $username@$destinationServer:$destinationPath"
+                  
+        # Run the command
+        Invoke-Expression $command
   
    # - name: Copy the latest files to deployment location
      # run: |
