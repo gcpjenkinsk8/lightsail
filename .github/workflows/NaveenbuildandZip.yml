@@ -70,7 +70,7 @@ jobs:
 
       - name: Set artifact name from file
         run: |
-          $artifact_name = Get-Content -Path "${{ github.workspace }}/artifact_name.txt"
+          $artifact_name = Get-Content -Path "${{ github.workspace }}/Main-build/artifact_name.txt"
           echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         shell: pwsh
 
