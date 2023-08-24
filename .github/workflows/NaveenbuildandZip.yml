@@ -89,13 +89,13 @@ jobs:
       id: donloaded-artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+        name: ${{ needs.build-publish.steps.set-artifact-name.outputs.ArtifactName }}
         path: ./abc 
 
     - name: Create a Zip of the Artifact
       run: |
         cd ./abc
-        zip -r ../${{ steps.set-artifact-name.outputs.ArtifactName }}.zip .
+        zip -r .zip abc/*
     - name: check the files under abc directory
       run: |
         ls
