@@ -31,10 +31,10 @@ jobs:
       run: nuget locals all -clear
 
     - name: Restore NuGet packages
-      run: nuget restore
+      run: nuget restore ${{ github.workspace }}Main-build
       
     - name: Restore dependencies
-      run: msbuild /restore
+      run: msbuild /restore 
       
 
     - name: Build Solution
