@@ -110,7 +110,7 @@ jobs:
         $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
         $username = "Administrator"
         $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        $command = "pscp -pw $password $sourceFile $username@$destinationServer:$destinationPath"
+        $command = "pscp -pw $password $sourceFile Administrator@3.110.130.37:C:/DeploymentFiles/ReleaseFolder"
                   
         # Run the command
         Invoke-Expression $command
