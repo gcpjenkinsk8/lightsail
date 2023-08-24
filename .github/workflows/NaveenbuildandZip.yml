@@ -93,19 +93,12 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: artifact_name.txt
+        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
         path: ./abc 
-    - name: Set artifact name from file
-      run: |
-        $artifact_name = Get-Content -Path "./abc/artifact_name.txt"
-        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-      shell: pwsh
-
-
 
       # Zip the contents of the "abc" folder
     - name: Zip Artifact
-      run: zip -r ${{ env.ArtifactName }}.zip abc/*
+      run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
     - name: cd files
       run: |
         ls
