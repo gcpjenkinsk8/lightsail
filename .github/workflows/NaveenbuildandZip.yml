@@ -4,70 +4,71 @@ on:
   workflow_dispatch:
     inputs:
       TicketNumber:
-       description: 'Jira Ticket'     
-       required: true
+        description: 'Jira Ticket'
+        required: true
 
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
-  TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
 
 jobs:
   build-publish:
-    runs-on: windows-latest  # Use the Windows runner
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: ./Main-build
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-      working-directory:  ${{ github.workspace }}/Main-build
+      working-directory: ${{ github.workspace }}/Main-build
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v2
-      
-    - name: Cache NuGet packages
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.NUGET_PACKAGES }}
-        key: nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: nuget-
-        
-    - name: Setup the MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
-     
-    - name: Clean the NuGet packages
-      run: nuget locals all -clear
-      working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore the NuGet packages
-      run: nuget restore ${{ github.workspace }}/Main-build
-      working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore the dependencies
-      run: msbuild /restore 
-      working-directory:  ${{ github.workspace }}/Main-build
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
-    - name: Build the Solution and making the artifact This step may take time to complete 
-      run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
-     
-    - name: Set artifact name and run PowerShell script
-      run: |
-        $ticket_number = $env:INPUT_TicketNumber
-        $current_time = Get-Date -Format "HHmmss"
-        $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        Write-Host "Artifact name: $artifact_name"
-        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-      shell: pwsh
-      env:
-        INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+      - name: Cache NuGet packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.NUGET_PACKAGES }}
+          key: nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-
 
-    - name: Publish artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.ArtifactName }}
-        path: Main-build/_build
+      - name: Setup the MSBuild
+        uses: microsoft/setup-msbuild@v1.0.2
 
-  
-  Copy-file-git-lighsail:
+      - name: Clean the NuGet packages
+        run: nuget locals all -clear
+        working-directory: ${{ github.workspace }}/Main-build
+
+      - name: Restore the NuGet packages
+        run: nuget restore ${{ github.workspace }}/Main-build
+        working-directory: ${{ github.workspace }}/Main-build
+
+      - name: Restore the dependencies
+        run: msbuild /restore
+        working-directory: ${{ github.workspace }}/Main-build
+
+      - name: Build the Solution and make the artifact
+        run: |
+          msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
+
+      - name: Set artifact name and run PowerShell script
+        id: set-artifact-name
+        run: |
+          $ticket_number = $env:INPUT_TicketNumber
+          $current_time = Get-Date -Format "HHmmss"
+          $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
+          Write-Host "Artifact name: $artifact_name"
+          echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        shell: pwsh
+        env:
+          INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+
+      - name: Publish artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+          path: Main-build/_build
+
+  Copy-file-git-lightsail:
     name: Copy File
     needs: build-publish
     if: success()
@@ -75,38 +76,38 @@ jobs:
     env:
       SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v2
+      - name: Check out the code
+        uses: actions/checkout@v2
 
-    - name: Create Folder abc
-      run: mkdir abc
+      - name: Create Folder abc
+        run: mkdir abc
 
-    - name: Download Artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: ${{ env.ArtifactName }}
-        path: ./abc
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+          path: ./abc
 
-    - name: Zip Artifact
-      run: zip -r ${{ env.ArtifactName }}.zip abc/*
+      - name: Zip Artifact
+        run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
 
-    - name: Install sshpass dependency for ssh access
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
+      - name: Install sshpass dependency for ssh access
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
 
-    - name: Create ~/.ssh directory for storing known hosts
-      run: mkdir -p ~/.ssh
+      - name: Create ~/.ssh directory for storing known hosts
+        run: mkdir -p ~/.ssh
 
-    - name: Update known_hosts file with the server ip to avoid fingerprint ask
-      run: |
-        WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
-        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+      - name: Update known_hosts file with the server IP to avoid fingerprint ask
+        run: |
+          WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
+          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-    - name: copy the latest files to version location
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ env.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+      - name: Copy the latest files to version location
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
 
-    - name: copy the latest files to deployment location
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ env.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER }}"
+      - name: Copy the latest files to deployment location
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER }}"
