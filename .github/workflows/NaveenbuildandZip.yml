@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       TicketNumber:
-       description: 'Jira Ticket'     
-       required: true
+        description: 'Jira Ticket'
+        required: true
 
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
@@ -14,113 +14,65 @@ env:
 
 jobs:
   build-publish:
-    runs-on: windows-latest  # Use the Windows runner
+    runs-on: windows-latest
     defaults:
       run:
         working-directory: ./Main-build
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-      working-directory:  ${{ github.workspace }}/Main-build
+      working-directory: ${{ github.workspace }}/Main-build
     steps:
-    - name: Checkout the repository
-      uses: actions/checkout@v2
-      
-    - name: Cache NuGet packages
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.NUGET_PACKAGES }}
-        key: nuget-${{ hashFiles('**/*.csproj') }}
-        restore-keys: nuget-
-        
-    - name: Setup the MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
-     
-    - name: Clean the NuGet packages
-      run: nuget locals all -clear
-      working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore the NuGet packages
-      run: nuget restore ${{ github.workspace }}/Main-build
-      working-directory:  ${{ github.workspace }}/Main-build
-    - name: Restore the dependencies
-      run: msbuild /restore 
-      working-directory:  ${{ github.workspace }}/Main-build
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Build the Solution and making the artifact This step may take time to complete 
-      run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
-     
+      # ...
 
-    - name: Set the artifact name to the build
-      id: set-artifact-name
-      run: |
-        $ticket_number = $env:INPUT_TicketNumber
-        $current_time = Get-Date -Format "HHmmss"
-        $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        Write-Host "Artifact name: $artifact_name"
-        #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-        echo "::set-output name=ArtifactName::$artifact_name"
-       # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
-      shell: pwsh
-      env:
-        INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+      - name: Set artifact name
+        id: set-artifact-name
+        run: |
+          $ticket_number = $env:INPUT_TicketNumber
+          $current_time = Get-Date -Format "HHmmss"
+          $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
+          Write-Host "Artifact name: $artifact_name"
+          echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        shell: pwsh
+        env:
+          INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
-    - name: Upload the artifact file
-      id: upload-artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-        path: Main-build/_build
-  
-  Copy-file-git-lighsail:
-    name: Copy the File
+      - name: Publish artifact
+        id: upload-artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+          path: Main-build/_build
+
+      # ...
+
+  Copy-file-git-lightsail:
+    name: Copy File
     needs: build-publish
-    if: success()  
+    if: success()
     runs-on: ubuntu-latest
     env:
       SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v2
+      - name: Check out the code
+        uses: actions/checkout@v2
 
-    - name: Create a Folder abc for downloading the build file
-      run: mkdir abc
+      # ...
 
-    - name: Download the Artifact in the abc folder
-      id: donloaded-artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-        path: ./abc 
+      - name: Download the Artifact in the abc folder
+        id: downloaded-artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ needs.build-publish.outputs.upload-artifact }}
+          path: ./abc
 
-    - name: Create a Zip of the Artifact
-      run: |
-        cd ./abc
-        zip -r ../${{ steps.set-artifact-name.outputs.ArtifactName }}.zip .
-    - name: check the files under abc directory
-      run: |
-        ls
+      - name: Set artifact name from file
+        run: |
+          $artifact_name = Get-Content -Path "${{ github.workspace }}/artifact_name.txt"
+          echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+        shell: pwsh
 
-
-    - name: Install sshpass dependency for ssh access
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y sshpass
-
-    - name: Create ~/.ssh directory for storing known hosts
-      run: mkdir -p ~/.ssh
-
-    - name: Update known_hosts file with the server ip to avoid fingerprint ask
-      run: |
-        WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
-        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
-
-    - name: copy the latest files to version location 
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-    - name: copy the latest files to deployment location 
-      run: |
-        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-            
-
-
- 
+      - name: Zip Artifact
+        run: zip -r ${{ steps.downloaded-artifact.outputs.artifact-name }}.zip abc/*
