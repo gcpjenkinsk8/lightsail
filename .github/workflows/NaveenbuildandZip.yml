@@ -99,8 +99,9 @@ jobs:
 
     - name: Copy the latest files to version location
       run: |
-        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
- 
+        #scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "Administrator:akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm@3.110.130.37:${{ env.SOURCE_FOLDER }}"
+  
    # - name: Copy the latest files to deployment location
      # run: |
      #   scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
