@@ -59,15 +59,10 @@ jobs:
         Write-Host "Artifact name: $artifact_name"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         echo "::set-output name=ArtifactName::$artifact_name"
+        echo "ArtifactName=$artifact_name" > artifact_name.txt
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
-    
-     # id: artifact-name
-      #run: |
-       # ticket_number=${{ inputs.TicketNumber }}
-       # current_time=$(date +%H%M%S)
-       # echo "::set-output name=name::Build-${ticket_number}-$(date +%Y%m%d)-${current_time}"
 
     - name: Publish artifact
       id: upload-artifact
@@ -87,18 +82,33 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-    - name: Create Folder abc
-      run: mkdir abc
+   # - name: Create Folder abc
+   #   run: mkdir abc
+
+  #  - name: Download Artifact
+  #    uses: actions/download-artifact@v2
+   #   with:
+  #      name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+   #     path: ./abc 
+
+      # Zip the contents of the "abc" folder
+ #   - name: Zip Artifact
+  #    run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
 
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-        path: ./abc 
+        path: ./
 
-      # Zip the contents of the "abc" folder
+    - name: Set artifact name from file
+      run: |
+        $artifact_name = Get-Content -Path "artifact_name.txt"
+        echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+      shell: pwsh
+
     - name: Zip Artifact
-      run: zip -r ${{ steps.set-artifact-name.outputs.ArtifactName }}.zip abc/*
+      run: zip -r ${{ env.ArtifactName }}.zip abc/*
     - name: cd files
       run: |
         ls
