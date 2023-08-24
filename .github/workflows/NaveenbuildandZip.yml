@@ -99,9 +99,9 @@ jobs:
 
     - name: Copy the latest files to version location
       run: |
-        scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
-
-    - name: Copy the latest files to deployment location
-      run: |
-        scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
+        scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
+        
+   # - name: Copy the latest files to deployment location
+     # run: |
+     #   scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
   
