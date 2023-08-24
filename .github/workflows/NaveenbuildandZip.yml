@@ -49,19 +49,13 @@ jobs:
       run: |
         msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
      
-    - name: Create a Folder abc for downloading the build file
-      run: mkdir abc
-    - name: Set the artifact name to the build
-      id: set-artifact-name
+    - name: Set artifact name and run PowerShell script
       run: |
         $ticket_number = $env:INPUT_TicketNumber
         $current_time = Get-Date -Format "HHmmss"
         $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
         Write-Host "Artifact name: $artifact_name"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-        echo "set-output name=$artifact_name"
-        echo "$artifact_name" > ./abc/artifact_name.txt
-         
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
