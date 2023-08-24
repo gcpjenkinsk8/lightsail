@@ -10,6 +10,9 @@ env:
 jobs:
   build-publish:
     runs-on: windows-latest  # Use the Windows runner
+    defaults:
+      run:
+        working-directory: ./Main-build
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
       working-directory:  ${{ github.workspace }}/Main-build
@@ -50,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: "./_build"
+        path: Main-build/_build
   
   Copy-file-git-lighsail:
     name: Copy File
