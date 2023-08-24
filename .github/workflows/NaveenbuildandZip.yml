@@ -59,7 +59,7 @@ jobs:
         Write-Host "Artifact name: $artifact_name"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
         echo "::set-output name=ArtifactName::$artifact_name"
-        echo "$artifact_name" > artifact_name.txt
+        echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
       shell: pwsh
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
@@ -103,7 +103,7 @@ jobs:
 
     - name: Set artifact name from file
       run: |
-        $artifact_name = Get-Content -Path "artifact_name.txt"
+        $artifact_name = Get-Content -Path "${{ github.workspace }}/Main-build/artifact_name.txt"
         echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
       shell: pwsh
 
