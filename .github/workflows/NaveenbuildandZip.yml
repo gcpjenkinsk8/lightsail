@@ -135,9 +135,13 @@ jobs:
       run: | 
          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Expand-Archive -Path '${{ env.DESTINATION_FOLDER }}\\${{ needs.build-publish.outputs.output1}}.zip' -DestinationPath '${{ env.DESTINATION_FOLDER }}'\""
     
+    - name: Move files from abc to deploy location
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \ "Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '$DESTINATION_FOLDER'\""
+    
     - name: Remove the zip files from deploy location
       run: |
-       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\*.zip -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\${{ needs.build-publish.outputs.output1}} -Recurse\""
+       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\*.zip -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\abc -Recurse\""
 
     - name: Start-IIS
       run: |
