@@ -117,7 +117,7 @@ jobs:
         $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
         $username = "Administrator"
         $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        .\pscp.exe  $sourceFile Administrator@3.110.130.37:C:\DeploymentFiles\ReleaseFolder -pw akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm
+        .\pscp.exe  $sourceFile Administrator@3.110.130.37:C:\DeploymentFiles\ReleaseFolder -pw 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm'
 
   
    # - name: Copy the latest files to deployment location
