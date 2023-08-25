@@ -117,8 +117,8 @@ jobs:
         $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
         $username = "Administrator"
         $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        .\pscp.exe -pw $env:SERVER_PASS $sourceFile $username@$destinationServer:$destinationPath
-
+        .\pscp.exe "-pw", $env:SERVER_PASS, $sourceFile, "${env:USERNAME}@${destinationServer}:${destinationPath}"
+      shell: pwsh
   
    # - name: Copy the latest files to deployment location
      # run: |
