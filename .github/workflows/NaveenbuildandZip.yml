@@ -121,6 +121,20 @@ jobs:
       run: |
         sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ needs.build-publish.outputs.output1}}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
             
+    - name: Stop IIS server
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Stop-Service -Name W3SVC; Get-Service -Name W3SVC\""
+   
+    - name: Remove Old files from deploy location
+      run: |
+       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Get-ChildItem -Path "${{ env.DESTINATION_FOLDER }}" -File | Where-Object { \$_.Name -ne 'Web.config' } | Remove-Item -Force\""
 
+    - name: copy-new-files-to-intepub-location
+      run: |
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
+
+    - name: Start-IIS
+      run: |
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Start-Service -Name W3SVC; Get-Service -Name W3SVC\"" 
 
  
