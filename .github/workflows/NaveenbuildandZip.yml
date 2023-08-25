@@ -97,7 +97,7 @@ jobs:
       run: |
         cd abc
     - name: Zip Artifact
-      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/*
+      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip .
     - name: cd files
       run: |
         ls
