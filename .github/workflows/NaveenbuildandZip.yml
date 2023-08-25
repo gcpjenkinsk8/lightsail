@@ -114,7 +114,7 @@ jobs:
         $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
         $username = "Administrator"
         $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        putty\plink.exe -ssh $username@$destinationServer -pw $password "putty\pscp.exe -pw $password $sourceFile $username@$destinationServer:$destinationPath"
+        putty\plink.exe -ssh $username@$destinationServer -pw $password "putty\pscp.exe -pw $password $sourceFile Administrator@3.110.130.37:C:\DeploymentFiles\ReleaseFolder"
                   
 
   
