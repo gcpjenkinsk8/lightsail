@@ -124,8 +124,8 @@ jobs:
    
     - name: Remove Old files from deploy location
       run: |
-       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -exclude Web.config -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\Views\\ -Recurse\""
-
+       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Exclude Web.config -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\Views\\* -Recurse\""
+       
 
     - name: copy-new-files-to-intepub-location
       run: |
