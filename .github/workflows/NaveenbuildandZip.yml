@@ -11,11 +11,12 @@ env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
   TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
-  SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
 
 jobs:
   build-publish:
     runs-on: windows-latest  # Use the Windows runner
+    outputs:
+      output1: ${{ steps.set-artifact-name.outputs.ArtifactName }}
     defaults:
       run:
         working-directory: ./Main-build
@@ -71,6 +72,17 @@ jobs:
       with:
         name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
         path: Main-build/_build
+  
+  Copy-file-git-lighsail:
+    name: Copy the File
+    needs: build-publish
+    if: success()  
+    runs-on: ubuntu-latest
+    env:
+      SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
 
     - name: Create a Folder abc for downloading the build file
       run: mkdir abc
@@ -79,48 +91,36 @@ jobs:
       id: donloaded-artifact
       uses: actions/download-artifact@v2
       with:
-        name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
+        name: ${{ needs.build-publish.outputs.output1}}
         path: ./abc 
 
     - name: Zip Artifact
-      run: Compress-Archive -Path .\abc\* -DestinationPath "${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
-   
+      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/*
+    - name: cd files
+      run: |
+        ls
+
+
     - name: Install sshpass dependency for ssh access
       run: |
-        choco install -y openssh
+        sudo apt-get update
+        sudo apt-get install -y sshpass
 
-    - name: Create SSH directory for storing known hosts
-      run: mkdir C:\Users\runneradmin\.ssh
+    - name: Create ~/.ssh directory for storing known hosts
+      run: mkdir -p ~/.ssh
 
-    - name: Update known_hosts file with the server IP to avoid fingerprint ask
+    - name: Update known_hosts file with the server ip to avoid fingerprint ask
       run: |
-        $WINDOWS_SERVER_IP = "${{ secrets.REMOTE_HOSTGC }}"
-        ssh-keyscan -t rsa $WINDOWS_SERVER_IP >> $env:USERPROFILE\.ssh\known_hosts
+        WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
+        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
 
-   # - name: Copy the latest files to version location
-   #   run: |
-    #    #scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
-    #    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "Administrator:akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm@3.110.130.37:${{ env.SOURCE_FOLDER }}"
-
-    - name: Download PuTTY Tools
+    - name: copy the latest files to version location 
       run: |
-       # Download pscp
-          curl -LO https://the.earth.li/~sgtatham/putty/latest/w64/pscp.exe
-          # Download puttygen
-          curl -LO https://the.earth.li/~sgtatham/putty/latest/w64/puttygen.exe
-
-    - name: Copy file to Windows server
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+    - name: copy the latest files to deployment location 
       run: |
-        # Replace these placeholders with actual values
-        $sourceFile = "${{ steps.set-artifact-name.outputs.ArtifactName }}.zip"
-        $destinationServer = "3.110.130.37"
-        $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
-        $username = "Administrator"
-        $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        .\pscp.exe "-pw", $env:SERVER_PASS, $sourceFile, "${env:USERNAME}@${destinationServer}:${destinationPath}"
-      shell: pwsh
-  
-   # - name: Copy the latest files to deployment location
-     # run: |
-     #   scp "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
-  
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+            
+
+
+ 
