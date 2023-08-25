@@ -93,7 +93,9 @@ jobs:
       with:
         name: ${{ needs.build-publish.outputs.output1}}
         path: ./ 
-
+    - name: cd files
+      run: |
+        ls
     - name: Zip Artifact
       run: zip -r ${{ needs.build-publish.outputs.output1}}.zip ${{ needs.build-publish.outputs.output1}}*
     - name: cd files
