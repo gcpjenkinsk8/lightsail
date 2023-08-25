@@ -37,7 +37,7 @@ jobs:
           REM_FOLDER="C:\DeploymentFiles\ReleaseFolder"
           DESTINATION_FOLDER="C:/inetpub/"
 
-          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Get-ChildItem -Path '$REM_FOLDER' -File | Where-Object { \$_.Name -ne 'Web.config' } | Remove-Item -Force\""
+          sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Remove-Item C:\DeploymentFiles\ReleaseFolder\* -exclude Web.config -Recurse""
 
 
           #sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
