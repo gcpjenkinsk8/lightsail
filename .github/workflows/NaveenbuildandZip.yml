@@ -95,7 +95,7 @@ jobs:
         path: ./abc
 
     - name: Zip Artifact
-      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/* -x abc/Web.config
+      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/* -x Web.config
     - name: cd files
       run: |
         ls
