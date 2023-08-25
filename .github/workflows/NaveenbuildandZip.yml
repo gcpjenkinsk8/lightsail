@@ -102,6 +102,10 @@ jobs:
     #    #scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "${{ secrets.REMOTE_ADMINGC }}:${{ secrets.SERVER_PASS }}@${{ secrets.REMOTE_HOSTGC }}:${{ env.SOURCE_FOLDER }}"
     #    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=$env:USERPROFILE\.ssh\known_hosts "${{ github.workspace }}\${{ steps.set-artifact-name.outputs.ArtifactName }}.zip" "Administrator:akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm@3.110.130.37:${{ env.SOURCE_FOLDER }}"
 
+    - name: Copy PuTTY tools to working directory
+      run: |
+        mkdir putty
+        cp putty/* putty/
     - name: Copy file to Windows server
       run: |
         # Replace these placeholders with actual values
@@ -110,10 +114,9 @@ jobs:
         $destinationPath = "C:/DeploymentFiles/ReleaseFolder"
         $username = "Administrator"
         $password = "akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm"
-        $command = "pscp -pw $password $sourceFile Administrator@3.110.130.37:C:/DeploymentFiles/ReleaseFolder"
+        putty\plink.exe -ssh $username@$destinationServer -pw $password "putty\pscp.exe -pw $password $sourceFile $username@$destinationServer:$destinationPath"
                   
-        # Run the command
-        Invoke-Expression $command
+
   
    # - name: Copy the latest files to deployment location
      # run: |
