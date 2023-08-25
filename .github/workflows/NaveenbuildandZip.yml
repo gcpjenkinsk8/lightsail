@@ -84,20 +84,20 @@ jobs:
     - name: Check out the code
       uses: actions/checkout@v2
 
-   # - name: Create a Folder abc for downloading the build file
-     # run: mkdir abc
+    - name: Create a folder for downloading the build file
+      run: mkdir abc
 
     - name: Download the Artifact in the abc folder
       id: donloaded-artifact
       uses: actions/download-artifact@v2
       with:
         name: ${{ needs.build-publish.outputs.output1}}
-        path: ./ 
+        path: ./abc
     - name: cd files
       run: |
-        ls
+        cd abc
     - name: Zip Artifact
-      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip ${{ needs.build-publish.outputs.output1}}*
+      run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/*
     - name: cd files
       run: |
         ls
