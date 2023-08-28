@@ -8,10 +8,11 @@ on:
        required: true
 env:
   DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
-
+  SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
 jobs:
   move-file:
     runs-on: ubuntu-latest
+    
 
     steps:
       - name: Check out code
