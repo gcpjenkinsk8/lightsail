@@ -1,0 +1,57 @@
+name: Copy File to Deploy Location
+
+on:
+  workflow_dispatch:
+    inputs:
+      TicketNumber:
+       description: 'Jira Ticket'     
+       required: true
+env:
+  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
+
+jobs:
+  move-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Create ~/.ssh directory
+        run: mkdir -p ~/.ssh
+
+      - name: Update known_hosts file
+        run: |
+          WINDOWS_SERVER_IP="3.110.130.37"
+          echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+
+
+      - name: Stop IIS server
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Stop-Service -Name W3SVC; Get-Service -Name W3SVC\""
+      
+      - name: Deploy Config File 
+        run: |
+          # Replace the placeholders with actual values
+          WINDOWS_SERVER_USER="Administrator"
+          WINDOWS_SERVER_IP="3.110.130.37"
+          SOURCE_FOLDER="${{ github.workspace }}/Config/Web.config"
+          DESTINATION_FOLDER_CONFIG="C:\DeploymentFiles\ReleaseFolder\Web.config"
+         
+          sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/Config/Web.config" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER_CONFIG }}"
+     
+      - name: Start-IIS
+        run: |
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Start-Service -Name W3SVC; Get-Service -Name W3SVC\"" 
+
+          
+          #sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"Remove-Item 'C:\\DeploymentFiles\\ReleaseFolder\\*' -exclude Web.config -Recurse\""
+
+
+          #sshpass -vvv -p 'akqR3XeigseYHlWxD$T8ZtpWu&T*BkJm' ssh -o StrictHostKeyChecking=no "$WINDOWS_SERVER_USER@$WINDOWS_SERVER_IP" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
+
