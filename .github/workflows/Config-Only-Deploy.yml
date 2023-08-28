@@ -1,4 +1,4 @@
-name: Copy File to Deploy Location
+name: Config Only Deployment
 
 on:
   workflow_dispatch:
