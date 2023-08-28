@@ -137,7 +137,7 @@ jobs:
     
     - name: Move files from abc to deploy location
       run: |
-        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '${{ env.DESTINATION_FOLDER }}'\""
+        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '${{ env.DESTINATION_FOLDER }}' -Force\""
 
     - name: Remove the zip files from deploy location
       run: |
