@@ -10,6 +10,7 @@ on:
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
+  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
 
 jobs:
@@ -138,7 +139,10 @@ jobs:
     - name: Move files from abc to deploy location
       run: |
         sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '${{ env.DESTINATION_FOLDER }}' -Force\""
-
+    - name: Copy web config as full deployment from config git repo folder # We hope this is up to date in git repo
+      run: |
+         sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/Config/Web.config" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER_CONFIG }}"
+       
     - name: Remove the zip files from deploy location
       run: |
        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\*.zip -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\abc -Recurse\""
