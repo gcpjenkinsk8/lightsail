@@ -155,7 +155,7 @@ jobs:
    
     - name: Cleanup Version Folder
       run: | 
-          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Get-ChildItem -Path '${{ env.SOURCE_FOLDER }}' | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 10 | Remove-Item -Force"" 
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Get-ChildItem -Path '${{ env.SOURCE_FOLDER }}' | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 10 | Remove-Item -Force"" 
    
           
  
