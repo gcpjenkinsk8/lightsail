@@ -1,4 +1,4 @@
-name: NaveenbuildandZip
+name: Refmaster Pipeline
 
 on:
   workflow_dispatch:
