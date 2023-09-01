@@ -78,7 +78,7 @@ jobs:
     name: Copy the File
     needs: build-publish
     if: success()  
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     env:
       SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
     steps:

@@ -1,4 +1,4 @@
-name: NaveenbuildandZip
+name: powershell-oneline
 
 on:
   workflow_dispatch:
