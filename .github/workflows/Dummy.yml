@@ -1,4 +1,4 @@
-name: Copy Flow
+name: Dummy Flow
 
 on:
   workflow_dispatch:
