@@ -37,7 +37,7 @@ jobs:
     if: success()  
     runs-on: ubuntu-latest
     env:
-      MY_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
+      SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
     steps:
     - name: Check out the code
       uses: actions/checkout@v2
@@ -78,7 +78,7 @@ jobs:
 
     - name: Show Secret
       run: |
-        echo "Secret Value: $MY_PASS"
+        echo "Secret Value: $SERVER_PASS"
         
   
     - name: copy the latest files to version location 
