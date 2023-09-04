@@ -15,7 +15,8 @@ env:
 
 jobs:
   build-publish:
-    runs-on: windows-latest  # Use the Windows runner
+    runs-on: LSWinLabel 
+    # runs-on: windows-latest
     outputs:
       output1: ${{ steps.set-artifact-name.outputs.ArtifactName }}
     defaults:
