@@ -27,7 +27,7 @@ jobs:
       working-directory:  ${{ github.workspace }}/Main-build
     steps:
     - name: Checkout the repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       
     - name: Cache NuGet packages
       uses: actions/cache@v2
