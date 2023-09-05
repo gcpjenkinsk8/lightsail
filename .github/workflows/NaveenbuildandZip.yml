@@ -16,8 +16,7 @@ env:
 jobs:
   build-publish:
     runs-on: LSWinLabel 
-    env:
-     GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
+
     # runs-on: windows-latest
     outputs:
       output1: ${{ steps.set-artifact-name.outputs.ArtifactName }}
@@ -27,6 +26,7 @@ jobs:
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
       working-directory:  ${{ github.workspace }}/Main-build
+      GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
     steps:
     - name: Checkout the repository
       uses: actions/checkout@v4
