@@ -29,6 +29,8 @@ jobs:
       run: ls
 
     - name: Build with .NET
-      run: dotnet build /Main-build --configuration Release 
+      run: |
+        cd Main-Build
+        dotnet build --configuration Release 
 
                  
