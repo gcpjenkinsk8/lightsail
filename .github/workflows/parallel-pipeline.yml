@@ -5,7 +5,7 @@ on:
 
 jobs:
   job1:
-    runs-on: LSWinLabel
+    runs-on: WinLS
 
     steps:
     - name: Job 1 Step 1
