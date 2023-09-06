@@ -25,12 +25,10 @@ jobs:
       with:
         dotnet-version: '5.0'  # Specify the .NET SDK version you want to use
 
-    - name: Build with .NET
-      working-directory: /Main-build/
+    - name: ls view files
       run: ls
 
     - name: Build with .NET
-      working-directory: /Main-build/
-      run: dotnet build --configuration Release  # Adjust the build command as needed
+      run: dotnet build /Main-build --configuration Release 
 
                  
