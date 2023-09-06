@@ -43,13 +43,13 @@ jobs:
      
     - name: Clean the NuGet packages
       run: nuget locals all -clear
-      working-directory:  ${{ github.workspace }}/Main-build
+      working-directory:  /Main-build
     - name: Restore the NuGet packages
-      run: nuget restore ${{ github.workspace }}/Main-build
-      working-directory:  ${{ github.workspace }}/Main-build
+      run: nuget restore /Main-build
+      working-directory:  /Main-build
     - name: Restore the dependencies
       run: msbuild /restore 
-      working-directory:  ${{ github.workspace }}/Main-build
+      working-directory:  /Main-build
 
     - name: Build the Solution and making the artifact This step may take time to complete 
       run: |
