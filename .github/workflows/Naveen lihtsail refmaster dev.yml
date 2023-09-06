@@ -1,4 +1,4 @@
-name: Refmaster Pipeline
+name: Naveen lightsail Refmaster Pipeline
 
 on:
   workflow_dispatch:
