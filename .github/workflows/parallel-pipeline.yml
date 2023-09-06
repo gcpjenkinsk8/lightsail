@@ -23,3 +23,14 @@ jobs:
 
     - name: Job 2 Step 2
       run: echo "Running Job 2 Step 2"
+
+  job3:
+    runs-on: LSWinLabel
+
+    steps:
+    - name: Job 3 Step 1
+      run: echo "Running Job 2 Step 1"
+
+    - name: Job 3 Step 2
+      run: echo "Running Job 2 Step 2"
+
