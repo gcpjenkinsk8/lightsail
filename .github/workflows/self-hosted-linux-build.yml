@@ -26,7 +26,7 @@ jobs:
         dotnet-version: '5.0'  # Specify the .NET SDK version you want to use
 
     - name: Build with .NET
-      working-directory:  ${{ github.workspace }}/Main-build
+      working-directory: /Main-build
       run: dotnet build --configuration Release  # Adjust the build command as needed
 
                  
