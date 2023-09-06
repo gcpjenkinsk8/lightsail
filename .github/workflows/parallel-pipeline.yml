@@ -41,3 +41,15 @@ jobs:
     - name: Job 3 Step 2
       run: echo "Running Job 2 Step 2"
 
+  job4:
+    runs-on: LSWinLabel
+
+    steps:
+    - name: Job 4 Step 1
+      run: echo "Running Job 2 Step 1"
+
+    - name: Simulate 10-second runtime
+      run: sleep 10
+
+    - name: Job 4 Step 2
+      run: echo "Running Job 2 Step 2"
