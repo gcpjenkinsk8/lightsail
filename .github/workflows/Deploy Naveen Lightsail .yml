@@ -1,0 +1,43 @@
+name: Deploy Naveen lightsail Refmaster Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      BuildName:
+        description: 'Enter The Build Name'
+        required: true
+
+env:
+  SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
+  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
+  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
+  BuildName: '${{ github.event.inputs.BuildName }}'
+
+jobs:
+  build-deploy:
+    runs-on: RefDeployDev
+    steps:
+    - name: Stop IIS server
+      run: |
+        Stop-Service -Name W3SVC; Get-Service -Name W3SVC
+
+    - name: Remove Old files from deploy location
+      run: |
+        Remove-Item C:\DeploymentFiles\ReleaseFolder\* -Recurse
+   
+    - name: Search for the file and copy it
+      run: |
+          $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+          $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+          $fileName = $env:BUILD_NAME   # Assuming you've set the environment variable BUILD_NAME
+          $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
+          if (Test-Path -Path $filePath -PathType Leaf) {
+          Copy-Item -Path $filePath -Destination $targetDirectory -Force
+          Write-Host "File copied successfully."
+            } else {
+          Write-Host "File not found."
+          }
+    env:
+      BUILD_NAME: ${{ github.event.inputs.BuildName }}
+
+        
