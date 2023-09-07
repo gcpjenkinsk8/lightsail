@@ -96,9 +96,23 @@ jobs:
         $artifactPath = "${{ github.workspace }}/Main-build/${{ steps.set-build-name.outputs.BuildName }}"
         $destinationPath = "C:\DeploymentFiles\VersionFolder\"
         Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
-      
+ 
+    - name: Stop IIS server
+      run: |
+        Stop-Service -Name W3SVC; Get-Service -Name W3SVC
+        
+    - name: Remove Old files from deploy location
+      run: |
+         Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Recurse
+    # - name: copy-new-files-to-intepub-location
+    #   run: |
+    #       $latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
+         
 
-
+  
+    
+    
+    
     # - name: Upload the artifact file
     #   id: upload-artifact
     #   uses: actions/upload-artifact@v2
