@@ -19,10 +19,10 @@ jobs:
     
     - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
       run:  |
-        # $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
-        # $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+        $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+        $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
         $buildFileName = $env:BuildName
-        $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+        $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $buildfileName }
         if ($foundBuild) {
         Write-Host "Builed found at $($foundBuild.FullName)"
                 } else {
