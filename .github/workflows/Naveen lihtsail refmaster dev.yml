@@ -64,7 +64,7 @@ jobs:
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
-    - name: Build the Solution and make the artifact
+    - name: Build the Solution and make the artifact with NAME AS ${{ steps.set-build-name.outputs.BuildName }}
       run: |
         $publishPath = Join-Path -Path ${{ env.SOURCE_FOLDER }} -ChildPath ${{ steps.set-build-name.outputs.BuildName }}
         msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="$publishPath" ${{ github.workspace }}/Main-build
