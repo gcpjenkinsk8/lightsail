@@ -37,7 +37,7 @@ jobs:
         Write-Host "Target Directory: $targetDirectory"
         Write-Host "File Name: $fileName"
 
-        $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
+        $filePath = Join-Path -Path $sourceDirectory
         Write-Host "File Path: $filePath"
 
         if (Test-Path -Path $filePath -PathType Leaf) {
