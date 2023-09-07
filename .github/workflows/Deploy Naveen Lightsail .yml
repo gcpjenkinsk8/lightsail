@@ -24,19 +24,46 @@ jobs:
     - name: Remove Old files from deploy location
       run: |
         Remove-Item C:\DeploymentFiles\ReleaseFolder\* -Recurse
-   
-    - name: Search for the file and copy it
+
+
+
+    - name: Debug Script
       run: |
-          $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
-          $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
-          $fileName = $env:BuildName   # Assuming you've set the environment variable BUILD_NAME
-          $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
-          if (Test-Path -Path $filePath -PathType Leaf) {
-          Copy-Item -Path $filePath -Destination $targetDirectory -Force -recurse
-          Write-Host "File copied successfully."
-            } else {
-                 Write-Host "File not found. Failing the workflow."
-          exit 1  # Terminate the workflow with a non-zero exit code
-          }
+        $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+        $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+        $fileName = $env:BuildName
+
+        Write-Host "Source Directory: $sourceDirectory"
+        Write-Host "Target Directory: $targetDirectory"
+        Write-Host "File Name: $fileName"
+
+        $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
+        Write-Host "File Path: $filePath"
+
+        if (Test-Path -Path $filePath -PathType Leaf) {
+        Write-Host "File found. Copying..."
+        Copy-Item -Path $filePath -Destination $targetDirectory -Force -Recurse
+        Write-Host "File copied successfully."
+        } else {
+        Write-Host "File not found. Failing the workflow."
+        exit 1
+        }
+
+
+
+   
+    # - name: Search for the file and copy it
+    #   run: |
+    #       $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+    #       $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+    #       $fileName = $env:BuildName   # Assuming you've set the environment variable BUILD_NAME
+    #       $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
+    #       if (Test-Path -Path $filePath -PathType Leaf) {
+    #       Copy-Item -Path $filePath -Destination $targetDirectory -Force -recurse
+    #       Write-Host "File copied successfully."
+    #         } else {
+    #              Write-Host "File not found. Failing the workflow."
+    #       exit 1  # Terminate the workflow with a non-zero exit code
+    #       }
     
         
