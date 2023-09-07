@@ -30,11 +30,13 @@ jobs:
         Get-ChildItem
         $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
         $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
-        $fileName = $env:BuildName
-        $foundFile = Get-ChildItem -Path $sourceDirectory  | Where-Object { $_.Name -eq $fileName }
-        if ($foundFile) {
-        Write-Host "File found at $($foundFile.FullName)"
-        Copy-Item -Path $foundFile -Destination $targetDirectory -Force -recurse
+        $buildFileName = $env:BuildName
+        $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+        if ($foundBuild) {
+        Write-Host "Builed found at $($foundBuild.FullName)"
+
+                
+        Copy-Item -Path $foundBuild.FullName -Destination $targetDirectory -Recurse -Force
         Write-Host "File copied successfully."
         
         } else {
