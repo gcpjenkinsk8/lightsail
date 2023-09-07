@@ -79,7 +79,7 @@ jobs:
 
     - name: Copy artifact to C:\ on self-hosted server
       run: |
-        $artifactPath = "${{ github.workspace }}/Main-build/_build"
+        $artifactPath = "${{ github.workspace }}/Main-build/_build/$BuildName"
         $destinationPath = "C:\DeploymentFiles\VersionFolder\"
         Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
       
