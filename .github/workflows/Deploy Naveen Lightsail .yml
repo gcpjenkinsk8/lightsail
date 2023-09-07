@@ -24,6 +24,10 @@ jobs:
         $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
         if ($foundBuild) {
         Write-Host "Builed found at $($foundBuild.FullName)"
+                } else {
+         Write-Host "File not found. Failing the workflow."
+         exit 1
+          }
         
     - name: Stop IIS server
       run: |
