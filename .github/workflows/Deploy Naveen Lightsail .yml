@@ -41,22 +41,22 @@ jobs:
 
     - name: Deploying build on server BUILD NAME IS ========> ${{ github.event.inputs.BuildName }}
       run: |
-        Get-ChildItem
-        $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
-        $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
-        $buildFileName = $env:BuildName
-        $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
-        if ($foundBuild) {
-        Write-Host "Builed found at $($foundBuild.FullName)"
+        # Get-ChildItem
+        # $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+        # $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+        # $buildFileName = $env:BuildName
+        # $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+        # if ($foundBuild) {
+        # Write-Host "Builed found at $($foundBuild.FullName)"
 
                 
         Copy-Item -Path $foundBuild.FullName -Destination $targetDirectory -Recurse -Force
-        Write-Host "File copied successfully."
+        # Write-Host "File copied successfully."
         
-        } else {
-         Write-Host "File not found. Failing the workflow."
-         exit 1
-          }
+        # } else {
+        #  Write-Host "File not found. Failing the workflow."
+        #  exit 1
+        #   }
     - name: Adding Build Info
       run: |
         $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
