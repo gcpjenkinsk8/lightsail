@@ -13,7 +13,7 @@ env:
   sourceDirectory: "C:/DeploymentFiles/VersionFolder"
   targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
   BuildInfoDir: "C:/DeploymentFiles/BuildInfo"
-  Copy: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}/"
+  Copy: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}/*"
   
 jobs:
   build-deploy:
