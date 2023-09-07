@@ -81,7 +81,7 @@ jobs:
         $artifactPath = "${{ github.workspace }}/Main-build/_build"
         $destinationPath = "C:\DeploymentFiles\VersionFolder\"
         Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
-      shell: pwsh
+      
 
 
     # - name: Upload the artifact file
