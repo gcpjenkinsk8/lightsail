@@ -35,29 +35,16 @@ jobs:
         $foundFile = Get-ChildItem -Path $sourceDirectory  | Where-Object { $_.Name -eq $fileName }
         if ($foundFile) {
         Write-Host "File found at $($foundFile.FullName)"
+        Copy-Item -Path $foundFile -Destination $targetDirectory -Force -recurse
+        Write-Host "File copied successfully."
+        
         } else {
-          Write-Host "File not found."
+         Write-Host "File not found. Failing the workflow."
+         exit 1
           }
 
           
-        # Write-Host "Source Directory: $sourceDirectory"
-        # Write-Host "Target Directory: $targetDirectory"
-        # Write-Host "File Name: $fileName"
-
-        # $filePath = Join-Path -Path $sourceDirectory 
-        # Write-Host "File Path: $filePath"
-
-        # if (Test-Path -Path $filePath -PathType Leaf) {
-        # Write-Host "File found. Copying..."
-        # Copy-Item -Path $filePath -Destination $targetDirectory -Force -Recurse
-        # Write-Host "File copied successfully."
-        # } else {
-        # Write-Host "File not found. Failing the workflow."
-        # exit 1
-        # }
-
-
-
+   
 
 
    
