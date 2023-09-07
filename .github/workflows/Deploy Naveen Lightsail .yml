@@ -57,7 +57,25 @@ jobs:
          Write-Host "File not found. Failing the workflow."
          exit 1
           }
+    - name: Adding Build Info
+      run: |
+        $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+        $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+        $BuildInfoDir= "C:\DeploymentFiles\BuildInfo"
+        $buildFileName = $env:BuildName
+        $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+        if ($foundBuild) {
+          Write-Host "Build found at $($foundBuild.FullName)"
+          
+          # Create a text file with build information
+          $buildInfo = "Build Number: $($env:BuildName)`r`nTimestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+          $buildInfoFilePath = Join-Path -Path $BuildInfoDir -ChildPath "build_info.txt"
 
-    
-    
-        
+          # Append build information to the existing file
+          Add-Content -Path $buildInfoFilePath -Value $buildInfo
+
+          Write-Host "Build information appended to $buildInfoFilePath"
+        } else {
+          Write-Host "File not found. Failing the workflow."
+          exit 1
+        }
