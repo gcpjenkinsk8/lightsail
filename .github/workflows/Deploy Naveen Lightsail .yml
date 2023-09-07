@@ -13,6 +13,7 @@ env:
   sourceDirectory: "C:/DeploymentFiles/VersionFolder"
   targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
   BuildInfoDir: "C:/DeploymentFiles/BuildInfo"
+  Copy: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}"
   
 jobs:
   build-deploy:
@@ -47,8 +48,8 @@ jobs:
          $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
                 
           Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
-          Copy-Item -Path '${{env:targetDirectory}}\\${{env:BuildName}}\\*' -recurse - Destination '${{env:targetDirectory}}' -Force
-          Remove-Item -Path $env:targetDirectory\$env:BuildName* -recurse -Force
+          Copy-Item -Path $env:Copy -Destination $env:targetDirectory -Recurse -Force
+          Remove-Item -Path $env:Copy -recurse -Force
           Remove-Item -Path $env:targetDirectory\Web.config -Force
          if ($foundBuild) {
           Write-Host "build deployed successfully."
