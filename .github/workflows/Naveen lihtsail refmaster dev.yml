@@ -66,7 +66,8 @@ jobs:
 
     - name: Build the Solution and make the artifact
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../${{ env.SOURCE_FOLDER }}/${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
+        $publishPath = Join-Path -Path ${{ env.SOURCE_FOLDER }} -ChildPath ${{ steps.set-build-name.outputs.BuildName }}
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="$publishPath" ${{ github.workspace }}/Main-build
 
 
     # - name: Build the Solution and making the artifact This step may take time to complete
