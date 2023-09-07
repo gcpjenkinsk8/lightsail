@@ -64,9 +64,14 @@ jobs:
       env:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
-    - name: Build the Solution and making the artifact This step may take time to complete
+    - name: Build the Solution and make the artifact
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$SOURCE_FOLDER/${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../${{ env.SOURCE_FOLDER }}/${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
+
+
+    # - name: Build the Solution and making the artifact This step may take time to complete
+    #   run: |
+    #     msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$SOURCE_FOLDER/${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
 
 
     # - name: Copy artifact to C:\ on self-hosted server
