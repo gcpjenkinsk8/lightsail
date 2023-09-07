@@ -68,7 +68,7 @@ jobs:
       run: |
         Start-Service -Name W3SVC; Get-Service -Name W3SVC
    
-    - name: Adding Build Info
+    - name: Adding & Displaying Build Info
       run: |
           $buildInfo = "Build Number: $($env:BuildName)     --Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
           $buildInfoFilePath = Join-Path -Path $env:BuildInfoDir -ChildPath "build_info.txt"
@@ -76,4 +76,6 @@ jobs:
           Add-Content -Path $buildInfoFilePath -Value $buildInfo
           
           Write-Host "Build information appended to $buildInfoFilePath"
+
+          Get-Content -Path $buildInfoFilePath
         
