@@ -9,13 +9,11 @@ on:
 
 env:
   SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
-  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
-  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
   
 
 jobs:
-  build-publish:
+  Creating-Build-Code:
     runs-on: RefDeployDev 
 
     defaults:
@@ -23,7 +21,7 @@ jobs:
         working-directory: ./Main-build
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-      working-directory:  ${{ github.workspace }}/Main-build
+      # working-directory:  ${{ github.workspace }}/Main-build
       GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
     steps:
     - name: Checkout the repository
@@ -36,23 +34,23 @@ jobs:
         key: nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: nuget-
         
-    - name: Setup the MSBuild
-      uses: microsoft/setup-msbuild@v1.0.2
+    # - name: Setup the MSBuild
+    #   uses: microsoft/setup-msbuild@v1.0.2
     
      
     - name: Clean the NuGet packages
       run: |
         nuget locals all -clear
-      working-directory: ${{ github.workspace }}/Main-build
+      # working-directory: ${{ github.workspace }}/Main-build
      
     
     - name: Restore the NuGet packages
       run: nuget restore ${{ github.workspace }}/Main-build
-      working-directory:  ${{ github.workspace }}/Main-build
+      # working-directory:  ${{ github.workspace }}/Main-build
     
     - name: Restore the dependencies
       run: msbuild /restore 
-      working-directory:  ${{ github.workspace }}/Main-build
+      # working-directory:  ${{ github.workspace }}/Main-build
     - name: Set Build Name
       id: set-build-name
       run: |
