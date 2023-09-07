@@ -12,7 +12,7 @@ env:
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
   DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
-  BuildName: "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
+  
 
 jobs:
   build-publish:
@@ -57,10 +57,24 @@ jobs:
     - name: Restore the dependencies
       run: msbuild /restore 
       working-directory:  ${{ github.workspace }}/Main-build
-
-    - name: Build the Solution and making the artifact This step may take time to complete 
+    - name: Set Build Name
+      id: set-build-name
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$BuildName" ${{ github.workspace }}/Main-build
+        $ticket_number = $env:INPUT_TicketNumber
+        $current_time = Get-Date -Format "HHmmss"
+        $build_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
+        Write-Host "Build name: $build_name"
+        echo "::set-output name=BuildName::$build_name"
+      env:
+        INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+
+    - name: Build the Solution and making the artifact This step may take time to complete
+      run: |
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
+
+    # - name: Build the Solution and making the artifact This step may take time to complete 
+    #   run: |
+    #     msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$BuildName" ${{ github.workspace }}/Main-build
      
 
     # - name: Set the artifact name to the build
@@ -79,7 +93,7 @@ jobs:
 
     - name: Copy artifact to C:\ on self-hosted server
       run: |
-        $artifactPath = "${{ github.workspace }}/Main-build/$BuildName"
+        $artifactPath = "${{ github.workspace }}/Main-build/${{ steps.set-build-name.outputs.BuildName }}"
         $destinationPath = "C:\DeploymentFiles\VersionFolder\"
         Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
       
