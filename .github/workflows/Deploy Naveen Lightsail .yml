@@ -8,7 +8,7 @@ on:
         required: true
 
 env:
-  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
+  WebConfig: "C:/DeploymentFiles/WebConfig/Web.config"
   BuildName: '${{ github.event.inputs.BuildName }}'
   sourceDirectory: "C:/DeploymentFiles/VersionFolder"
   targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
@@ -47,6 +47,9 @@ jobs:
          $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
                 
           Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
+          Copy-Item -Path $env:targetDirectory\$env:BuildName\* -recurse - Destination $env:targetDirectory -Force
+          Remove-Item -Path $env:targetDirectory\$env:BuildName* -recurse -Force
+          Remove-Item -Path $env:targetDirectory\Web.config -Force
          if ($foundBuild) {
           Write-Host "build deployed successfully."
         
@@ -54,6 +57,14 @@ jobs:
           Write-Host "File not found. Failing the workflow."
           exit 1
            }
+           
+    - name: Deploying Web Config
+      run: |
+        Copy-Item -Path $env:WebConfig - Destination $env:targetDirectory -Force
+    
+    - name: Start IIS server
+      run: |
+        Start-Service -Name W3SVC; Get-Service -Name W3SVC
    
     - name: Adding Build Info
       run: |
