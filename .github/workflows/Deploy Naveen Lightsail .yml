@@ -47,7 +47,7 @@ jobs:
          $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
                 
           Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
-         if ($foundBuild)
+         if ($foundBuild) {
           Write-Host "build deployed successfully."
         
          } else {
