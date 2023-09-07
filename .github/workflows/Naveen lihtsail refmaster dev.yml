@@ -18,9 +18,6 @@ jobs:
   build-publish:
     runs-on: RefDeployDev 
 
-    # runs-on: windows-latest
-    outputs:
-      output1: ${{ steps.set-artifact-name.outputs.ArtifactName }}
     defaults:
       run:
         working-directory: ./Main-build
@@ -47,8 +44,7 @@ jobs:
       run: |
         nuget locals all -clear
       working-directory: ${{ github.workspace }}/Main-build
-
-      
+     
     
     - name: Restore the NuGet packages
       run: nuget restore ${{ github.workspace }}/Main-build
@@ -70,136 +66,12 @@ jobs:
 
     - name: Build the Solution and making the artifact This step may take time to complete
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$SOURCE_FOLDER/${{ steps.set-build-name.outputs.BuildName }}" ${{ github.workspace }}/Main-build
 
-    # - name: Build the Solution and making the artifact This step may take time to complete 
+
+    # - name: Copy artifact to C:\ on self-hosted server
     #   run: |
-    #     msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../$BuildName" ${{ github.workspace }}/Main-build
-     
-
-    # - name: Set the artifact name to the build
-    #   id: set-artifact-name
-    #   run: |
-    #     $ticket_number = $env:INPUT_TicketNumber
-    #     $current_time = Get-Date -Format "HHmmss"
-    #     $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-    #     Write-Host "Artifact name: $artifact_name"
-    #     #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-    #     echo "::set-output name=ArtifactName::$artifact_name"
-    #    # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
-    #   #shell: pwsh
-    #   env:
-    #     INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
-
-    - name: Copy artifact to C:\ on self-hosted server
-      run: |
-        $artifactPath = "${{ github.workspace }}/Main-build/${{ steps.set-build-name.outputs.BuildName }}"
-        $destinationPath = "C:\DeploymentFiles\VersionFolder\"
-        Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
+    #     $artifactPath = "${{ github.workspace }}/Main-build/${{ steps.set-build-name.outputs.BuildName }}"
+    #     $destinationPath = "C:\DeploymentFiles\VersionFolder\"
+    #     Copy-Item -Path $artifactPath -Destination $destinationPath -Recurse
  
-    - name: Stop IIS server
-      run: |
-        Stop-Service -Name W3SVC; Get-Service -Name W3SVC
-        
-    - name: Remove Old files from deploy location
-      run: |
-         Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Recurse
-    # - name: copy-new-files-to-intepub-location
-    #   run: |
-    #       $latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
-         
-
-  
-    
-    
-    
-    # - name: Upload the artifact file
-    #   id: upload-artifact
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: ${{ steps.set-artifact-name.outputs.ArtifactName }}
-    #     path: Main-build/_build
-  
-  # Copy-file-git-lighsail:
-  #   name: Copy the File
-  #   needs: build-publish
-  #   if: success()  
-  #   runs-on: self-hosted
-  #   env:
-  #     SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
-  #   steps:
-  #   - name: Check out the code
-  #     uses: actions/checkout@v2
-
-  #   - name: Create a folder for downloading the build file
-  #     run: mkdir abc
-
-  #   - name: Download the Artifact in the abc folder
-  #     id: donloaded-artifact
-  #     uses: actions/download-artifact@v2
-  #     with:
-  #       name: ${{ needs.build-publish.outputs.output1}}
-  #       path: ./abc
-
-  #   - name: Zip Artifact
-  #     run: zip -r ${{ needs.build-publish.outputs.output1}}.zip abc/* -x Web.config
-  #   - name: cd files
-  #     run: |
-  #       ls
-
-
-  #   - name: Install sshpass dependency for ssh access
-  #     run: |
-  #       sudo apt-get update
-  #       sudo apt-get install -y sshpass
-
-  #   - name: Create ~/.ssh directory for storing known hosts
-  #     run: mkdir -p ~/.ssh
-
-  #   - name: Update known_hosts file with the server ip to avoid fingerprint ask
-  #     run: |
-  #       WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
-  #       echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
-
-  #   - name: copy the latest files to version location 
-  #     run: |
-  #       sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ needs.build-publish.outputs.output1}}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
-           
-  #   - name: Stop IIS server
-  #     run: |
-  #       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Stop-Service -Name W3SVC; Get-Service -Name W3SVC\""
-   
-  #   - name: Remove Old files from deploy location
-  #     run: |
-  #      #sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Exclude Web.config -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\Views\\* -Recurse\""
-  #      sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Recurse\""
-
-  #   - name: copy-new-files-to-intepub-location
-  #     run: |
-  #        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/${{ needs.build-publish.outputs.output1}}.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER }}"
-  #        #sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
-    
-  #   - name: Extract the deployment build
-  #     run: | 
-  #        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Expand-Archive -Path '${{ env.DESTINATION_FOLDER }}\\${{ needs.build-publish.outputs.output1}}.zip' -DestinationPath '${{ env.DESTINATION_FOLDER }}'\""
-    
-  #   - name: Move files from abc to deploy location
-  #     run: |
-  #       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '${{ env.DESTINATION_FOLDER }}' -Force\""
-   
-  #   - name: Copy web config as full deployment from config git repo folder # We hope this is up to date in git repo
-  #     run: |
-  #        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/Config/Web.config" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER_CONFIG }}"
-       
-  #   - name: Remove the zip files from deploy location
-  #     run: |
-  #      sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\*.zip -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\abc -Recurse\""
-
-  #   - name: Start-IIS
-  #     run: |
-  #         sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Start-Service -Name W3SVC; Get-Service -Name W3SVC\"" 
-   
-  #   - name: Cleanup Version Folder
-  #     run: | 
-  #         sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Get-ChildItem -Path C:\\DeploymentFiles\\VersionFolder\\ | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 10 | Remove-Item -Force\"" 
-                 
