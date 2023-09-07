@@ -40,13 +40,20 @@ jobs:
         
     - name: Setup the MSBuild
       uses: microsoft/setup-msbuild@v1.0.2
-     
-    # - name: Clean the NuGet packages
-    #   run: nuget locals all -clear
-    #   working-directory:  ${{ github.workspace }}/Main-build
+    
+    - name: Install NuGet packages
+      run: |
+        choco install nuget.commandline -y
+        nuget restore ${{ github.workspace }}/Main-build
+        shell: cmd 
+    - name: Clean the NuGet packages
+      run: nuget locals all -clear
+      working-directory:  ${{ github.workspace }}/Main-build
+    
     - name: Restore the NuGet packages
       run: nuget restore ${{ github.workspace }}/Main-build
       working-directory:  ${{ github.workspace }}/Main-build
+    
     - name: Restore the dependencies
       run: msbuild /restore 
       working-directory:  ${{ github.workspace }}/Main-build
