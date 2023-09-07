@@ -12,6 +12,7 @@ env:
   DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
   DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
+  BuildName: "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
 
 jobs:
   build-publish:
@@ -59,22 +60,22 @@ jobs:
 
     - name: Build the Solution and making the artifact This step may take time to complete 
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build
+        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build/$BuildName" ${{ github.workspace }}/Main-build
      
 
-    - name: Set the artifact name to the build
-      id: set-artifact-name
-      run: |
-        $ticket_number = $env:INPUT_TicketNumber
-        $current_time = Get-Date -Format "HHmmss"
-        $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
-        Write-Host "Artifact name: $artifact_name"
-        #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
-        echo "::set-output name=ArtifactName::$artifact_name"
-       # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
-      #shell: pwsh
-      env:
-        INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
+    # - name: Set the artifact name to the build
+    #   id: set-artifact-name
+    #   run: |
+    #     $ticket_number = $env:INPUT_TicketNumber
+    #     $current_time = Get-Date -Format "HHmmss"
+    #     $artifact_name = "Build-${ticket_number}-$(Get-Date -Format 'yyyyMMdd')-${current_time}"
+    #     Write-Host "Artifact name: $artifact_name"
+    #     #echo "ArtifactName=$artifact_name" >> $GITHUB_ENV
+    #     echo "::set-output name=ArtifactName::$artifact_name"
+    #    # echo "$artifact_name" > ${{ github.workspace }}/Main-build/artifact_name.txt
+    #   #shell: pwsh
+    #   env:
+    #     INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
     - name: Copy artifact to C:\ on self-hosted server
       run: |
