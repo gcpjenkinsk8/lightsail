@@ -10,7 +10,8 @@ on:
 env:
   DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   BuildName: '${{ github.event.inputs.BuildName }}'
-
+  sourceDirectory: "C:/DeploymentFiles/VersionFolder"
+  targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
 jobs:
   build-deploy:
     runs-on: RefDeployDev
@@ -18,10 +19,10 @@ jobs:
     
     - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
       run:  |
-        $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
-        $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
+        # $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
+        # $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
         $buildFileName = $env:BuildName
-        $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+        $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
         if ($foundBuild) {
         Write-Host "Builed found at $($foundBuild.FullName)"
                 } else {
@@ -35,7 +36,7 @@ jobs:
 
     - name: Remove Old files from deploy location
       run: |
-        Remove-Item C:\DeploymentFiles\ReleaseFolder\* -Recurse
+        Remove-Item $env:targetDirectory\* -Recurse
 
 
 
@@ -44,13 +45,13 @@ jobs:
         # Get-ChildItem
         # $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
         # $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
-        # $buildFileName = $env:BuildName
-        # $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+         $buildFileName = $env:BuildName
+         $foundBuild = Get-ChildItem -Path $sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
         # if ($foundBuild) {
         # Write-Host "Builed found at $($foundBuild.FullName)"
 
                 
-        Copy-Item -Path $foundBuild.FullName -Destination $targetDirectory -Recurse -Force
+        Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
         # Write-Host "File copied successfully."
         
         # } else {
