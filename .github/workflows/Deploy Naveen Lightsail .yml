@@ -29,15 +29,14 @@ jobs:
       run: |
           $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
           $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
-          $fileName = $env:BUILD_NAME   # Assuming you've set the environment variable BUILD_NAME
+          $fileName = {{$env:BuildName}}   # Assuming you've set the environment variable BUILD_NAME
           $filePath = Join-Path -Path $sourceDirectory -ChildPath $fileName
           if (Test-Path -Path $filePath -PathType Leaf) {
-          Copy-Item -Path $filePath -Destination $targetDirectory -Force
+          Copy-Item -Path $filePath -Destination $targetDirectory -Force -recurse
           Write-Host "File copied successfully."
             } else {
-          Write-Host "File not found."
+                 Write-Host "File not found. Failing the workflow."
+          exit 1  # Terminate the workflow with a non-zero exit code
           }
-    env:
-      BUILD_NAME: ${{ github.event.inputs.BuildName }}
-
+    
         
