@@ -48,7 +48,7 @@ jobs:
          $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
                 
           Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
-          Copy-Item -Path $env:Copy -recurse -Destination $env:targetDirectory -Recurse -Force
+          Copy-Item -Path $env:Copy -Destination $env:targetDirectory -Recurse -Force
           Remove-Item -Path $env:Copy -recurse -Force
           Remove-Item -Path $env:targetDirectory\Web.config -Force
          if ($foundBuild) {
