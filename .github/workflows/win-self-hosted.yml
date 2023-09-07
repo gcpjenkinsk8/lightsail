@@ -19,7 +19,7 @@ jobs:
     - name: Clean the NuGet packages
       run: |
         cd Main-Build
-        nuget locals all -clear
+        nuget restore
 
     - name: Build with .NET
       run: |
