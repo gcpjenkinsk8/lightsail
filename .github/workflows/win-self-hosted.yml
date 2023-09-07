@@ -16,6 +16,11 @@ jobs:
       with:
         dotnet-version: '5.0'  # Specify the .NET SDK version you want to use
 
+    - name: Clean the NuGet packages
+      run: |
+        cd Main-Build
+        nuget locals all -clear
+
     - name: Build with .NET
       run: |
        cd Main-Build
