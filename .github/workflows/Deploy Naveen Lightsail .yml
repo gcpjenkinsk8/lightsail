@@ -8,8 +8,6 @@ on:
         required: true
 
 env:
-  SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
-  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
   DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
   BuildName: '${{ github.event.inputs.BuildName }}'
 
@@ -29,6 +27,7 @@ jobs:
 
     - name: Debug Script
       run: |
+        Get-ChildItem
         $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
         $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
         $fileName = $env:BuildName
