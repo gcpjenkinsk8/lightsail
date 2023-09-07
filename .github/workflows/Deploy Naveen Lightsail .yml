@@ -57,7 +57,7 @@ jobs:
    
     - name: Adding Build Info
       run: |
-          $buildInfo = "Build Number: $($env:BuildName)`r`n Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+          $buildInfo = "Build Number: $($env:BuildName)     --Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
           $buildInfoFilePath = Join-Path -Path $env:BuildInfoDir -ChildPath "build_info.txt"
 
           Add-Content -Path $buildInfoFilePath -Value $buildInfo
