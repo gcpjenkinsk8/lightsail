@@ -17,7 +17,7 @@ jobs:
     steps:
     
     - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
-      run: 
+      run:  |
         $sourceDirectory = "C:\DeploymentFiles\VersionFolder"
         $targetDirectory = "C:\DeploymentFiles\ReleaseFolder"
         $buildFileName = $env:BuildName
