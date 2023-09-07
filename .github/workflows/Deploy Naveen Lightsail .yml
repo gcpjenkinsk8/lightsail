@@ -47,6 +47,7 @@ jobs:
          $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
                 
           Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
+         if ($foundBuild)
           Write-Host "build deployed successfully."
         
          } else {
@@ -60,9 +61,6 @@ jobs:
           $buildInfoFilePath = Join-Path -Path $BuildInfoDir -ChildPath "build_info.txt"
 
           Add-Content -Path $buildInfoFilePath -Value $buildInfo
-
+          
           Write-Host "Build information appended to $buildInfoFilePath"
-          } else {
-          Write-Host "Build info missed"
-          exit 1
-          }
+        
