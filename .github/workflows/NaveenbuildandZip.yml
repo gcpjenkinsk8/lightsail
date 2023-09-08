@@ -40,6 +40,8 @@ jobs:
 
     - name: Setup the MSBuild
       uses: microsoft/setup-msbuild@v1.1
+      with:
+        MSBuild-path: 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319'  
     
      
     - name: Clean the NuGet packages
