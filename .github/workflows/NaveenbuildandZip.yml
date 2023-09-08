@@ -33,15 +33,15 @@ jobs:
         path: ${{ env.NUGET_PACKAGES }}
         key: nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: nuget-
-    - name: Show Environment Variables
-      run: |
-        echo "PATH: $PATH"
-        echo "MSBuild Path: $env:MSBuildPath"
+    # - name: Show Environment Variables
+    #   run: |
+    #     echo "PATH: $PATH"
+    #     echo "MSBuild Path: $env:MSBuildPath"
 
-    - name: Setup the MSBuild
-      uses: microsoft/setup-msbuild@v1.1
-      with:
-        MSBuild-path: 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319'  
+    # - name: Setup the MSBuild
+    #   uses: microsoft/setup-msbuild@v1.1
+    #   with:
+    #     MSBuild-path: 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319'  
     
      
     - name: Clean the NuGet packages
