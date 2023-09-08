@@ -1,4 +1,4 @@
-name: Deploy Naveen lightsail Refmaster Pipeline
+name: Final Deploy Naveen lightsail Refmaster Pipeline
 
 on:
   workflow_dispatch:
