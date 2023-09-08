@@ -1,0 +1,19 @@
+name: Restart IIS
+
+on:
+  workflow_dispatch:
+    inputs:
+      RestartReason:
+        description: 'Enter The Reason of Restart'
+        required: true
+
+jobs:
+  Restart-IIS:
+    runs-on: RefDeployDev
+
+    steps:
+
+      - name: Restart IIS service WITH REASON ==> ${{ github.event.inputs.RestartReason }}
+        run: |
+
+           Restart-Service -Name W3SVC; Get-Service -Name W3SVC
