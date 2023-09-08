@@ -54,9 +54,9 @@ jobs:
       run: nuget restore ${{ github.workspace }}/Main-build
       # working-directory:  ${{ github.workspace }}/Main-build
     
-    - name: Restore the dependencies
-      run: msbuild /restore 
-      # working-directory:  ${{ github.workspace }}/Main-build
+    # - name: Restore the dependencies
+    #   run: msbuild /restore 
+    #   # working-directory:  ${{ github.workspace }}/Main-build
     - name: Set Build Name
       id: set-build-name
       run: |
