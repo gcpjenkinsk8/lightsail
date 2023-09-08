@@ -23,6 +23,8 @@ jobs:
     
     - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
       run:  |
+        Get-Content -Path C:/DeploymentFiles/BuildInfo/build_info.txt
+        
         $buildFileName = $env:BuildName
         $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $buildfileName }
         if ($foundBuild) {
@@ -31,7 +33,7 @@ jobs:
          Write-Host "File not found. Failing the workflow."
          exit 1
           }
-        Get-Content -Path C:/DeploymentFiles/BuildInfo/build_info.txt
+        
    
     - name: Stop IIS server
       run: |
