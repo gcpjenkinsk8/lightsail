@@ -1,4 +1,4 @@
-name: Restart IIS
+name: 3. Restart IIS
 
 on:
   workflow_dispatch:

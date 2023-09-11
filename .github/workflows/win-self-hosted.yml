@@ -1,4 +1,4 @@
-name: .NET Build (Windows)
+name: NET Build Self (Windows)
 
 on:
   workflow_dispatch:
