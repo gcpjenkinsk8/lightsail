@@ -1,0 +1,106 @@
+name: 2. Final Refmaster Deploy Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      BuildName:
+        description: 'Enter The Build Name'
+        required: true
+
+env:
+  WebConfig: "C:/DeploymentFiles/WebConfig/Web.config"
+  BuildName: '${{ github.event.inputs.BuildName }}'
+  sourceDirectory: "C:/DeploymentFiles/VersionFolder"
+  targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
+  BuildInfoDir: "C:/DeploymentFiles/BuildInfo"
+  Copy: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}/*"
+  Remove: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}"
+  
+jobs:
+  build-deploy:
+    runs-on: RefDeployDev
+    steps:
+
+
+    - name: Zip the xyz folder
+      run: |
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::CreateFromDirectory('C:\DeploymentFiles\VersionFolder\Build-dp101-20230911-050951', 'C:\DeploymentFiles.zip')
+      shell: powershell
+
+    # - name: Copy zip file to remote server
+    #   run: |
+    #     scp -i ${{ secrets.SSH_PRIVATE_KEY }} C:\abc\xyz.zip ${{ secrets.REMOTE_USERNAME }}@${{ secrets.REMOTE_SERVER }}:~/xyz.zip
+    #   shell: bash
+
+    # - name: SSH into remote server and extract zip
+    #   run: |
+    #     ssh -i ${{ secrets.SSH_PRIVATE_KEY }} ${{ secrets.REMOTE_USERNAME }}@${{ secrets.REMOTE_SERVER }} "unzip -q ~/xyz.zip -d ~/inet"
+    #   shell: bash
+
+    # - name: Cleanup: Remove local zip file
+    #   run: |
+    #     Remove-Item -Path 'C:\abc\xyz.zip'
+    #   shell: powershell
+    
+    # - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
+    #   run:  |
+    #     Get-Content -Path C:/DeploymentFiles/BuildInfo/build_info.txt
+        
+    #     $buildFileName = $env:BuildName
+    #     $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $buildfileName }
+    #     if ($foundBuild) {
+    #     Write-Host "Builed found at $($foundBuild.FullName)"
+    #             } else {
+    #      Write-Host "File not found. Failing the workflow."
+    #      exit 1
+    #       }
+        
+   
+    # - name: Stop IIS server
+    #   run: |
+    #     Stop-Service -Name W3SVC; Get-Service -Name W3SVC
+
+    # - name: Remove Old files from deploy location
+    #   run: |
+    #     Remove-Item $env:targetDirectory\* -Recurse
+
+
+
+    # - name: Deploying build on server BUILD NAME IS ========> ${{ github.event.inputs.BuildName }}
+    #   run: |
+
+    #      $buildFileName = $env:BuildName
+    #      $foundBuild = Get-ChildItem -Path $env:sourceDirectory -Recurse -Directory | Where-Object { $_.Name -eq $BuildfileName }
+                
+    #       Copy-Item -Path $foundBuild.FullName -Destination $env:targetDirectory -Recurse -Force
+    #       Copy-Item -Path $env:Copy -Destination $env:targetDirectory -Recurse -Force
+    #       Remove-Item -Path $env:Remove -recurse -Force
+    #       Remove-Item -Path $env:targetDirectory\Web.config -Force
+    #      if ($foundBuild) {
+    #       Write-Host "build deployed successfully."
+        
+    #      } else {
+    #       Write-Host "File not found. Failing the workflow."
+    #       exit 1
+    #        }
+           
+    # - name: Deploying Web Config
+    #   run: |
+    #     Copy-Item -Path $env:WebConfig -Destination $env:targetDirectory -Force
+    
+    # - name: Start IIS server
+    #   run: |
+    #     Start-Service -Name W3SVC; Get-Service -Name W3SVC
+   
+    # - name: Adding & Displaying Build Info file content
+    #   run: |
+    #       $buildInfo = "Build Number: $($env:BuildName)     --Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+    #       $buildInfoFilePath = Join-Path -Path $env:BuildInfoDir -ChildPath "build_info.txt"
+
+    #       Add-Content -Path $buildInfoFilePath -Value $buildInfo
+          
+    #       Write-Host "Build information appended to $buildInfoFilePath"
+
+    #       Get-Content -Path $buildInfoFilePath
+        
