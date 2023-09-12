@@ -1,4 +1,4 @@
-name: 2. Final Refmaster Deploy Pipeline
+name: 5. Final Refmaster Prod Deploy Pipeline
 
 on:
   workflow_dispatch:
