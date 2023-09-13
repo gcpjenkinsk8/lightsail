@@ -24,8 +24,15 @@ jobs:
       # working-directory:  ${{ github.workspace }}/Main-build
       GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
     steps:
+    - name: Check Branch
+      run: |
+        if [ "${GITHUB_REF##*/}" == "main" ]; then
+          echo "Workflow is not allowed on the main branch."
+          exit 1
+        fi
     - name: Checkout the repository
       uses: actions/checkout@v4
+      
       
     - name: Cache NuGet packages
       uses: actions/cache@v2
