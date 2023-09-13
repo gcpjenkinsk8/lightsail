@@ -1,0 +1,48 @@
+name: 4. Final Config Only Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      TicketNumber:
+       description: 'Jira Ticket'     
+       required: true
+env:
+  WebConfig: "C:/DeploymentFiles/WebConfig/Web.config"
+  ConfBuildInfoDir: "C:/DeploymentFiles/BuildInfo"
+  targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
+  TicketNumber: '${{ github.event.inputs.TicketNumber }}'
+  
+jobs:
+  Deploy-Web-Config:
+    runs-on: RefDeployDev
+    
+
+    steps:
+
+      - name: Stop IIS server
+        run: |
+          Stop-Service -Name W3SVC; Get-Service -Name W3SVC
+      
+      - name: Deploy Config File 
+        run: |
+          Remove-Item -Path $env:targetDirectory\Web.config -Force
+          Copy-Item -Path $env:WebConfig -Destination $env:targetDirectory -Force
+          
+      - name: Start-IIS
+        run: |
+          Start-Service -Name W3SVC; Get-Service -Name W3SVC
+          
+     
+      - name: Adding and Displaying Config build info 
+        run: |
+          $buildInfo = "Ticket Number: $($env:TicketNumber)     --Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+          $buildInfoFilePath = Join-Path -Path $env:ConfBuildInfoDir -ChildPath "Conf_Only_Deployment_build_info.txt"
+
+          Add-Content -Path $buildInfoFilePath -Value $buildInfo
+          
+          Write-Host "Deployment information appended to $buildInfoFilePath"
+
+          Get-Content -Path $buildInfoFilePath
+
+          
+          

@@ -1,4 +1,4 @@
-name: Config Only Deployment
+name: Config Only Deployment Dev
 
 on:
   workflow_dispatch:

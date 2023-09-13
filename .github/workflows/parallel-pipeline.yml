@@ -1,0 +1,44 @@
+name: Parallel Jobs Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuAWS
+
+    steps:
+    - name: Job 1 Step 1
+      run: echo "Running Job 1 Step 1"
+
+    - name: Simulate 10-second runtime
+      run: sleep 10
+    - name: Job 1 Step 2
+      run: echo "Running Job 1 Step 2"
+
+  job2:
+    runs-on: ubuAWS
+
+    steps:
+    - name: Job 2 Step 1
+      run: echo "Running Job 2 Step 1"
+
+    - name: Simulate 10-second runtime
+      run: sleep 10
+    - name: Job 2 Step 2
+      run: echo "Running Job 2 Step 2"
+
+  job3:
+    runs-on: ubuAWS
+
+    steps:
+    - name: Job 3 Step 1
+      run: echo "Running Job 2 Step 1"
+
+    - name: Simulate 10-second runtime
+      run: sleep 10
+
+    - name: Job 3 Step 2
+      run: echo "Running Job 2 Step 2"
+
+

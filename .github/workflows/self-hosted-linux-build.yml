@@ -1,0 +1,36 @@
+name: Self Hosted Linux Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      TicketNumber:
+       description: 'Jira Ticket'     
+       required: true
+
+env:
+  SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
+  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
+  DESTINATION_FOLDER_CONFIG: "C:/DeploymentFiles/ReleaseFolder/Web.config"
+  TicketNumber: '${{ github.event.inputs.Ticketnumber }}'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu runner
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2  # This step checks out your code from the repository
+
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1  # This step sets up the .NET SDK on the runner
+      with:
+        dotnet-version: '5.0'  # Specify the .NET SDK version you want to use
+
+    - name: ls view files
+      run: ls
+
+    - name: Build with .NET
+      run: |
+        cd Main-Build
+        dotnet build --configuration Release 
+
+                 

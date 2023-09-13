@@ -1,0 +1,125 @@
+name: Dummy Flow
+
+on:
+  workflow_dispatch:
+
+env:
+  SOURCE_FOLDER: "C:/DeploymentFiles/VersionFolder"
+  DESTINATION_FOLDER: "C:/DeploymentFiles/ReleaseFolder"
+
+jobs:
+  generate-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Run your build steps here
+      # ...
+      # Create a folder and five files
+      - name: Create Folder and Files
+        run: |
+          mkdir my-folder
+          for i in {1..5}; do
+            echo "This is the content of file ${i}" > "my-folder/file${i}.txt"
+          done
+
+      # Publish the folder as an artifact
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-folder-artifact
+          path: my-folder
+
+  Copy-file-git-lighsail:
+    name: Copy File
+    needs: generate-artifact
+    if: success()  
+    runs-on: ubuntu-latest
+    env:
+      SERVER_PASS: ${{ secrets.REMOTE_PASSWORDGC }}
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
+
+    - name: Create Folder abc
+      run: mkdir abc
+
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: my-folder-artifact
+        path: ./abc
+      # Create a folder named "abc"
+
+    - name: cd files
+      run: |
+        ls -R ./abc
+      # Zip the contents of the "abc" folder
+    - name: Zip Artifact
+      run: zip -r my-folder-artifact.zip abc/*
+    - name: cd files
+      run: |
+        ls
+
+
+    - name: Install sshpass dependency for ssh access
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sshpass
+
+    - name: Create ~/.ssh directory for storing known hosts
+      run: mkdir -p ~/.ssh
+
+    - name: Update known_hosts file with the server ip to avoid fingerprint ask
+      run: |
+        WINDOWS_SERVER_IP="${{ secrets.REMOTE_HOSTGC }}"
+        echo "$WINDOWS_SERVER_IP $(ssh-keyscan -t rsa $WINDOWS_SERVER_IP 2>&1)" >> ~/.ssh/known_hosts
+
+    - name: Show Secret
+      run: |
+        echo "Secret Value: $SERVER_PASS"
+        
+  
+    - name: copy the latest files to version location 
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/my-folder-artifact.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.SOURCE_FOLDER }}"
+           
+    - name: Stop IIS server
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Stop-Service -Name W3SVC; Get-Service -Name W3SVC\""
+   
+    - name: Remove Old files from deploy location
+      run: |
+       #sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Recurse\""
+       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\* -Recurse\""
+
+    - name: copy-new-files-to-intepub-location
+      run: |
+         sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/my-folder-artifact.zip" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER }}"
+         #sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"\$latestFile = Get-ChildItem -Path '$SOURCE_FOLDER' | Sort-Object LastWriteTime -Descending | Select-Object -First 1; Copy-Item -Path \$latestFile.FullName -Destination '$DESTINATION_FOLDER'\""
+    
+    - name: Extract the deployment build
+      run: | 
+         sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Expand-Archive -Path '${{ env.DESTINATION_FOLDER }}\\my-folder-artifact.zip' -DestinationPath '${{ env.DESTINATION_FOLDER }}'\""
+    
+    - name: Move files from abc to deploy location
+      run: |
+        sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Copy-Item -Path C:\\DeploymentFiles\\ReleaseFolder\\abc\\* -Destination '${{ env.DESTINATION_FOLDER }}' -Force\""
+   
+   # - name: Copy web config as full deployment from config git repo folder # We hope this is up to date in git repo
+    #  run: |
+     #    sshpass -vvv -p "$SERVER_PASS" scp -o StrictHostKeyChecking=no "${{ github.workspace }}/Config/Web.config" "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}":"${{ env.DESTINATION_FOLDER_CONFIG }}"
+       
+    - name: Remove the zip files from deploy location
+      run: |
+       sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\*.zip -Recurse; Remove-Item C:\\DeploymentFiles\\ReleaseFolder\\abc -Recurse\""
+
+    - name: Start-IIS
+      run: |
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Start-Service -Name W3SVC; Get-Service -Name W3SVC\"" 
+   
+    - name: Cleanup Version Folder
+      run: | 
+          sshpass -vvv -p "$SERVER_PASS" ssh -o StrictHostKeyChecking=no "${{ secrets.REMOTE_ADMINGC }}"@"${{ secrets.REMOTE_HOSTGC }}" "powershell -Command \"Get-ChildItem -Path C:\\DeploymentFiles\\VersionFolder\\ | Sort-Object -Property LastWriteTime -Descending | Select-Object -Skip 10 | Remove-Item -Force\"" 
+                 

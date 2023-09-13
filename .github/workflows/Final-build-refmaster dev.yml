@@ -1,4 +1,4 @@
-name: Refmaster Pipeline CI
+name: 1. Final Refmaster Build Pipeline
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ env:
 
 jobs:
   Creating-Build-Code:
-    runs-on: 512WiLabel
+    runs-on: RefDevTestPrateekmachineInstallingDependencies 
 
     defaults:
       run:
@@ -24,8 +24,15 @@ jobs:
       # working-directory:  ${{ github.workspace }}/Main-build
       GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
     steps:
+    - name: Check Branch
+      run: |
+        if [ "${GITHUB_REF##*/}" == "main" ]; then
+          echo "Workflow is not allowed on the main branch."
+          exit 1
+        fi
     - name: Checkout the repository
       uses: actions/checkout@v4
+      
       
     - name: Cache NuGet packages
       uses: actions/cache@v2
@@ -33,14 +40,9 @@ jobs:
         path: ${{ env.NUGET_PACKAGES }}
         key: nuget-${{ hashFiles('**/*.csproj') }}
         restore-keys: nuget-
-    - name: Show Environment Variables
-      run: |
-        echo "PATH: $PATH"
-        echo "MSBuild Path: $env:MSBuildPath"
-
+        
     - name: Setup the MSBuild
-      uses: microsoft/setup-msbuild@v1.1
- 
+      uses: microsoft/setup-msbuild@v1.0.2
     
      
     - name: Clean the NuGet packages
@@ -69,7 +71,8 @@ jobs:
 
     - name: "Building the Solution and making the artifact with NAME AS ==========> ${{ steps.set-build-name.outputs.BuildName }}"
       run: |
-        msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build" ${{ github.workspace }}/Main-build/
+        $publishPath = Join-Path -Path ${{ env.SOURCE_FOLDER }} -ChildPath ${{ steps.set-build-name.outputs.BuildName }}
+         msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="$publishPath" ${{ github.workspace }}/Main-build
 
 
     # - name: Build the Solution and making the artifact This step may take time to complete
