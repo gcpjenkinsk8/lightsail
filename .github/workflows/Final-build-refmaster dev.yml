@@ -22,13 +22,18 @@ jobs:
     env:
       NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
       # working-directory:  ${{ github.workspace }}/Main-build
-      GITHUB_TOKEN: ${{ secrets.YOUR_ACCESS_TOKEN }}
+
     steps:
     - name: Check Branch
       run: |
-        if ($env:GITHUB_REF -eq 'refs/heads/main') {
-          Write-Host "Workflow is not allowed on the main branch."
+        $allowedBranches = @('refs/heads/dev', 'refs/heads/hf')
+
+        if ($allowedBranches -notcontains $env:GITHUB_REF) {
+
+          Write-Host "Workflow is not allowed on this branch."
+
           exit 1
+
         }
     - name: Checkout the repository
       uses: actions/checkout@v4
