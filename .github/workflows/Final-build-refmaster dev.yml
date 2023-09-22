@@ -1,4 +1,4 @@
-name: 1. Final Refmaster Build Pipeline
+name: Dev Refmaster Build Pipeline
 
 on:
   workflow_dispatch:

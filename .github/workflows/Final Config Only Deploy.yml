@@ -36,7 +36,7 @@ jobs:
       - name: Adding and Displaying Config build info 
         run: |
           $buildInfo = "Ticket Number: $($env:TicketNumber)     --Timestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
-          $buildInfoFilePath = Join-Path -Path $env:ConfBuildInfoDir -ChildPath "Conf_Only_Deployment_build_info.txt"
+          $buildInfoFilePath = Join-Path -Path $env:ConfBuildInfoDir -ChildPath "Config_Only_Deployment_logs.txt"
 
           Add-Content -Path $buildInfoFilePath -Value $buildInfo
           
