@@ -19,6 +19,13 @@ jobs:
 
     steps:
 
+      - uses: act10ns/slack@v2
+        with:
+          status: starting
+          channel: '#workflows'
+          message: Starting Config only Deployment...
+        if: always()
+
       - name: Stop IIS server
         run: |
           Stop-Service -Name W3SVC; Get-Service -Name W3SVC
@@ -46,3 +53,9 @@ jobs:
 
           
           
+      - uses: act10ns/slack@v2
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#workflows'
+        if: always()
