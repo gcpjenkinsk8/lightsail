@@ -1,4 +1,4 @@
-name: Slack Noif
+name: Slack Notif
 
 on:
   workflow_dispatch:
