@@ -11,6 +11,7 @@ env:
   ConfBuildInfoDir: "C:/DeploymentFiles/BuildInfo"
   targetDirectory: "C:/DeploymentFiles/ReleaseFolder"
   TicketNumber: '${{ github.event.inputs.TicketNumber }}'
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   
 jobs:
   Deploy-Web-Config:
