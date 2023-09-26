@@ -28,15 +28,18 @@ jobs:
         if: always()
 
       - name: Stop IIS server
+        id: Stop--IIS
         run: |
           Stop-Service -Name W3SVC; Get-Service -Name W3SVC
       
       - name: Deploy Config File 
+        id: Deploy-WebConfig
         run: |
           Remove-Item -Path $env:targetDirectory\Web.config -Force
           Copy-Item -Path $env:WebConfig -Destination $env:targetDirectory -Force
           
       - name: Start-IIS
+        id: Start-IIS
         run: |
           Start-Service -Name W3SVC; Get-Service -Name W3SVC
           
