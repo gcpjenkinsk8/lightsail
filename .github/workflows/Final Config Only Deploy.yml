@@ -19,13 +19,12 @@ jobs:
     
 
     steps:
-    $TicketName = $env:TicketNumber
+
       - uses: act10ns/slack@v2
         with:
           status: starting
           channel: '#workflows'
-          message: Starting Config only Deployment for $TicketName ...
-        if: always()
+          message: Starting Config only Deployment for $TicketNumber
 
       - name: Stop IIS server
         id: Stop--IIS
