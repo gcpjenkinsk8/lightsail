@@ -26,8 +26,7 @@ jobs:
           channel: '#workflows'
           message: >
             Starting Config only Deployment for *{{ env.TicketNumber }}* ...
-            *Note: This is in bold and red color.*
-          color: 'danger'
+            *Note: This is in bold and <#FF0000|red> color.*
         if: always()
 
       - name: Stop IIS server
