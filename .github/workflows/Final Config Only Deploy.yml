@@ -19,7 +19,7 @@ jobs:
     
 
     steps:
-        $TicketName = $env:TicketNumber
+       $TicketName = $env:TicketNumber
       - uses: act10ns/slack@v2
         with:
           status: starting
