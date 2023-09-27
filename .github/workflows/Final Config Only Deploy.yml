@@ -24,7 +24,7 @@ jobs:
         with:
           status: starting
           channel: '#workflows'
-          message: Starting Config only Deployment for $($env:TicketNumber)...
+          message: Starting Config only Deployment...
         if: always()
 
       - name: Stop IIS server
