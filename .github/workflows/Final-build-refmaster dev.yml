@@ -101,7 +101,6 @@ jobs:
     - uses: act10ns/slack@v2
       with:
         status: ${{ job.status }}
-        steps: ${{ toJson(steps) }}
         channel: '#workflows'
         message: Build Name for *{{ env.TicketNumber }}* is *${{ steps.set-build-name.outputs.BuildName }}*
       if: steps.create-build.outcome == 'success'
