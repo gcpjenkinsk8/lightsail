@@ -15,12 +15,20 @@ env:
   BuildInfoDir: "C:/DeploymentFiles/BuildInfo"
   Copy: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}/*"
   Remove: "C:/DeploymentFiles/ReleaseFolder/${{ github.event.inputs.BuildName }}"
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
   
 jobs:
   build-deploy:
     runs-on: RefDeployDev
     steps:
     
+    - uses: act10ns/slack@v2
+      with:
+        status: starting
+        channel: '#workflows'
+        message: Starting Final Refmaster Deploy Pipeline for *{{ env.BuildName }}*
+      if: always()
+
     - name: Checking Build File ${{ github.event.inputs.BuildName }} at Version Location. => THIS STEP WILL FAIL IF NO REQUESTED FILE AT LOCATION
       run:  |
         Get-Content -Path C:/DeploymentFiles/BuildInfo/build_info.txt
@@ -68,6 +76,7 @@ jobs:
         Copy-Item -Path $env:WebConfig -Destination $env:targetDirectory -Force
     
     - name: Start IIS server
+      id: Dev-Deployment
       run: |
         Start-Service -Name W3SVC; Get-Service -Name W3SVC
    
@@ -82,3 +91,17 @@ jobs:
 
           Get-Content -Path $buildInfoFilePath
         
+    - uses: act10ns/slack@v2
+      with:
+        status: ${{ job.status }}
+        steps: ${{ toJson(steps) }}
+        channel: '#workflows'
+      if: always()
+
+
+    - uses: act10ns/slack@v2
+      with:
+        status: ${{ job.status }}
+        channel: '#workflows'
+        message: Build ->*{{ env.BuildName }}* is deployed at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+      if: steps.Dev-Deployment.outcome == 'success'
