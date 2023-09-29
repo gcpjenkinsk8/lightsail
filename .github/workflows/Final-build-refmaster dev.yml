@@ -35,7 +35,7 @@ jobs:
     - name: Check Branch
       id: check-branch
       run: |
-        $allowedBranches = @('refs/heads/dev', 'refs/heads/hf')
+        $allowedBranches = @('refs/heads/main', 'refs/heads/dev', 'refs/heads/hf')
 
         if ($allowedBranches -notcontains $env:GITHUB_REF) {
 
