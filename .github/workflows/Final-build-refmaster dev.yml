@@ -33,8 +33,9 @@ jobs:
       if: always()
 
     - name: Check Branch
+      id: check-branch
       run: |
-        $allowedBranches = @('refs/heads/main', 'refs/heads/dev', 'refs/heads/hf')
+        $allowedBranches = @('refs/heads/dev', 'refs/heads/hf')
 
         if ($allowedBranches -notcontains $env:GITHUB_REF) {
 
@@ -83,6 +84,7 @@ jobs:
         INPUT_TicketNumber: ${{ github.event.inputs.TicketNumber }}
 
     - name: "Building the Solution and making the artifact with NAME AS ==========> ${{ steps.set-build-name.outputs.BuildName }}"
+      id: Create-Build
       run: |
         $publishPath = Join-Path -Path ${{ env.SOURCE_FOLDER }} -ChildPath ${{ steps.set-build-name.outputs.BuildName }}
          msbuild.exe /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="$publishPath" ${{ github.workspace }}/Main-build
